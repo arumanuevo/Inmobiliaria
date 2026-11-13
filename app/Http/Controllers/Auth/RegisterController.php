@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\Inmobiliaria;
+use App\Models\Plan;
 use App\Models\User;
 use Illuminate\Foundation\Auth\RegistersUsers;
 use Illuminate\Support\Facades\Hash;
@@ -50,7 +52,10 @@ class RegisterController extends Controller
     {
         return Validator::make($data, [
             'name' => ['required', 'string', 'max:255'],
+            'nombre_comercial' => ['required', 'string', 'max:150'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
+            'telefono' => ['nullable', 'string', 'max:30'],
+            'whatsapp' => ['nullable', 'string', 'max:30'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
         ]);
     }
@@ -63,10 +68,28 @@ class RegisterController extends Controller
      */
     protected function create(array $data)
     {
-        return User::create([
+        $user = User::create([
             'name' => $data['name'],
             'email' => $data['email'],
+            'telefono' => $data['telefono'] ?? null,
             'password' => Hash::make($data['password']),
         ]);
+
+        $user->syncRoles(['inmobiliaria']);
+
+        $planGratis = Plan::where('slug', 'gratis')->where('activo', 1)->first();
+
+        Inmobiliaria::create([
+            'usuario_id' => $user->id,
+            'plan_id' => $planGratis?->id,
+            'nombre_comercial' => $data['nombre_comercial'],
+            'slug' => Inmobiliaria::generarSlug($data['nombre_comercial']),
+            'telefono' => $data['telefono'] ?? null,
+            'whatsapp' => $data['whatsapp'] ?? null,
+            'email' => $data['email'],
+            'estado' => 'pendiente',
+        ]);
+
+        return $user;
     }
 }

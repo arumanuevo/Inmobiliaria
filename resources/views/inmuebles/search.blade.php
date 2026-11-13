@@ -77,6 +77,9 @@
           <a class="nav-link" href="{{ route('inicio') }}">Inicio</a>
         </li>
         <li class="nav-item">
+          <a class="nav-link" href="{{ route('inmobiliarias.index') }}">Inmobiliarias</a>
+        </li>
+        <li class="nav-item">
           <a class="nav-link" href="{{ route('propiedades.index') }}" target="_blank">Propiedades</a>
         </li>
         <li class="nav-item">
@@ -128,6 +131,17 @@
               <option value="3">3</option>
               <option value="4">4</option>
               <option value="5">5+</option>
+            </select>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="form-group">
+            <label for="inmobiliaria">Inmobiliaria</label>
+            <select class="form-control" id="inmobiliaria" name="inmobiliaria">
+              <option value="">Todas</option>
+              @foreach($inmobiliarias as $inmobiliaria)
+                <option value="{{ $inmobiliaria->slug }}">{{ $inmobiliaria->nombre_comercial }}</option>
+              @endforeach
             </select>
           </div>
         </div>

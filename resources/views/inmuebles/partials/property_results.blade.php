@@ -21,6 +21,7 @@
         </div>
         <div class="card-body">
           <h5 class="card-title">{{ $property->titulo }}</h5>
+          <p class="card-text text-muted mb-1">{{ $property->inmobiliaria->nombre_comercial ?? '' }}</p>
           <p class="card-text">${{ number_format($property->precio, 2) }} • {{ $property->habitaciones }} Habitaciones • {{ $property->banos }} Baños • {{ $property->superficie_cubierta }} m²</p>
           <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#propertyModal{{ $property->id }}">
             Ver Detalles
@@ -70,7 +71,7 @@
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-            <a href="{{ route('contacto', ['property' => $property->id]) }}" target="_blank" class="btn btn-primary">Me Interesa</a>
+            <a href="{{ route('contacto', ['property' => $property->id, 'inmobiliaria' => $property->inmobiliaria_id]) }}" target="_blank" class="btn btn-primary">Me Interesa</a>
           </div>
         </div>
       </div>

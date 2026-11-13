@@ -206,6 +206,9 @@
           <a class="nav-link" href="{{ route('inicio') }}">Inicio</a>
         </li>
         <li class="nav-item">
+          <a class="nav-link" href="{{ route('inmobiliarias.index') }}">Inmobiliarias</a>
+        </li>
+        <li class="nav-item">
           <a class="nav-link" href="{{ route('propiedades.index') }}" target="_blank">Propiedades</a>
         </li>
         <li class="nav-item">
@@ -301,6 +304,7 @@
             </div>
             <div class="card-body">
               <h5 class="card-title">{{ $inmueble->titulo }}</h5>
+              <p class="card-text text-muted mb-1">{{ $inmueble->inmobiliaria->nombre_comercial ?? '' }}</p>
               <p class="card-text">${{ number_format($inmueble->precio, 2) }} • {{ $inmueble->habitaciones }} Habitaciones • {{ $inmueble->banos }} Baños • {{ $inmueble->superficie_cubierta }} m²</p>
               <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#propertyModal{{ $inmueble->id }}">
                 Ver Detalles
@@ -349,6 +353,8 @@
                 <p><strong>Ascensor:</strong> {{ $inmueble->ascensor ? 'Sí' : 'No' }}</p>
               </div>
               <div class="modal-footer">
+                <a href="{{ route('inmobiliarias.show', $inmueble->inmobiliaria->slug) }}" class="btn btn-outline-primary">Ver inmobiliaria</a>
+                <a href="{{ route('contacto', ['property' => $inmueble->id, 'inmobiliaria' => $inmueble->inmobiliaria_id]) }}" target="_blank" class="btn btn-primary">Me Interesa</a>
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
               </div>
             </div>

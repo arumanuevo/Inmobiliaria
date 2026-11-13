@@ -119,6 +119,12 @@
                     </div>
                 </div>
 
+                <!-- Visibilidad -->
+                <div class="form-group form-check mt-4">
+                    <input class="form-check-input" type="checkbox" name="publicado" value="1" id="publicado" {{ $inmueble->publicado ? 'checked' : '' }}>
+                    <label class="form-check-label" for="publicado">Publicado (visible en el portal público)</label>
+                </div>
+
                 <!-- Botones centrados -->
                 <div class="text-center mt-4">
                     <button type="submit" class="btn btn-warning">Actualizar Inmueble</button>

@@ -18,6 +18,7 @@
                     <tr>
                         <th>Título</th>
                         <th>Tipo</th>
+                        <th>Inmobiliaria</th>
                         <th>Precio</th>
                         <th>Superficie</th>
                         <th>Propietario</th>
@@ -33,6 +34,7 @@
                     <tr>
                         <td>{{ $inmueble->titulo }}</td>
                         <td>{{ ucfirst($inmueble->tipo_operacion) }}</td>
+                        <td>{{ $inmueble->inmobiliaria->nombre_comercial ?? '-' }}</td>
                         <td>${{ number_format($inmueble->precio, 2) }}</td>
                         <td>{{ $inmueble->superficie_cubierta }} m²</td>
                         <td>{{ $inmueble->propnombre }}</td>

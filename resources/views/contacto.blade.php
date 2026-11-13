@@ -53,6 +53,9 @@
           <a class="nav-link" href="{{ route('inicio') }}">Inicio</a>
         </li>
         <li class="nav-item">
+          <a class="nav-link" href="{{ route('inmobiliarias.index') }}">Inmobiliarias</a>
+        </li>
+        <li class="nav-item">
           <a class="nav-link" href="{{ route('inmuebles.index') }}" target="_blank">Propiedades</a>
         </li>
         <li class="nav-item">
@@ -83,6 +86,14 @@
             @endif
             <form action="{{ route('contacto.store') }}" method="POST">
               @csrf
+              <input type="hidden" name="inmobiliaria_id" value="{{ request('inmobiliaria') }}">
+              <input type="hidden" name="inmueble_id" value="{{ request('property') }}">
+              @if(request()->has('inmobiliaria'))
+                <?php $inmobiliaria = \App\Models\Inmobiliaria::find(request('inmobiliaria')); ?>
+                @if($inmobiliaria)
+                  <div class="alert alert-info">Tu consulta se enviará a <strong>{{ $inmobiliaria->nombre_comercial }}</strong></div>
+                @endif
+              @endif
               <div class="form-group">
                 <label for="nombre">Nombre</label>
                 <input type="text" name="nombre" class="form-control" placeholder="Tu nombre" required>
