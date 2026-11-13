@@ -146,6 +146,12 @@
                     </div>
                 </div>
 
+                <!-- Visibilidad -->
+                <div class="form-group form-check">
+                    <input class="form-check-input" type="checkbox" name="publicado" value="1" id="publicado" checked>
+                    <label class="form-check-label" for="publicado">Publicado (visible en el portal público)</label>
+                </div>
+
                 <hr>
                 <!-- Contenedor para los botones -->
                 <div class="d-flex justify-content-center">

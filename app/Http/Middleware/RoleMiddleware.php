@@ -17,11 +17,8 @@ class RoleMiddleware
      */
     public function handle(Request $request, Closure $next, ...$roles)
     {
-        // Tomar el primer rol (ejemplo: "admin")
-        $role = $roles[0] ?? null;
-
         $user = $request->user();
-        if (!$user || !$user->hasRole($role)) {
+        if (!$user || !$user->hasAnyRole($roles)) {
             abort(403, 'No tiene permiso para acceder a este recurso.');
         }
 

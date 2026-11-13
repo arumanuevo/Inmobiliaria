@@ -23,6 +23,16 @@ class HomeController extends Controller
      */
     public function index()
     {
+        $user = auth()->user();
+
+        if ($user->hasRole('admin')) {
+            return redirect()->route('admin.inmobiliarias');
+        }
+
+        if ($user->hasRole('inmobiliaria')) {
+            return redirect()->route('inmuebles.index');
+        }
+
         return view('home');
     }
 }

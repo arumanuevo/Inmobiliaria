@@ -14,6 +14,7 @@ class User extends Authenticatable
     protected $fillable = [
         'name',
         'email',
+        'telefono',
         'password',
     ];
 
@@ -28,6 +29,11 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    public function inmobiliaria()
+    {
+        return $this->hasOne(Inmobiliaria::class, 'usuario_id');
     }
 
     protected static function boot()

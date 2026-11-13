@@ -10,14 +10,20 @@ class InmuebleController extends Controller
 {
     public function __construct()
     {
-        $this->middleware('role:admin')->except(['destacados']); // Excluir la acción 'destacados' del middleware de rol
+        $this->middleware('role:admin|inmobiliaria')->except(['destacados']); // Solo admin e inmobiliarias; 'destacados' es público
     }
 
-    // Mostrar listado de inmuebles
+    // Mostrar listado de inmuebles (cada inmobiliaria solo ve los suyos)
     public function index()
     {
-        // Cargar todos los inmuebles para que el filtrado lo haga DataTables en el frontend
-        $inmuebles = Inmueble::all();
+        $user = auth()->user();
+        $query = Inmueble::with('inmobiliaria')->latest();
+
+        if (!$user->hasRole('admin')) {
+            $query->deInmobiliaria($user->inmobiliaria->id ?? 0);
+        }
+
+        $inmuebles = $query->get();
 
         return view('inmuebles.index', compact('inmuebles'));
     }
@@ -25,6 +31,8 @@ class InmuebleController extends Controller
     // Formulario para crear un inmueble
     public function create()
     {
+        $this->authorize('create', Inmueble::class);
+
         return view('inmuebles.create');
     }
 
@@ -60,8 +68,25 @@ class InmuebleController extends Controller
         $data['jardin']   = $request->has('jardin') ? 1 : 0;
         $data['garaje']   = $request->has('garaje') ? 1 : 0;
         $data['ascensor'] = $request->has('ascensor') ? 1 : 0;
+        $data['publicado'] = $request->has('publicado') ? 1 : 0;
 
-        $data['usuario_id'] = auth()->id();
+        $user = auth()->user();
+        $data['usuario_id'] = $user->id;
+
+        if (!$user->hasRole('admin')) {
+            $inmobiliaria = $user->inmobiliaria;
+            if (!$inmobiliaria) {
+                return redirect()->route('inmobiliaria.perfil')
+                    ->with('error', 'Completá primero el perfil de tu inmobiliaria.');
+            }
+            if ($inmobiliaria->estado !== 'activa') {
+                return back()->with('error', 'Tu inmobiliaria aún no está activa. Esperá la aprobación del administrador.');
+            }
+            if ($inmobiliaria->inmuebles()->count() >= $inmobiliaria->limiteInmuebles()) {
+                return back()->with('error', 'Alcanzaste el límite de publicaciones de tu plan (' . $inmobiliaria->limiteInmuebles() . '). Contactá al administrador para ampliar tu plan.');
+            }
+            $data['inmobiliaria_id'] = $inmobiliaria->id;
+        }
 
         Inmueble::create($data);
 
@@ -71,12 +96,16 @@ class InmuebleController extends Controller
     // Mostrar detalles de un inmueble
     public function show(Inmueble $inmueble)
     {
+        $this->authorize('view', $inmueble);
+
         return view('inmuebles.show', compact('inmueble'));
     }
 
     // Formulario para editar un inmueble
     public function edit(Inmueble $inmueble)
     {
+        $this->authorize('update', $inmueble);
+
         return view('inmuebles.edit', compact('inmueble'));
     }
 
@@ -109,6 +138,9 @@ class InmuebleController extends Controller
         $data['jardin']   = $request->has('jardin') ? 1 : 0;
         $data['garaje']   = $request->has('garaje') ? 1 : 0;
         $data['ascensor'] = $request->has('ascensor') ? 1 : 0;
+        $data['publicado'] = $request->has('publicado') ? 1 : 0;
+
+        $this->authorize('update', $inmueble);
 
         $inmueble->update($data);
 
@@ -118,6 +150,8 @@ class InmuebleController extends Controller
     // Eliminar inmueble
     public function destroy(Inmueble $inmueble)
     {
+        $this->authorize('delete', $inmueble);
+
         $inmueble->delete();
         return redirect()->route('inmuebles.index')->with('success', 'Inmueble eliminado correctamente.');
     }
@@ -125,18 +159,24 @@ class InmuebleController extends Controller
     // Formulario para agregar fotos a un inmueble
     public function addPhotos(Inmueble $inmueble)
     {
+        $this->authorize('update', $inmueble);
+
         return view('inmuebles.addPhotos', compact('inmueble'));
     }
 
     // Formulario para borrar fotos de un inmueble
     public function deletePhotos(Inmueble $inmueble)
     {
+        $this->authorize('update', $inmueble);
+
         return view('inmuebles.deletePhotos', compact('inmueble'));
     }
 
     // Borrar una foto de un inmueble
     public function destroyPhoto(Request $request, Inmueble $inmueble)
     {
+        $this->authorize('update', $inmueble);
+
         $request->validate([
             'foto' => 'required|string',
         ]);
@@ -174,6 +214,7 @@ class InmuebleController extends Controller
         $images = $request->file('imagenes');
         $inmuebleId = $request->input('inmueble_id');
         $inmueble = Inmueble::findOrFail($inmuebleId);
+        $this->authorize('update', $inmueble);
         $fotos = $inmueble->fotos ?? []; // Obtener las fotos existentes o un array vacío
 
         if ($images && is_array($images)) {
@@ -206,10 +247,17 @@ class InmuebleController extends Controller
         return response()->json(['success' => true, 'message' => 'Imágenes cargadas con éxito.']);
     }
 
-    // Método para obtener propiedades destacadas
+    // Método para obtener propiedades destacadas (solo publicadas, de inmobiliarias activas)
     public function destacados()
     {
-        $destacados = Inmueble::where('destacado', 1)->get();
+        $destacados = Inmueble::publicados()
+            ->where('destacado', 1)
+            ->whereHas('inmobiliaria', function ($q) {
+                $q->where('estado', 'activa');
+            })
+            ->with('inmobiliaria')
+            ->latest()
+            ->get();
         return view('welcome', compact('destacados'));
     }
 
@@ -220,17 +268,27 @@ class InmuebleController extends Controller
         ]);
 
         $inmueble = Inmueble::findOrFail($id);
-        $inmueble->destacado = $request->input('destacado');
-        $inmueble->save();
+        $this->authorize('update', $inmueble);
 
-        // Verificar si se ha alcanzado el límite de 6 inmuebles destacados
-        $destacadosCount = Inmueble::where('destacado', 1)->count();
-        if ($destacadosCount > 6) {
-            // Desmarcar el inmueble más antiguo destacado
-            $oldestDestacado = Inmueble::where('destacado', 1)->orderBy('updated_at')->first();
-            $oldestDestacado->destacado = 0;
-            $oldestDestacado->save();
+        $destacado = (bool) $request->input('destacado');
+
+        if ($destacado && !$inmueble->destacado) {
+            $inmobiliaria = $inmueble->inmobiliaria;
+            $limite = $inmobiliaria?->limiteDestacados() ?? 1;
+            $actuales = Inmueble::deInmobiliaria($inmueble->inmobiliaria_id)
+                ->where('destacado', 1)
+                ->count();
+
+            if ($actuales >= $limite) {
+                return response()->json([
+                    'success' => false,
+                    'message' => "Tu plan permite hasta {$limite} propiedades destacadas.",
+                ]);
+            }
         }
+
+        $inmueble->destacado = $destacado;
+        $inmueble->save();
 
         return response()->json(['success' => true]);
     }

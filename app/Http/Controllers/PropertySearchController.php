@@ -3,13 +3,24 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\Inmobiliaria;
 use App\Models\Inmueble;
 
 class PropertySearchController extends Controller
 {
     public function search(Request $request)
     {
-        $query = Inmueble::query();
+        $query = Inmueble::publicados()
+            ->whereHas('inmobiliaria', function ($q) {
+                $q->where('estado', 'activa');
+            })
+            ->with('inmobiliaria');
+
+        if ($request->filled('inmobiliaria')) {
+            $query->whereHas('inmobiliaria', function ($q) use ($request) {
+                $q->where('slug', $request->inmobiliaria);
+            });
+        }
 
         if ($request->has('tipo_operacion') && !empty($request->tipo_operacion)) {
             $query->where('tipo_operacion', $request->tipo_operacion);
@@ -50,6 +61,8 @@ class PropertySearchController extends Controller
 
     public function index()
     {
-        return view('inmuebles.search');
+        $inmobiliarias = Inmobiliaria::activas()->orderBy('nombre_comercial')->get();
+
+        return view('inmuebles.search', compact('inmobiliarias'));
     }
 }
