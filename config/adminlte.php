@@ -14,7 +14,7 @@ return [
     |
     */
 
-    'title' => 'XYZ',
+    'title' => env('APP_NAME', 'Inmobiliaria XYZ'),
     'title_prefix' => '',
     'title_postfix' => '',
 
@@ -63,7 +63,7 @@ return [
     |
     */
 
-    'logo' => '<b>Inmobiliaria</b>XYZ',
+    'logo' => '<b>' . env('APP_NAME', 'Inmobiliaria XYZ') . '</b>',
     'logo_img' => 'vendor/adminlte/dist/img/logoinmo.svg',
     'logo_img_class' => 'brand-image img-circle elevation-3',
     'logo_img_xl' => null,
