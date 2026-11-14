@@ -20,9 +20,11 @@ class GoogleAuthController extends Controller
         $state = Str::random(40);
         session(['google_oauth_state' => $state]);
 
+        $redirectUri = config('services.google.redirect') ?: url('/auth/google/callback');
+
         $params = http_build_query([
             'client_id' => config('services.google.client_id'),
-            'redirect_uri' => config('services.google.redirect'),
+            'redirect_uri' => $redirectUri,
             'response_type' => 'code',
             'scope' => 'openid email profile',
             'state' => $state,
@@ -48,7 +50,7 @@ class GoogleAuthController extends Controller
             'code' => $request->input('code'),
             'client_id' => config('services.google.client_id'),
             'client_secret' => config('services.google.client_secret'),
-            'redirect_uri' => config('services.google.redirect'),
+            'redirect_uri' => config('services.google.redirect') ?: url('/auth/google/callback'),
             'grant_type' => 'authorization_code',
         ]);
 
