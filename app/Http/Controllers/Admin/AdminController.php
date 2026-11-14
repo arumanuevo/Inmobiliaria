@@ -46,7 +46,84 @@ class AdminController extends Controller
         $inmobiliaria->plan_vence_at = $request->input('plan_vence_at');
         $inmobiliaria->save();
 
-        return back()->with('success', 'Plan de la inmobiliaria actualizado.');
+        $resumen = $inmobiliaria->aplicarLimitesDelPlan();
+        $extra = ($resumen['despublicados'] || $resumen['destacados_quitados'])
+            ? " Se despublicaron {$resumen['despublicados']} propiedades y se quitaron {$resumen['destacados_quitados']} destacados por los límites del nuevo plan."
+            : '';
+
+        return back()->with('success', 'Plan de la inmobiliaria actualizado.' . $extra);
+    }
+
+    // ===== Paquetes de suscripción (solo superadmin) =====
+
+    protected function soloSuperAdmin(): void
+    {
+        abort_unless(auth()->user()->esSuperAdmin(), 403, 'Solo el superadmin puede administrar los paquetes.');
+    }
+
+    public function planes()
+    {
+        $this->soloSuperAdmin();
+
+        $planes = Plan::withCount('inmobiliarias')->orderBy('precio_mensual')->get();
+
+        return view('admin.planes', compact('planes'));
+    }
+
+    public function crearPlan(Request $request)
+    {
+        $this->soloSuperAdmin();
+
+        $data = $request->validate([
+            'nombre' => 'required|string|max:100',
+            'slug' => 'required|string|max:100|regex:/^[a-z0-9-]+$/|unique:planes,slug',
+            'precio_mensual' => 'required|numeric|min:0',
+            'limite_inmuebles' => 'required|integer|min:0',
+            'limite_destacados' => 'required|integer|min:0',
+            'limite_fotos' => 'required|integer|min:0',
+        ]);
+
+        $data['slug'] = \Illuminate\Support\Str::slug($data['slug']);
+        $data['activo'] = 1;
+
+        Plan::create($data);
+
+        return back()->with('success', 'Paquete creado correctamente.');
+    }
+
+    public function actualizarPlan(Request $request, $id)
+    {
+        $this->soloSuperAdmin();
+
+        $plan = Plan::findOrFail($id);
+
+        $data = $request->validate([
+            'nombre' => 'required|string|max:100',
+            'precio_mensual' => 'required|numeric|min:0',
+            'limite_inmuebles' => 'required|integer|min:0',
+            'limite_destacados' => 'required|integer|min:0',
+            'limite_fotos' => 'required|integer|min:0',
+        ]);
+
+        $plan->update($data);
+
+        return back()->with('success', 'Paquete actualizado.');
+    }
+
+    public function togglePlan(Request $request, $id)
+    {
+        $this->soloSuperAdmin();
+
+        $plan = Plan::findOrFail($id);
+
+        if ($request->input('activo') == '0' && $plan->inmobiliarias()->count() > 0) {
+            return back()->with('error', 'No se puede desactivar un paquete que tiene inmobiliarias asignadas. Reasignalas primero.');
+        }
+
+        $plan->activo = (bool) $request->input('activo');
+        $plan->save();
+
+        return back()->with('success', 'Estado del paquete actualizado.');
     }
 
     // Panel de boletos de suscripción
@@ -94,6 +171,7 @@ class AdminController extends Controller
                     $inmobiliaria->estado = 'activa';
                 }
                 $inmobiliaria->save();
+                $inmobiliaria->aplicarLimitesDelPlan();
             }
         }
 

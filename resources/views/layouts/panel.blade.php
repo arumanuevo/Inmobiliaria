@@ -44,6 +44,11 @@
                 <a href="{{ route('admin.boletos') }}" class="{{ request()->is('admin/boletos*') ? 'active' : '' }}">
                     <i class="fas fa-file-invoice-dollar"></i><span>Boletos</span>
                 </a>
+                @if(auth()->user()->esSuperAdmin())
+                <a href="{{ route('admin.planes') }}" class="{{ request()->is('admin/planes*') ? 'active' : '' }}">
+                    <i class="fas fa-layer-group"></i><span>Paquetes</span>
+                </a>
+                @endif
             @endif
         </nav>
         <div class="sidebar-footer">

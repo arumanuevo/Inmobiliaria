@@ -17,6 +17,9 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->validateCsrfTokens(except: [
             'mp/webhook', // webhook de Mercado Pago (firma x-signature)
         ]);
+        $middleware->web(append: [
+            \App\Http\Middleware\VerificarPlanVencido::class, // degradación automática al vencer el plan
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //

@@ -21,4 +21,9 @@ class Plan extends Model
     {
         return $this->hasMany(Inmobiliaria::class, 'plan_id');
     }
+
+    public static function gratis(): ?self
+    {
+        return static::where('slug', 'gratis')->where('activo', 1)->first();
+    }
 }

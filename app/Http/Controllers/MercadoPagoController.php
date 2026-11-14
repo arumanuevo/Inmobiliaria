@@ -101,6 +101,7 @@ class MercadoPagoController extends Controller
                                 $inmobiliaria->estado = 'activa';
                             }
                             $inmobiliaria->save();
+                            $inmobiliaria->aplicarLimitesDelPlan();
                         }
                     }
                 } elseif (preg_match('/^inmobiliaria_(\d+)_plan_(\d+)$/', $ref, $m)) {

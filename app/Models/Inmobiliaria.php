@@ -59,6 +59,36 @@ class Inmobiliaria extends Model
         return (int) ($this->plan->limite_destacados ?? 1);
     }
 
+    // Degradación de plan: despublica/desmarca lo que exceda los límites del plan actual.
+    // No borra nada: los excedentes quedan como borrador (publicado=0) o sin destacar.
+    public function aplicarLimitesDelPlan(): array
+    {
+        $plan = $this->plan ?: Plan::gratis();
+        $resumen = ['despublicados' => 0, 'destacados_quitados' => 0];
+
+        $limiteInmuebles = (int) ($plan->limite_inmuebles ?? 5);
+        $publicados = $this->inmuebles()->where('publicado', 1)->orderByDesc('updated_at')->get();
+        if ($publicados->count() > $limiteInmuebles) {
+            foreach ($publicados->slice($limiteInmuebles) as $inmueble) {
+                $inmueble->publicado = 0;
+                $inmueble->save();
+                $resumen['despublicados']++;
+            }
+        }
+
+        $limiteDestacados = (int) ($plan->limite_destacados ?? 0);
+        $destacados = $this->inmuebles()->where('destacado', 1)->orderBy('updated_at')->get();
+        if ($destacados->count() > $limiteDestacados) {
+            foreach ($destacados->slice($limiteDestacados) as $inmueble) {
+                $inmueble->destacado = 0;
+                $inmueble->save();
+                $resumen['destacados_quitados']++;
+            }
+        }
+
+        return $resumen;
+    }
+
     public static function generarSlug(string $nombre): string
     {
         $base = Str::slug($nombre) ?: 'inmobiliaria';

@@ -47,6 +47,10 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::get('/boletos', [App\Http\Controllers\Admin\AdminController::class, 'boletos'])->name('boletos');
     Route::post('/boletos', [App\Http\Controllers\Admin\AdminController::class, 'crearBoleto'])->name('boletos.store');
     Route::post('/boletos/{id}/estado', [App\Http\Controllers\Admin\AdminController::class, 'cambiarEstadoBoleto'])->name('boletos.estado');
+    Route::get('/planes', [App\Http\Controllers\Admin\AdminController::class, 'planes'])->name('planes');
+    Route::post('/planes', [App\Http\Controllers\Admin\AdminController::class, 'crearPlan'])->name('planes.store');
+    Route::put('/planes/{id}', [App\Http\Controllers\Admin\AdminController::class, 'actualizarPlan'])->name('planes.update');
+    Route::post('/planes/{id}/toggle', [App\Http\Controllers\Admin\AdminController::class, 'togglePlan'])->name('planes.toggle');
 });
 
 // Rutas para el CRUD de Inmuebles (admin e inmobiliarias; cada una solo gestiona lo suyo)
