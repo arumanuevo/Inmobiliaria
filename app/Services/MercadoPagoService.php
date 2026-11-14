@@ -20,9 +20,12 @@ class MercadoPagoService
         }
 
         $response = Http::withToken($this->token())->post($this->base . '/checkout/preferences', $datos);
-        $body = $response->json();
+        $body = $response->json() ?: [];
 
-        if (!$response->ok() || empty($body['init_point'])) {
+        // Con credenciales TEST la respuesta trae sandbox_init_point; con producción, init_point
+        $initPoint = $body['init_point'] ?? $body['sandbox_init_point'] ?? null;
+
+        if (!$response->successful() || !$initPoint) {
             Log::error('MercadoPago crearPreferencia falló', ['status' => $response->status(), 'body' => $body]);
             $mensaje = $body['message'] ?? ($body['error'] ?? ('HTTP ' . $response->status()));
             if (is_array($mensaje)) {
@@ -30,6 +33,8 @@ class MercadoPagoService
             }
             throw new \RuntimeException('Mercado Pago: ' . $mensaje);
         }
+
+        $body['init_point'] = $initPoint;
 
         return $body;
     }
