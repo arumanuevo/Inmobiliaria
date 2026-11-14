@@ -105,18 +105,24 @@
                         </td>
                         <td>{{ $boleto->pagado_at ? $boleto->pagado_at->format('d/m/Y H:i') : '-' }}</td>
                         <td class="text-center">
-                            <form action="{{ route('admin.boletos.estado', $boleto->id) }}" method="POST" style="display:inline;">
-                                @csrf
-                                @if($boleto->estado === 'pendiente')
+                            @if($boleto->estado === 'pendiente')
+                                <form action="{{ route('admin.boletos.estado', $boleto->id) }}" method="POST" style="display:inline;">
+                                    @csrf
                                     <input type="hidden" name="estado" value="pagado">
                                     <button class="btn btn-success btn-sm" onclick="return confirm('¿Marcar como PAGADO (ej. pago en efectivo)?')">Pagado</button>
+                                </form>
+                                <form action="{{ route('admin.boletos.estado', $boleto->id) }}" method="POST" style="display:inline;">
+                                    @csrf
                                     <input type="hidden" name="estado" value="cancelado">
                                     <button class="btn btn-secondary btn-sm" onclick="return confirm('¿Cancelar el boleto?')">Cancelar</button>
-                                @elseif($boleto->estado === 'cancelado' || $boleto->estado === 'vencido')
+                                </form>
+                            @elseif($boleto->estado === 'cancelado' || $boleto->estado === 'vencido')
+                                <form action="{{ route('admin.boletos.estado', $boleto->id) }}" method="POST" style="display:inline;">
+                                    @csrf
                                     <input type="hidden" name="estado" value="pendiente">
                                     <button class="btn btn-warning btn-sm">Reabrir</button>
-                                @endif
-                            </form>
+                                </form>
+                            @endif
                         </td>
                     </tr>
                     @endforeach

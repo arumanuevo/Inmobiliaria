@@ -75,21 +75,27 @@
                             @endif
                         </td>
                         <td class="text-center">
-                            <form action="{{ route('admin.inmobiliarias.estado', $inmobiliaria->id) }}" method="POST" style="display:inline;">
-                                @csrf
-                                @if($inmobiliaria->estado !== 'activa')
+                            @if($inmobiliaria->estado !== 'activa')
+                                <form action="{{ route('admin.inmobiliarias.estado', $inmobiliaria->id) }}" method="POST" style="display:inline;">
+                                    @csrf
                                     <input type="hidden" name="estado" value="activa">
                                     <button class="btn btn-success btn-sm" onclick="return confirm('¿Activar esta inmobiliaria?')">Aprobar</button>
-                                @endif
-                                @if($inmobiliaria->estado !== 'suspendida')
+                                </form>
+                            @endif
+                            @if($inmobiliaria->estado !== 'suspendida')
+                                <form action="{{ route('admin.inmobiliarias.estado', $inmobiliaria->id) }}" method="POST" style="display:inline;">
+                                    @csrf
                                     <input type="hidden" name="estado" value="suspendida">
                                     <button class="btn btn-danger btn-sm" onclick="return confirm('¿Suspender esta inmobiliaria?')">Suspender</button>
-                                @endif
-                                @if($inmobiliaria->estado !== 'pendiente')
+                                </form>
+                            @endif
+                            @if($inmobiliaria->estado !== 'pendiente')
+                                <form action="{{ route('admin.inmobiliarias.estado', $inmobiliaria->id) }}" method="POST" style="display:inline;">
+                                    @csrf
                                     <input type="hidden" name="estado" value="pendiente">
                                     <button class="btn btn-warning btn-sm" onclick="return confirm('¿Volver a pendiente?')">Pendiente</button>
-                                @endif
-                            </form>
+                                </form>
+                            @endif
                         </td>
                     </tr>
                     @endforeach
