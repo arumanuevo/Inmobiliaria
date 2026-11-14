@@ -14,7 +14,18 @@ Route::get('/inicio', [InmuebleController::class, 'destacados'])->name('inicio')
 
 Auth::routes();
 
+// Login con Google (OAuth2)
+Route::get('/auth/google', [App\Http\Controllers\Auth\GoogleAuthController::class, 'redirect'])->name('login.google');
+Route::get('/auth/google/callback', [App\Http\Controllers\Auth\GoogleAuthController::class, 'callback'])->name('login.google.callback');
+
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+
+// Mercado Pago: pagar plan (logueado), retorno y webhook (públicos)
+Route::middleware('auth')->group(function () {
+    Route::post('/mp/pagar', [App\Http\Controllers\MercadoPagoController::class, 'pagar'])->name('mp.pagar');
+});
+Route::get('/mp/retorno/{estado}', [App\Http\Controllers\MercadoPagoController::class, 'retorno'])->name('mp.retorno');
+Route::post('/mp/webhook', [App\Http\Controllers\MercadoPagoController::class, 'webhook'])->name('mp.webhook');
 
 // Directorio público de inmobiliarias y perfil público de cada una
 Route::get('/inmobiliarias', [InmobiliariaController::class, 'index'])->name('inmobiliarias.index');

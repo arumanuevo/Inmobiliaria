@@ -126,6 +126,11 @@ Me interesa la propiedad con las siguientes características:
 @endif
                 </textarea>
               </div>
+              @if(config('services.recaptcha.site_key'))
+                <div class="form-group d-flex justify-content-center">
+                  <div class="g-recaptcha" data-sitekey="{{ config('services.recaptcha.site_key') }}"></div>
+                </div>
+              @endif
               <div class="text-center">
                 <button type="submit" class="btn btn-info">Enviar Mensaje</button>
                 <button type="button" class="btn btn-secondary" onclick="history.back()">Cancelar</button>
@@ -148,6 +153,9 @@ Me interesa la propiedad con las siguientes características:
 @stop
 
 @section('js')
+@if(config('services.recaptcha.site_key'))
+<script src="https://www.google.com/recaptcha/api.js" async defer></script>
+@endif
 <script>
   document.addEventListener('DOMContentLoaded', function() {
     const carouselInner = document.getElementById('carousel-inner');
