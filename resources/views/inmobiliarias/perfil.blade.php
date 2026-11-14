@@ -48,6 +48,7 @@
                     <p><strong>URL pública:</strong>
                         <a href="{{ route('inmobiliarias.show', $inmobiliaria->slug) }}" target="_blank">{{ route('inmobiliarias.show', $inmobiliaria->slug) }}</a>
                     </p>
+                    <p><a href="{{ route('boletos.mios') }}" class="btn btn-outline-primary btn-sm">Mis boletos</a></p>
                     @if($inmobiliaria->logo)
                         <p><strong>Logo actual:</strong><br>
                             <img src="{{ asset($inmobiliaria->logo) }}" alt="Logo" style="max-height: 60px;">
@@ -94,6 +95,16 @@
                             <label for="nombre_comercial">Nombre comercial</label>
                             <input type="text" name="nombre_comercial" id="nombre_comercial" class="form-control"
                                    value="{{ old('nombre_comercial', $inmobiliaria->nombre_comercial) }}" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="slug">URL pública de tu perfil</label>
+                            <div class="input-group">
+                                <span class="input-group-text">{{ url('/inmobiliaria') }}/</span>
+                                <input type="text" name="slug" id="slug" class="form-control"
+                                       value="{{ old('slug', $inmobiliaria->slug) }}" required pattern="[a-z0-9-]+"
+                                       title="Solo minúsculas, números y guiones">
+                            </div>
+                            <small class="text-muted">Solo minúsculas, números y guiones. Ej: mi-inmobiliaria. Cambiarla rompe los enlaces viejos.</small>
                         </div>
                         <div class="form-group">
                             <label for="descripcion">Descripción</label>

@@ -36,6 +36,11 @@ class User extends Authenticatable
         return $this->hasOne(Inmobiliaria::class, 'usuario_id');
     }
 
+    public function esSuperAdmin(): bool
+    {
+        return $this->email === config('app.superadmin_email');
+    }
+
     protected static function boot()
     {
         parent::boot();

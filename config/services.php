@@ -52,4 +52,8 @@ return [
         'webhook_secret' => env('MP_WEBHOOK_SECRET'),
     ],
 
+    'mapbox' => [
+        'token' => env('MAPBOX_ACCESS_TOKEN'),
+    ],
+
 ];

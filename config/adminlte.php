@@ -345,11 +345,23 @@ return [
             'icon' => 'fas fa-fw fa-store',
             'can' => 'gestionar-inmuebles',
         ],
+        [
+            'text' => 'Mis Boletos',
+            'url' => 'mis-boletos',
+            'icon' => 'fas fa-fw fa-receipt',
+            'can' => 'gestionar-inmuebles',
+        ],
         ['header' => 'Administración'],
         [
             'text' => 'Inmobiliarias',
             'url' => 'admin/inmobiliarias',
             'icon' => 'fas fa-fw fa-users-cog',
+            'can' => 'gestionar-inmobiliarias',
+        ],
+        [
+            'text' => 'Boletos',
+            'url' => 'admin/boletos',
+            'icon' => 'fas fa-fw fa-file-invoice-dollar',
             'can' => 'gestionar-inmobiliarias',
         ],
     ],
