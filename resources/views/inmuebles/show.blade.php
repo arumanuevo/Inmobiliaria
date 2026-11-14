@@ -1,4 +1,4 @@
-@extends('adminlte::page')
+@extends('layouts.panel')
 
 @section('title', 'Detalles del Inmueble')
 

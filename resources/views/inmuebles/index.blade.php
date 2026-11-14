@@ -1,4 +1,4 @@
-@extends('adminlte::page')
+@extends('layouts.panel')
 
 @section('title', 'Listado de Inmuebles')
 
@@ -68,46 +68,6 @@
 
 @section('css')
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.1/css/dataTables.bootstrap5.min.css">
-    <style>
-        html, body {
-            height: 100%;
-            margin: 0;
-            overflow: hidden;
-        }
-        .container-fluid {
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-        }
-        .card {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-        }
-        .card-body {
-            flex: 1;
-            overflow: hidden;
-        }
-        .text-center {
-            text-align: center;
-        }
-        .toggle-destacado {
-            margin: 0;
-            vertical-align: middle;
-        }
-        .btn-group {
-            display: flex;
-            flex-wrap: nowrap;
-            justify-content: center; /* Centra los botones horizontalmente */
-        }
-        .btn-group .btn {
-            margin-right: 5px;
-            width: 100px; /* Ajusta el ancho según tus necesidades */
-        }
-        .dataTables_wrapper .dataTables_scrollBody {
-            max-height: 60vh;
-        }
-    </style>
 @stop
 
 @section('js')
@@ -120,9 +80,6 @@
                 "language": {
                     "url": "//cdn.datatables.net/plug-ins/1.13.1/i18n/es-ES.json"
                 },
-                "scrollY": "60vh",
-                "scrollX": true,
-                "scrollCollapse": true,
                 "paging": true,
                 "lengthChange": true
             });
