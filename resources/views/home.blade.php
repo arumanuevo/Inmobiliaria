@@ -7,6 +7,66 @@
 @stop
 
 @section('content')
+@if(!empty($cuenta))
+@php $i = $cuenta['inmobiliaria']; @endphp
+<div class="card mb-4">
+    <div class="card-header">
+        <h3 class="card-title mb-0">Estado de mi cuenta</h3>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-3 mb-2">
+                <small class="text-muted d-block">Estado</small>
+                @if($i->estado === 'activa')
+                    <span class="badge badge-success">Activa</span>
+                @elseif($i->estado === 'pendiente')
+                    <span class="badge badge-warning">Pendiente de aprobación</span>
+                @else
+                    <span class="badge badge-danger">Suspendida</span>
+                @endif
+            </div>
+            <div class="col-md-3 mb-2">
+                <small class="text-muted d-block">Plan</small>
+                <strong>{{ $i->plan->nombre ?? 'Sin plan' }}</strong>
+                <span class="text-muted">(${{ number_format($i->plan->precio_mensual ?? 0, 0) }}/mes)</span>
+            </div>
+            <div class="col-md-3 mb-2">
+                <small class="text-muted d-block">Vencimiento del plan</small>
+                {{ $i->plan_vence_at ? $i->plan_vence_at->format('d/m/Y') : 'Sin vencimiento' }}
+            </div>
+            <div class="col-md-3 mb-2">
+                <small class="text-muted d-block">Boletos pendientes</small>
+                <a href="{{ route('boletos.mios') }}">{{ $cuenta['boletos_pendientes'] }} pendiente(s)</a>
+            </div>
+        </div>
+        <hr>
+        <div class="row">
+            <div class="col-md-6 mb-2">
+                <small class="text-muted">Publicaciones vigentes: {{ $cuenta['publicadas'] }} / {{ $cuenta['limite_inmuebles'] }} (de {{ $cuenta['total'] }} creadas)</small>
+                @php $pct = min(100, (int) round(100 * $cuenta['publicadas'] / max(1, $cuenta['limite_inmuebles']))) @endphp
+                <div class="progress mt-1" style="height: 8px;">
+                    <div class="progress-bar bg-primary" style="width: {{ $pct }}%"></div>
+                </div>
+            </div>
+            <div class="col-md-6 mb-2">
+                <small class="text-muted">Destacadas: {{ $cuenta['destacadas'] }} / {{ $cuenta['limite_destacados'] }}</small>
+                @php $pct2 = min(100, (int) round(100 * $cuenta['destacadas'] / max(1, $cuenta['limite_destacados']))) @endphp
+                <div class="progress mt-1" style="height: 8px;">
+                    <div class="progress-bar bg-warning" style="width: {{ $pct2 }}%"></div>
+                </div>
+            </div>
+        </div>
+        @if($i->estado === 'pendiente')
+            <div class="alert alert-warning mt-3 mb-0">Tu inmobiliaria está pendiente de aprobación por el administrador del portal.</div>
+        @elseif($i->estado === 'suspendida')
+            <div class="alert alert-danger mt-3 mb-0">Tu cuenta está suspendida. Contactá al administrador del portal.</div>
+        @elseif($i->plan_vence_at && $i->plan_vence_at->isPast())
+            <div class="alert alert-warning mt-3 mb-0">Tu suscripción está vencida: en el próximo acceso pasás automáticamente al plan Gratis.</div>
+        @endif
+    </div>
+</div>
+@endif
+
 <div class="row g-3">
     @if(auth()->user()->hasAnyRole(['admin', 'inmobiliaria']))
     <div class="col-md-6 col-lg-3">

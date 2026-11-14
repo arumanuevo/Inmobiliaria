@@ -47,9 +47,10 @@ return [
     ],
 
     'mercadopago' => [
-        'public_key' => env('MP_PUBLIC_KEY'),
-        'access_token' => env('MP_ACCESS_TOKEN'),
-        'webhook_secret' => env('MP_WEBHOOK_SECRET'),
+        // Acepta también los nombres usados en el otro proyecto (MERCADO_PAGO_*)
+        'public_key' => env('MP_PUBLIC_KEY', env('MERCADO_PAGO_PUBLIC_KEY')),
+        'access_token' => env('MP_ACCESS_TOKEN', env('MERCADO_PAGO_ACCESS_TOKEN')),
+        'webhook_secret' => env('MP_WEBHOOK_SECRET', env('MERCADO_PAGO_WEBHOOK_SECRET')),
     ],
 
 ];

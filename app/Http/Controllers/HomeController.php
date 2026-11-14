@@ -30,7 +30,20 @@ class HomeController extends Controller
         }
 
         if ($user->hasRole('inmobiliaria')) {
-            return redirect()->route('inmuebles.index');
+            $inmobiliaria = $user->inmobiliaria;
+            $cuenta = null;
+            if ($inmobiliaria) {
+                $cuenta = [
+                    'inmobiliaria' => $inmobiliaria,
+                    'publicadas' => $inmobiliaria->inmuebles()->where('publicado', 1)->count(),
+                    'total' => $inmobiliaria->inmuebles()->count(),
+                    'destacadas' => $inmobiliaria->inmuebles()->where('destacado', 1)->count(),
+                    'limite_inmuebles' => $inmobiliaria->limiteInmuebles(),
+                    'limite_destacados' => $inmobiliaria->limiteDestacados(),
+                    'boletos_pendientes' => $inmobiliaria->boletos()->where('estado', 'pendiente')->count(),
+                ];
+            }
+            return view('home', compact('cuenta'));
         }
 
         return view('home');
