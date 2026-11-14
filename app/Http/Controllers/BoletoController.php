@@ -30,25 +30,25 @@ class BoletoController extends Controller
         abort_if($boleto->estado !== 'pendiente', 403, 'Este boleto ya no está pendiente de pago.');
         abort_if((float) $boleto->monto <= 0, 403, 'El monto del boleto debe ser mayor a cero.');
 
-        $preferencia = $this->mp->crearPreferencia([
-            'items' => [[
-                'title' => 'Boleto #' . $boleto->id . ' - ' . $boleto->concepto . ' - ' . $inmobiliaria->nombre_comercial,
-                'quantity' => 1,
-                'unit_price' => (float) $boleto->monto,
-                'currency_id' => 'ARS',
-            ]],
-            'external_reference' => 'boleto_' . $boleto->id,
-            'back_urls' => [
-                'success' => route('mp.retorno', ['estado' => 'success']),
-                'failure' => route('mp.retorno', ['estado' => 'failure']),
-                'pending' => route('mp.retorno', ['estado' => 'pending']),
-            ],
-            'auto_return' => 'approved',
-            'notification_url' => route('mp.webhook'),
-        ]);
-
-        if (!$preferencia || empty($preferencia['init_point'])) {
-            return back()->with('error', 'No se pudo generar el pago. Probá de nuevo o contactá al administrador.');
+        try {
+            $preferencia = $this->mp->crearPreferencia([
+                'items' => [[
+                    'title' => 'Boleto #' . $boleto->id . ' - ' . $boleto->concepto . ' - ' . $inmobiliaria->nombre_comercial,
+                    'quantity' => 1,
+                    'unit_price' => (float) $boleto->monto,
+                    'currency_id' => 'ARS',
+                ]],
+                'external_reference' => 'boleto_' . $boleto->id,
+                'back_urls' => [
+                    'success' => route('mp.retorno', ['estado' => 'success']),
+                    'failure' => route('mp.retorno', ['estado' => 'failure']),
+                    'pending' => route('mp.retorno', ['estado' => 'pending']),
+                ],
+                'auto_return' => 'approved',
+                'notification_url' => route('mp.webhook'),
+            ]);
+        } catch (\RuntimeException $e) {
+            return back()->with('error', 'No se pudo generar el pago. ' . $e->getMessage());
         }
 
         $boleto->mp_preference_id = $preferencia['id'] ?? null;

@@ -24,25 +24,25 @@ class MercadoPagoController extends Controller
         $inmobiliaria = $request->user()->inmobiliaria;
         abort_if(!$inmobiliaria, 403);
 
-        $preferencia = $this->mp->crearPreferencia([
-            'items' => [[
-                'title' => 'Plan ' . $plan->nombre . ' - ' . $inmobiliaria->nombre_comercial,
-                'quantity' => 1,
-                'unit_price' => (float) $plan->precio_mensual,
-                'currency_id' => 'ARS',
-            ]],
-            'external_reference' => 'inmobiliaria_' . $inmobiliaria->id . '_plan_' . $plan->id,
-            'back_urls' => [
-                'success' => route('mp.retorno', ['estado' => 'success']),
-                'failure' => route('mp.retorno', ['estado' => 'failure']),
-                'pending' => route('mp.retorno', ['estado' => 'pending']),
-            ],
-            'auto_return' => 'approved',
-            'notification_url' => route('mp.webhook'),
-        ]);
-
-        if (!$preferencia || empty($preferencia['init_point'])) {
-            return back()->with('error', 'No se pudo generar el pago. Probá de nuevo o contactá al administrador.');
+        try {
+            $preferencia = $this->mp->crearPreferencia([
+                'items' => [[
+                    'title' => 'Plan ' . $plan->nombre . ' - ' . $inmobiliaria->nombre_comercial,
+                    'quantity' => 1,
+                    'unit_price' => (float) $plan->precio_mensual,
+                    'currency_id' => 'ARS',
+                ]],
+                'external_reference' => 'inmobiliaria_' . $inmobiliaria->id . '_plan_' . $plan->id,
+                'back_urls' => [
+                    'success' => route('mp.retorno', ['estado' => 'success']),
+                    'failure' => route('mp.retorno', ['estado' => 'failure']),
+                    'pending' => route('mp.retorno', ['estado' => 'pending']),
+                ],
+                'auto_return' => 'approved',
+                'notification_url' => route('mp.webhook'),
+            ]);
+        } catch (\RuntimeException $e) {
+            return back()->with('error', 'No se pudo generar el pago. ' . $e->getMessage());
         }
 
         return redirect()->away($preferencia['init_point']);
