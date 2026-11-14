@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Mail\ContactoMail;
 use App\Models\Contacto;
 use App\Models\Inmobiliaria;
+use App\Rules\RecaptchaRule;
 use Illuminate\Support\Facades\Mail;
 
 class ContactoController extends Controller
@@ -19,6 +20,7 @@ class ContactoController extends Controller
             'mensaje' => 'required|string',
             'inmobiliaria_id' => 'nullable|integer',
             'inmueble_id' => 'nullable|integer',
+            'g-recaptcha-response' => ['nullable', new RecaptchaRule],
         ]);
 
         Contacto::create($data);

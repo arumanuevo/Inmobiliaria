@@ -14,6 +14,9 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'role' => \App\Http\Middleware\RoleMiddleware::class,
         ]);
+        $middleware->validateCsrfTokens(except: [
+            'mp/webhook', // webhook de Mercado Pago (firma x-signature)
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //

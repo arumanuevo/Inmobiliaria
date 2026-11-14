@@ -100,6 +100,11 @@
                        name="password_confirmation" required autocomplete="new-password">
               </div>
             </div>
+            @if(config('services.recaptcha.site_key'))
+              <div class="form-group mb-3 d-flex justify-content-center">
+                <div class="g-recaptcha" data-sitekey="{{ config('services.recaptcha.site_key') }}"></div>
+              </div>
+            @endif
             <div class="text-center">
               <button type="submit" class="btn btn-primary">Registrarme</button>
             </div>
@@ -118,4 +123,10 @@
     <p>Contacto: <a href="mailto:contacto@gertech-arumasoft.com" class="text-white">contacto@gertech-arumasoft.com</a></p>
   </div>
 </footer>
+@stop
+
+@section('js')
+@if(config('services.recaptcha.site_key'))
+<script src="https://www.google.com/recaptcha/api.js" async defer></script>
+@endif
 @stop

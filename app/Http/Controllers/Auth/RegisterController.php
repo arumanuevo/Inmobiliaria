@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Inmobiliaria;
 use App\Models\Plan;
 use App\Models\User;
+use App\Rules\RecaptchaRule;
 use Illuminate\Foundation\Auth\RegistersUsers;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
@@ -57,6 +58,7 @@ class RegisterController extends Controller
             'telefono' => ['nullable', 'string', 'max:30'],
             'whatsapp' => ['nullable', 'string', 'max:30'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
+            'g-recaptcha-response' => ['nullable', new RecaptchaRule],
         ]);
     }
 

@@ -55,6 +55,29 @@
                     @endif
                 </div>
             </div>
+
+            @if(config('services.mercadopago.access_token'))
+            <div class="card card-success mt-3">
+                <div class="card-header">
+                    <h3 class="card-title">Plan y pagos</h3>
+                </div>
+                <div class="card-body">
+                    <form action="{{ route('mp.pagar') }}" method="POST">
+                        @csrf
+                        <div class="form-group">
+                            <select name="plan_id" class="form-control mb-2">
+                                @foreach(\App\Models\Plan::where('activo', 1)->orderBy('precio_mensual')->get() as $p)
+                                    <option value="{{ $p->id }}" {{ $inmobiliaria->plan_id == $p->id ? 'selected' : '' }}>
+                                        {{ $p->nombre }} - ${{ number_format($p->precio_mensual, 0) }}/mes
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-success btn-block w-100">Pagar / mejorar plan con Mercado Pago</button>
+                    </form>
+                </div>
+            </div>
+            @endif
         </div>
 
         <div class="col-md-8">
