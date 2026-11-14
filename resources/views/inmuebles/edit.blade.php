@@ -68,13 +68,13 @@
                     <label for="coordenadas">Coordenadas</label>
                     <input type="text" name="coordenadas" id="coordenadas" class="form-control" placeholder="Latitud, Longitud" value="{{ $inmueble->coordenadas }}">
                 </div>
-                @if(config('services.mapbox.token'))
                 <div class="form-group">
                     <label>Ubicación en el mapa (buscá la dirección o hacé clic en el mapa)</label>
+                    <input type="text" id="busqueda-mapa" class="form-control mb-1" placeholder="Buscar dirección en Argentina... (ej: Av. Sarmiento 100, Chivilcoy)">
+                    <div id="resultados-mapa" class="list-group mb-1"></div>
                     <div id="mapa-inmueble" style="height: 320px; border-radius: 6px; border: 1px solid #ccc;"></div>
-                    <small class="text-muted">Se completa solo el campo Coordenadas (lat, lng).</small>
+                    <small class="text-muted">Callejera: OpenStreetMap · Satelital: Esri · Buscador: Nominatim (gratis, sin clave). Se completa solo el campo Coordenadas (lat, lng).</small>
                 </div>
-                @endif
 
                 <!-- Prestaciones -->
                 <div class="form-group">
@@ -144,56 +144,75 @@
 @stop
 
 @section('css')
-@if(config('services.mapbox.token'))
-<link href="https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.css" rel="stylesheet">
-<link rel="stylesheet" href="https://api.mapbox.com/mapbox-gl-geocoder/v5.0.0/mapbox-gl-geocoder.css">
-@endif
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 @stop
 
 @section('js')
-@if(config('services.mapbox.token'))
-<script src="https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.js"></script>
-<script src="https://api.mapbox.com/mapbox-gl-geocoder/v5.0.0/mapbox-gl-geocoder.min.js"></script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-    mapboxgl.accessToken = '{{ config('services.mapbox.token') }}';
-    var centro = [-64.5, -38.5], zoom = 4, marker = null;
     var inputCoord = document.getElementById('coordenadas');
+    var centro = [-38.5, -64.5], zoom = 4;
     var lat0 = NaN, lng0 = NaN;
     if (inputCoord && inputCoord.value) {
         var partes = inputCoord.value.split(',');
         lat0 = parseFloat(partes[0]);
         lng0 = parseFloat(partes[1]);
-        if (!isNaN(lat0) && !isNaN(lng0)) { centro = [lng0, lat0]; zoom = 15; }
+        if (!isNaN(lat0) && !isNaN(lng0)) { centro = [lat0, lng0]; zoom = 15; }
     }
-    var map = new mapboxgl.Map({
-        container: 'mapa-inmueble',
-        style: 'mapbox://styles/mapbox/streets-v12',
-        center: centro,
-        zoom: zoom
+    var map = L.map('mapa-inmueble').setView(centro, zoom);
+    var osm = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+    }).addTo(map);
+    var satelite = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+        maxZoom: 19,
+        attribution: 'Tiles &copy; Esri &mdash; Source: Esri, Maxar, Earthstar Geographics'
     });
+    L.control.layers({ 'Callejera (OSM)': osm, 'Satelital (Esri)': satelite }, null, { position: 'topright' }).addTo(map);
+    var marker = null;
     function setCoords(lat, lng) {
-        var c = document.getElementById('coordenadas');
-        if (c) { c.value = lat.toFixed(6) + ', ' + lng.toFixed(6); }
-        if (marker) { marker.remove(); }
-        marker = new mapboxgl.Marker().setLngLat([lng, lat]).addTo(map);
+        if (inputCoord) { inputCoord.value = lat.toFixed(6) + ', ' + lng.toFixed(6); }
+        if (marker) { map.removeLayer(marker); }
+        marker = L.marker([lat, lng]).addTo(map);
     }
     if (!isNaN(lat0) && !isNaN(lng0)) { setCoords(lat0, lng0); }
-    map.on('click', function (e) { setCoords(e.lngLat.lat, e.lngLat.lng); });
-    var geocoder = new MapboxGeocoder({
-        accessToken: mapboxgl.accessToken,
-        language: 'es',
-        countries: 'ar',
-        placeholder: 'Buscar dirección en Argentina...'
-    });
-    map.addControl(geocoder, 'top-left');
-    geocoder.on('result', function (ev) {
-        var lng = ev.result.center[0], lat = ev.result.center[1];
-        map.flyTo({ center: [lng, lat], zoom: 15 });
-        setCoords(lat, lng);
-    });
+    map.on('click', function (e) { setCoords(e.latlng.lat, e.latlng.lng); });
+    var inputBusqueda = document.getElementById('busqueda-mapa');
+    var resultados = document.getElementById('resultados-mapa');
+    var timer = null;
+    if (inputBusqueda) {
+        inputBusqueda.addEventListener('input', function () {
+            clearTimeout(timer);
+            var q = inputBusqueda.value.trim();
+            if (q.length < 3) { resultados.innerHTML = ''; return; }
+            timer = setTimeout(function () {
+                fetch('https://nominatim.openstreetmap.org/search?format=json&countrycodes=ar&limit=5&addressdetails=1&q=' + encodeURIComponent(q), {
+                    headers: { 'Accept-Language': 'es' }
+                })
+                    .then(function (r) { return r.json(); })
+                    .then(function (data) {
+                        resultados.innerHTML = '';
+                        data.forEach(function (item) {
+                            var b = document.createElement('button');
+                            b.type = 'button';
+                            b.className = 'list-group-item list-group-item-action py-1 px-2 small text-left';
+                            b.textContent = item.display_name;
+                            b.onclick = function () {
+                                var lat = parseFloat(item.lat), lng = parseFloat(item.lon);
+                                map.flyTo([lat, lng], 16);
+                                setCoords(lat, lng);
+                                resultados.innerHTML = '';
+                                inputBusqueda.value = '';
+                            };
+                            resultados.appendChild(b);
+                        });
+                    })
+                    .catch(function () {});
+            }, 400);
+        });
+    }
 });
 </script>
-@endif
 @stop
 
