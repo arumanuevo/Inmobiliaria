@@ -66,8 +66,15 @@
                 </div>
                 <div class="form-group">
                     <label for="coordenadas">Coordenadas</label>
-                    <input type="text" name="coordenadas" class="form-control" placeholder="Latitud, Longitud" value="{{ $inmueble->coordenadas }}">
+                    <input type="text" name="coordenadas" id="coordenadas" class="form-control" placeholder="Latitud, Longitud" value="{{ $inmueble->coordenadas }}">
                 </div>
+                @if(config('services.mapbox.token'))
+                <div class="form-group">
+                    <label>Ubicación en el mapa (buscá la dirección o hacé clic en el mapa)</label>
+                    <div id="mapa-inmueble" style="height: 320px; border-radius: 6px; border: 1px solid #ccc;"></div>
+                    <small class="text-muted">Se completa solo el campo Coordenadas (lat, lng).</small>
+                </div>
+                @endif
 
                 <!-- Prestaciones -->
                 <div class="form-group">
@@ -134,5 +141,59 @@
         </div>
     </div>
 </div>
+@stop
+
+@section('css')
+@if(config('services.mapbox.token'))
+<link href="https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.css" rel="stylesheet">
+<link rel="stylesheet" href="https://api.mapbox.com/mapbox-gl-geocoder/v5.0.0/mapbox-gl-geocoder.css">
+@endif
+@stop
+
+@section('js')
+@if(config('services.mapbox.token'))
+<script src="https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.js"></script>
+<script src="https://api.mapbox.com/mapbox-gl-geocoder/v5.0.0/mapbox-gl-geocoder.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    mapboxgl.accessToken = '{{ config('services.mapbox.token') }}';
+    var centro = [-64.5, -38.5], zoom = 4, marker = null;
+    var inputCoord = document.getElementById('coordenadas');
+    var lat0 = NaN, lng0 = NaN;
+    if (inputCoord && inputCoord.value) {
+        var partes = inputCoord.value.split(',');
+        lat0 = parseFloat(partes[0]);
+        lng0 = parseFloat(partes[1]);
+        if (!isNaN(lat0) && !isNaN(lng0)) { centro = [lng0, lat0]; zoom = 15; }
+    }
+    var map = new mapboxgl.Map({
+        container: 'mapa-inmueble',
+        style: 'mapbox://styles/mapbox/streets-v12',
+        center: centro,
+        zoom: zoom
+    });
+    function setCoords(lat, lng) {
+        var c = document.getElementById('coordenadas');
+        if (c) { c.value = lat.toFixed(6) + ', ' + lng.toFixed(6); }
+        if (marker) { marker.remove(); }
+        marker = new mapboxgl.Marker().setLngLat([lng, lat]).addTo(map);
+    }
+    if (!isNaN(lat0) && !isNaN(lng0)) { setCoords(lat0, lng0); }
+    map.on('click', function (e) { setCoords(e.lngLat.lat, e.lngLat.lng); });
+    var geocoder = new MapboxGeocoder({
+        accessToken: mapboxgl.accessToken,
+        language: 'es',
+        countries: 'ar',
+        placeholder: 'Buscar dirección en Argentina...'
+    });
+    map.addControl(geocoder, 'top-left');
+    geocoder.on('result', function (ev) {
+        var lng = ev.result.center[0], lat = ev.result.center[1];
+        map.flyTo({ center: [lng, lat], zoom: 15 });
+        setCoords(lat, lng);
+    });
+});
+</script>
+@endif
 @stop
 

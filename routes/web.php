@@ -35,6 +35,8 @@ Route::get('/inmobiliaria/{slug}', [InmobiliariaController::class, 'show'])->nam
 Route::middleware('auth')->group(function () {
     Route::get('/mi-inmobiliaria', [InmobiliariaController::class, 'perfil'])->name('inmobiliaria.perfil');
     Route::put('/mi-inmobiliaria', [InmobiliariaController::class, 'actualizarPerfil'])->name('inmobiliaria.update');
+    Route::get('/mis-boletos', [App\Http\Controllers\BoletoController::class, 'mios'])->name('boletos.mios');
+    Route::post('/boletos/{boleto}/pagar', [App\Http\Controllers\BoletoController::class, 'pagar'])->name('boletos.pagar');
 });
 
 // Panel de administración del SaaS (solo admin)
@@ -42,6 +44,9 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::get('/inmobiliarias', [App\Http\Controllers\Admin\AdminController::class, 'inmobiliarias'])->name('inmobiliarias');
     Route::post('/inmobiliarias/{id}/estado', [App\Http\Controllers\Admin\AdminController::class, 'cambiarEstado'])->name('inmobiliarias.estado');
     Route::post('/inmobiliarias/{id}/plan', [App\Http\Controllers\Admin\AdminController::class, 'cambiarPlan'])->name('inmobiliarias.plan');
+    Route::get('/boletos', [App\Http\Controllers\Admin\AdminController::class, 'boletos'])->name('boletos');
+    Route::post('/boletos', [App\Http\Controllers\Admin\AdminController::class, 'crearBoleto'])->name('boletos.store');
+    Route::post('/boletos/{id}/estado', [App\Http\Controllers\Admin\AdminController::class, 'cambiarEstadoBoleto'])->name('boletos.estado');
 });
 
 // Rutas para el CRUD de Inmuebles (admin e inmobiliarias; cada una solo gestiona lo suyo)

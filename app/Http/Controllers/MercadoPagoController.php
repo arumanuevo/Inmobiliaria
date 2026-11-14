@@ -1,6 +1,7 @@
 <?php
 namespace App\Http\Controllers;
 
+use App\Models\Boleto;
 use App\Models\Inmobiliaria;
 use App\Models\Plan;
 use App\Services\MercadoPagoService;
@@ -57,7 +58,7 @@ class MercadoPagoController extends Controller
         ];
         [$tipo, $texto] = $mensajes[$estado] ?? $mensajes['failure'];
 
-        return redirect()->route('inmobiliaria.perfil')->with($tipo, $texto);
+        return redirect()->route('boletos.mios')->with($tipo, $texto);
     }
 
     // Webhook: Mercado Pago avisa los pagos; acá se confirma y se activa el plan
@@ -82,7 +83,27 @@ class MercadoPagoController extends Controller
 
             if ($pago && ($pago['status'] ?? null) === 'approved') {
                 $ref = $pago['external_reference'] ?? '';
-                if (preg_match('/^inmobiliaria_(\d+)_plan_(\d+)$/', $ref, $m)) {
+                $paymentId = (string) ($pago['id'] ?? $id);
+
+                if (preg_match('/^boleto_(\d+)$/', $ref, $m)) {
+                    $boleto = Boleto::find((int) $m[1]);
+                    if ($boleto && $boleto->estado === 'pendiente') {
+                        $boleto->estado = 'pagado';
+                        $boleto->pagado_at = now();
+                        $boleto->mp_payment_id = $paymentId;
+                        $boleto->save();
+
+                        if ($boleto->plan_id) {
+                            $inmobiliaria = $boleto->inmobiliaria;
+                            $inmobiliaria->plan_id = $boleto->plan_id;
+                            $inmobiliaria->plan_vence_at = now()->addMonth()->toDateString();
+                            if ($inmobiliaria->estado === 'pendiente') {
+                                $inmobiliaria->estado = 'activa';
+                            }
+                            $inmobiliaria->save();
+                        }
+                    }
+                } elseif (preg_match('/^inmobiliaria_(\d+)_plan_(\d+)$/', $ref, $m)) {
                     $inmobiliaria = Inmobiliaria::find((int) $m[1]);
                     $plan = Plan::find((int) $m[2]);
                     if ($inmobiliaria && $plan) {

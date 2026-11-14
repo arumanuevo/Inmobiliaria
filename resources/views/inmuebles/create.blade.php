@@ -64,8 +64,15 @@
                 </div>
                 <div class="form-group">
                     <label for="coordenadas">Coordenadas</label>
-                    <input type="text" name="coordenadas" class="form-control" placeholder="Latitud, Longitud">
+                    <input type="text" name="coordenadas" id="coordenadas" class="form-control" placeholder="Latitud, Longitud">
                 </div>
+                @if(config('services.mapbox.token'))
+                <div class="form-group">
+                    <label>Ubicación en el mapa (buscá la dirección o hacé clic en el mapa)</label>
+                    <div id="mapa-inmueble" style="height: 320px; border-radius: 6px; border: 1px solid #ccc;"></div>
+                    <small class="text-muted">Se completa solo el campo Coordenadas (lat, lng).</small>
+                </div>
+                @endif
 
                 <!-- Prestaciones -->
                 <div class="form-group">
@@ -175,10 +182,49 @@
         overflow-y: auto;
     }
 </style>
+@if(config('services.mapbox.token'))
+<link href="https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.css" rel="stylesheet">
+<link rel="stylesheet" href="https://api.mapbox.com/mapbox-gl-geocoder/v5.0.0/mapbox-gl-geocoder.css">
+@endif
 @stop
 
 @section('js')
 <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+@if(config('services.mapbox.token'))
+<script src="https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.js"></script>
+<script src="https://api.mapbox.com/mapbox-gl-geocoder/v5.0.0/mapbox-gl-geocoder.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    mapboxgl.accessToken = '{{ config('services.mapbox.token') }}';
+    var map = new mapboxgl.Map({
+        container: 'mapa-inmueble',
+        style: 'mapbox://styles/mapbox/streets-v12',
+        center: [-64.5, -38.5],
+        zoom: 4
+    });
+    var marker = null;
+    function setCoords(lat, lng) {
+        var c = document.getElementById('coordenadas');
+        if (c) { c.value = lat.toFixed(6) + ', ' + lng.toFixed(6); }
+        if (marker) { marker.remove(); }
+        marker = new mapboxgl.Marker().setLngLat([lng, lat]).addTo(map);
+    }
+    map.on('click', function (e) { setCoords(e.lngLat.lat, e.lngLat.lng); });
+    var geocoder = new MapboxGeocoder({
+        accessToken: mapboxgl.accessToken,
+        language: 'es',
+        countries: 'ar',
+        placeholder: 'Buscar dirección en Argentina...'
+    });
+    map.addControl(geocoder, 'top-left');
+    geocoder.on('result', function (ev) {
+        var lng = ev.result.center[0], lat = ev.result.center[1];
+        map.flyTo({ center: [lng, lat], zoom: 15 });
+        setCoords(lat, lng);
+    });
+});
+</script>
+@endif
 
 <script>
     function imageUploader() {

@@ -3,6 +3,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Inmobiliaria;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class InmobiliariaController extends Controller
 {
@@ -55,6 +56,7 @@ class InmobiliariaController extends Controller
 
         $data = $request->validate([
             'nombre_comercial' => 'required|string|max:150',
+            'slug' => ['required', 'string', 'max:160', 'regex:/^[a-z0-9-]+$/', 'unique:inmobiliarias,slug,' . $inmobiliaria->id],
             'descripcion' => 'nullable|string',
             'direccion' => 'nullable|string|max:255',
             'ciudad' => 'nullable|string|max:100',
@@ -80,9 +82,7 @@ class InmobiliariaController extends Controller
             $data['logo'] = 'images/logos/' . $nombre;
         }
 
-        if ($inmobiliaria->nombre_comercial !== $data['nombre_comercial']) {
-            $data['slug'] = Inmobiliaria::generarSlug($data['nombre_comercial']);
-        }
+        $data['slug'] = Str::slug($data['slug']);
 
         $inmobiliaria->update($data);
 

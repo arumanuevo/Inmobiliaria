@@ -39,6 +39,11 @@ class Inmobiliaria extends Model
         return $this->inmuebles()->where('publicado', 1);
     }
 
+    public function boletos()
+    {
+        return $this->hasMany(Boleto::class, 'inmobiliaria_id');
+    }
+
     public function scopeActivas($query)
     {
         return $query->where('estado', 'activa');
