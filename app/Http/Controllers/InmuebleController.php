@@ -5,6 +5,7 @@ use App\Models\Inmueble;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 
 class InmuebleController extends Controller
 {
@@ -23,7 +24,7 @@ class InmuebleController extends Controller
             $query->deInmobiliaria($user->inmobiliaria->id ?? 0);
         }
 
-        $inmuebles = $query->paginate(15);
+        $inmuebles = $query->get();
 
         return view('inmuebles.index', compact('inmuebles'));
     }
@@ -161,7 +162,10 @@ class InmuebleController extends Controller
     {
         $this->authorize('update', $inmueble);
 
-        return view('inmuebles.addPhotos', compact('inmueble'));
+        $limiteFotos = (int) ($inmueble->inmobiliaria?->plan->limite_fotos ?? 10);
+        $usadas = count($inmueble->fotos ?? []);
+
+        return view('inmuebles.addPhotos', compact('inmueble', 'limiteFotos', 'usadas'));
     }
 
     // Formulario para borrar fotos de un inmueble
@@ -207,7 +211,8 @@ class InmuebleController extends Controller
         $tamañoMaximo = 6048; // Tamaño máximo en kilobytes
 
         $request->validate([
-            'imagenes.*' => 'mimes:png,jpg,jpeg,gif|max:' . $tamañoMaximo,
+            'imagenes' => 'required|array',
+            'imagenes.*' => 'image|mimes:png,jpg,jpeg,gif,webp|max:' . $tamañoMaximo,
             'inmueble_id' => 'required|integer',
         ]);
 
@@ -215,34 +220,29 @@ class InmuebleController extends Controller
         $inmuebleId = $request->input('inmueble_id');
         $inmueble = Inmueble::findOrFail($inmuebleId);
         $this->authorize('update', $inmueble);
-        $fotos = $inmueble->fotos ?? []; // Obtener las fotos existentes o un array vacío
 
-        if ($images && is_array($images)) {
-            foreach ($images as $imagen) {
-                $nombreOriginal = $imagen->getClientOriginalName();
-                $nombreConPrefijo = $inmuebleId . '_' . $nombreOriginal;
+        $fotos = $inmueble->fotos ?? [];
+        $inmobiliaria = $inmueble->inmobiliaria;
+        $limiteFotos = (int) ($inmobiliaria?->plan->limite_fotos ?? 10);
 
-                // Verificar si la imagen ya existe
-                $path = public_path('images/fotosinmuebles' . $nombreConPrefijo);
-                if (file_exists($path)) {
-                    // Si existe, eliminar la imagen existente
-                    unlink($path);
-                }
-
-                // Mover la imagen al directorio public/images
-                $imagen->move(public_path('images/fotosinmuebles'), $nombreConPrefijo);
-
-                // Actualizar el array de fotos
-                if (!in_array($nombreConPrefijo, $fotos)) {
-                    $fotos[] = $nombreConPrefijo;
-                }
-            }
-
-            $inmueble->fotos = $fotos; // Asignar el array de fotos actualizado
-            $inmueble->save();
-        } else {
-            return response()->json(['success' => false, 'message' => 'No se han seleccionado imágenes.']);
+        if (count($fotos) + count($images) > $limiteFotos) {
+            return response()->json([
+                'success' => false,
+                'message' => "Tu plan permite hasta {$limiteFotos} fotos por publicación (ya tenés " . count($fotos) . " cargadas).",
+            ]);
         }
+
+        foreach ($images as $imagen) {
+            $nombre = $inmuebleId . '_' . Str::uuid() . '.' . strtolower($imagen->getClientOriginalExtension());
+            $imagen->move(public_path('images/fotosinmuebles'), $nombre);
+
+            if (!in_array($nombre, $fotos)) {
+                $fotos[] = $nombre;
+            }
+        }
+
+        $inmueble->fotos = array_values($fotos);
+        $inmueble->save();
 
         return response()->json(['success' => true, 'message' => 'Imágenes cargadas con éxito.']);
     }

@@ -54,6 +54,11 @@
                 <div class="card-header">{{ __('Cargar Imágenes ') }}</div>
 
                 <div class="card-body">
+                    @if(isset($limiteFotos))
+                        <div class="alert alert-info py-2">
+                            <i class="fas fa-images"></i> Fotos cargadas: <strong>{{ $usadas }}</strong> de <strong>{{ $limiteFotos }}</strong> permitidas por tu plan.
+                        </div>
+                    @endif
                     @if (session('status'))
                         <div class="alert alert-success" role="alert">
                             {{ session('status') }}
