@@ -67,11 +67,14 @@
                     <input type="text" name="coordenadas" id="coordenadas" class="form-control" placeholder="Latitud, Longitud">
                 </div>
                 <div class="form-group">
-                    <label>Ubicación en el mapa (buscá la dirección o hacé clic en el mapa)</label>
-                    <input type="text" id="busqueda-mapa" class="form-control mb-1" placeholder="Buscar dirección en Argentina... (ej: Av. Sarmiento 100, Chivilcoy)">
+                    <label for="busqueda-mapa">Ubicación en el mapa</label>
+                    <div class="input-group mb-1">
+                        <input type="text" id="busqueda-mapa" class="form-control" placeholder="Buscar dirección en Argentina... (ej: Av. Sarmiento 100, Chivilcoy)">
+                        <button type="button" id="btn-buscar-mapa" class="btn btn-outline-secondary">Buscar</button>
+                    </div>
                     <div id="resultados-mapa" class="list-group mb-1"></div>
                     <div id="mapa-inmueble" style="height: 320px; border-radius: 6px; border: 1px solid #ccc;"></div>
-                    <small class="text-muted">Callejera: OpenStreetMap · Satelital: Esri · Buscador: Nominatim (gratis, sin clave). Se completa solo el campo Coordenadas (lat, lng).</small>
+                    <small class="text-muted">Ayuda: escribí la dirección y elegí un resultado (o apretá Buscar), o hacé clic directamente en el mapa. Las coordenadas se completan solas.</small>
                 </div>
 
                 <!-- Prestaciones -->
@@ -190,8 +193,22 @@
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
+    var contenedor = document.getElementById('mapa-inmueble');
     var inputCoord = document.getElementById('coordenadas');
-    var map = L.map('mapa-inmueble').setView([-38.5, -64.5], 4);
+    if (!contenedor) { return; }
+    if (typeof L === 'undefined') {
+        contenedor.innerHTML = '<div class="p-3 text-danger small">No se pudo cargar el mapa (Leaflet). Recargá la página.</div>';
+        return;
+    }
+    var centro = [-38.5, -64.5], zoom = 4;
+    var lat0 = NaN, lng0 = NaN;
+    if (inputCoord && inputCoord.value) {
+        var partes = inputCoord.value.split(',');
+        lat0 = parseFloat(partes[0]);
+        lng0 = parseFloat(partes[1]);
+        if (!isNaN(lat0) && !isNaN(lng0)) { centro = [lat0, lng0]; zoom = 15; }
+    }
+    var map = L.map('mapa-inmueble').setView(centro, zoom);
     var osm = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
         maxZoom: 19,
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
@@ -207,40 +224,59 @@ document.addEventListener('DOMContentLoaded', function () {
         if (marker) { map.removeLayer(marker); }
         marker = L.marker([lat, lng]).addTo(map);
     }
+    if (!isNaN(lat0) && !isNaN(lng0)) { setCoords(lat0, lng0); }
     map.on('click', function (e) { setCoords(e.latlng.lat, e.latlng.lng); });
     var inputBusqueda = document.getElementById('busqueda-mapa');
+    var btnBuscar = document.getElementById('btn-buscar-mapa');
     var resultados = document.getElementById('resultados-mapa');
+    function buscar() {
+        var q = inputBusqueda.value.trim();
+        if (q.length < 3) { resultados.innerHTML = ''; return; }
+        resultados.innerHTML = '<div class="list-group-item small text-muted py-1 px-2">Buscando...</div>';
+        fetch('https://nominatim.openstreetmap.org/search?format=jsonv2&countrycodes=ar&limit=5&addressdetails=1&q=' + encodeURIComponent(q), {
+            headers: { 'Accept': 'application/json', 'Accept-Language': 'es' }
+        })
+            .then(function (r) {
+                if (!r.ok) { throw new Error('HTTP ' + r.status); }
+                return r.json();
+            })
+            .then(function (data) {
+                resultados.innerHTML = '';
+                if (!data.length) {
+                    resultados.innerHTML = '<div class="list-group-item small text-muted py-1 px-2">Sin resultados. Probá con más detalle (calle y número, ciudad).</div>';
+                    return;
+                }
+                data.forEach(function (item) {
+                    var b = document.createElement('button');
+                    b.type = 'button';
+                    b.className = 'list-group-item list-group-item-action py-1 px-2 small text-left';
+                    b.textContent = item.display_name;
+                    b.onclick = function () {
+                        var lat = parseFloat(item.lat), lng = parseFloat(item.lon);
+                        map.flyTo([lat, lng], 16);
+                        setCoords(lat, lng);
+                        resultados.innerHTML = '';
+                        inputBusqueda.value = '';
+                    };
+                    resultados.appendChild(b);
+                });
+            })
+            .catch(function (err) {
+                resultados.innerHTML = '<div class="list-group-item small text-danger py-1 px-2">Error al buscar (' + err.message + '). Probá de nuevo o usá el clic en el mapa.</div>';
+            });
+    }
     var timer = null;
     if (inputBusqueda) {
         inputBusqueda.addEventListener('input', function () {
             clearTimeout(timer);
-            var q = inputBusqueda.value.trim();
-            if (q.length < 3) { resultados.innerHTML = ''; return; }
-            timer = setTimeout(function () {
-                fetch('https://nominatim.openstreetmap.org/search?format=json&countrycodes=ar&limit=5&addressdetails=1&q=' + encodeURIComponent(q), {
-                    headers: { 'Accept-Language': 'es' }
-                })
-                    .then(function (r) { return r.json(); })
-                    .then(function (data) {
-                        resultados.innerHTML = '';
-                        data.forEach(function (item) {
-                            var b = document.createElement('button');
-                            b.type = 'button';
-                            b.className = 'list-group-item list-group-item-action py-1 px-2 small text-left';
-                            b.textContent = item.display_name;
-                            b.onclick = function () {
-                                var lat = parseFloat(item.lat), lng = parseFloat(item.lon);
-                                map.flyTo([lat, lng], 16);
-                                setCoords(lat, lng);
-                                resultados.innerHTML = '';
-                                inputBusqueda.value = '';
-                            };
-                            resultados.appendChild(b);
-                        });
-                    })
-                    .catch(function () {});
-            }, 400);
+            timer = setTimeout(buscar, 400);
         });
+        inputBusqueda.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter') { e.preventDefault(); clearTimeout(timer); buscar(); }
+        });
+    }
+    if (btnBuscar) {
+        btnBuscar.addEventListener('click', function (e) { e.preventDefault(); clearTimeout(timer); buscar(); });
     }
 });
 </script>
