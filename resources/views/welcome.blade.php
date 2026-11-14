@@ -1,6 +1,6 @@
 @extends('layouts.landing')
 
-@section('title', 'Bienvenido a Inmobiliaria XYZ')
+@section('title', 'Bienvenido a ' . config('app.name'))
 @section('css')
 <link rel="stylesheet" href="{{ asset('css/landing.css') }}">
 <style>
@@ -193,8 +193,8 @@
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
   <div class="container">
     <a class="navbar-brand" href="{{ route('inicio') }}">
-      <img src="{{ asset('images/logoinmo.svg') }}" alt="Logo Inmobiliaria XYZ" width="30" height="30" class="d-inline-block align-text-top">
-      Inmobiliaria XYZ
+      <img src="{{ asset('images/logoinmo.svg') }}" alt="Logo {{ config('app.name') }}" width="30" height="30" class="d-inline-block align-text-top">
+      {{ config('app.name') }}
     </a>
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarResponsive"
       aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
@@ -260,7 +260,7 @@
     <div class="container">
       <div class="row align-items-center">
         <div class="col-md-6 mb-4 mb-md-0">
-          <img src="{{ asset('images/about.jpg') }}" class="img-fluid rounded" alt="Sobre Inmobiliaria XYZ">
+          <img src="{{ asset('images/about.jpg') }}" class="img-fluid rounded" alt="Sobre {{ config('app.name') }}">
         </div>
         <div class="col-md-6">
           <h2 class="mb-4">Sobre Nosotros</h2>
@@ -377,7 +377,7 @@
         <div class="col-md-4 mb-4">
           <div class="card border-0 shadow-sm">
             <div class="card-body">
-              <p class="card-text">"Inmobiliaria XYZ hizo realidad el sueño de mi familia. Un servicio impecable y profesional."</p>
+              <p class="card-text">"{{ config('app.name') }} hizo realidad el sueño de mi familia. Un servicio impecable y profesional."</p>
               <h6 class="card-subtitle text-muted">- Juan Pérez</h6>
             </div>
           </div>
@@ -428,7 +428,7 @@ s0.parentNode.insertBefore(s1,s0);
   <!-- Footer -->
   <footer class="footer">
     <div class="container">
-      <p>© 2024 GerTech-ArumaSoft | Todos los derechos reservados</p>
+      <p>© {{ date('Y') }} Arumasoft | Todos los derechos reservados</p>
       <p>Contacto: <a href="mailto:contacto@gertech-arumasoft.com" class="text-white">contacto@gertech-arumasoft.com</a></p>
     </div>
   </footer>

@@ -64,8 +64,8 @@
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
   <div class="container">
     <a class="navbar-brand" href="{{ route('inicio') }}">
-      <img src="{{ asset('images/logoinmo.svg') }}" alt="Logo Inmobiliaria XYZ" width="30" height="30" class="d-inline-block align-text-top">
-      Inmobiliaria XYZ
+      <img src="{{ asset('images/logoinmo.svg') }}" alt="Logo {{ config('app.name') }}" width="30" height="30" class="d-inline-block align-text-top">
+      {{ config('app.name') }}
     </a>
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarResponsive"
       aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
@@ -196,7 +196,7 @@
  <!-- Footer -->
  <footer class="footer">
     <div class="container">
-      <p>© 2024 GerTech-ArumaSoft | Todos los derechos reservados</p>
+      <p>© {{ date('Y') }} Arumasoft | Todos los derechos reservados</p>
       <p>Contacto: <a href="mailto:contacto@gertech-arumasoft.com" class="text-white">contacto@gertech-arumasoft.com</a></p>
     </div>
   </footer>

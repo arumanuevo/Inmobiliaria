@@ -22,7 +22,7 @@
   <div class="container">
     <a class="navbar-brand" href="{{ route('inicio') }}">
       <img src="{{ asset('images/logoinmo.svg') }}" alt="Logo" width="30" height="30" class="d-inline-block align-text-top">
-      Portal Inmobiliario
+      {{ config('app.name') }}
     </a>
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarResponsive"
       aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
@@ -79,7 +79,7 @@
 
 <footer class="footer">
   <div class="container">
-    <p>&copy; 2024 GerTech-ArumaSoft | Todos los derechos reservados</p>
+    <p>&copy; {{ date('Y') }} Arumasoft | Todos los derechos reservados</p>
     <p>Contacto: <a href="mailto:contacto@gertech-arumasoft.com" class="text-white">contacto@gertech-arumasoft.com</a></p>
   </div>
 </footer>
