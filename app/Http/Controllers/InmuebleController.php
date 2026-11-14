@@ -23,7 +23,7 @@ class InmuebleController extends Controller
             $query->deInmobiliaria($user->inmobiliaria->id ?? 0);
         }
 
-        $inmuebles = $query->get();
+        $inmuebles = $query->paginate(15);
 
         return view('inmuebles.index', compact('inmuebles'));
     }
