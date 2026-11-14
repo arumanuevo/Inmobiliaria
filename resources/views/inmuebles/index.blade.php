@@ -9,11 +9,11 @@
 @section('content')
 <div class="card">
     <div class="card-header d-flex justify-content-between align-items-center">
-        <h3 class="card-title mb-0">Resultados ({{ $inmuebles->total() }})</h3>
+        <h3 class="card-title mb-0">Resultados ({{ $inmuebles->count() }})</h3>
         <a href="{{ route('inmuebles.create') }}" class="btn btn-primary btn-sm"><i class="fas fa-plus"></i> Nuevo</a>
     </div>
     <div class="card-body table-responsive">
-        <table class="table table-bordered table-striped align-middle">
+        <table id="inmueblesTable" class="table table-bordered table-striped align-middle" style="width: 100%;">
             <thead>
                 <tr>
                     <th>Título</th>
@@ -54,14 +54,14 @@
                     </td>
                     <td class="text-center">
                         <div class="btn-group">
-                            <a href="{{ route('inmuebles.show', $inmueble) }}" class="btn btn-info btn-sm">Ver</a>
-                            <a href="{{ route('inmuebles.edit', $inmueble) }}" class="btn btn-warning btn-sm">Editar</a>
-                            <a href="{{ route('inmuebles.addPhotos', $inmueble) }}" class="btn btn-primary btn-sm">Fotos</a>
-                            <a href="{{ route('inmuebles.deletePhotos', $inmueble) }}" class="btn btn-secondary btn-sm">Borrar fotos</a>
+                            <a href="{{ route('inmuebles.show', $inmueble) }}" class="btn btn-info btn-sm" title="Ver"><i class="fas fa-eye"></i></a>
+                            <a href="{{ route('inmuebles.edit', $inmueble) }}" class="btn btn-warning btn-sm" title="Editar"><i class="fas fa-pen"></i></a>
+                            <a href="{{ route('inmuebles.addPhotos', $inmueble) }}" class="btn btn-primary btn-sm" title="Agregar fotos"><i class="fas fa-images"></i></a>
+                            <a href="{{ route('inmuebles.deletePhotos', $inmueble) }}" class="btn btn-secondary btn-sm" title="Borrar fotos"><i class="fas fa-image"></i></a>
                             <form action="{{ route('inmuebles.destroy', $inmueble) }}" method="POST" style="display:inline;">
                                 @csrf
                                 @method('DELETE')
-                                <button class="btn btn-danger btn-sm" onclick="return confirm('¿Seguro de eliminar?')">Eliminar</button>
+                                <button class="btn btn-danger btn-sm" title="Eliminar" onclick="return confirm('¿Seguro de eliminar?')"><i class="fas fa-trash"></i></button>
                             </form>
                         </div>
                     </td>
@@ -76,15 +76,29 @@
             </tbody>
         </table>
     </div>
-    <div class="card-footer">
-        {{ $inmuebles->links() }}
-    </div>
 </div>
 @stop
 
+@section('css')
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.8/css/dataTables.bootstrap5.min.css">
+@stop
+
 @section('js')
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.8/js/dataTables.bootstrap5.min.js"></script>
 <script>
-document.addEventListener('DOMContentLoaded', function () {
+$(document).ready(function () {
+    $('#inmueblesTable').DataTable({
+        language: { url: 'https://cdn.datatables.net/plug-ins/1.13.8/i18n/es-ES.json' },
+        pageLength: 15,
+        lengthMenu: [10, 15, 25, 50, 100],
+        order: [[0, 'asc']],
+        columnDefs: [
+            { orderable: false, searchable: false, targets: [10, 11] }
+        ]
+    });
+
     document.querySelectorAll('.toggle-destacado').forEach(function (el) {
         el.addEventListener('change', function () {
             var id = this.dataset.id;
