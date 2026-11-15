@@ -1,7 +1,7 @@
-<div class="row">
-  @foreach($properties as $property)
-    <div class="col-md-4 property-card">
-      <div class="card shadow-sm">
+<div class="row g-3">
+  @forelse($properties as $property)
+    <div class="col-md-6 col-12 property-card">
+      <div class="card shadow-sm h-100 border-0">
         <div id="carousel{{ $property->id }}" class="carousel slide" data-bs-ride="carousel">
           <div class="carousel-inner">
             @foreach($property->fotos as $index => $foto)
@@ -114,7 +114,13 @@
         </div>
       </div>
     </div>
-  @endforeach
+  @empty
+    <div class="col-12 py-5 text-center text-muted">
+      <i class="fas fa-home fa-3x mb-3 text-secondary opacity-50"></i>
+      <h5 class="fw-bold text-dark">No se encontraron propiedades</h5>
+      <p class="small">Probá ampliando el radio de búsqueda geográfica o ajustando los filtros de precio y características.</p>
+    </div>
+  @endforelse
 </div>
 
 <div class="d-flex justify-content-center mt-4">

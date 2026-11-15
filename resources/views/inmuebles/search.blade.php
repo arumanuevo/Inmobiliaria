@@ -37,7 +37,42 @@
   }
 
   .results-container {
-    margin-top: 20px;
+    margin-top: 10px;
+  }
+
+  /* Estilos Split-View Sticky Map */
+  @media (min-width: 992px) {
+    .mapa-sticky-wrapper {
+      position: sticky;
+      top: 72px;
+      height: calc(100vh - 90px);
+      min-height: 520px;
+    }
+    #mapa-search {
+      height: 100% !important;
+      min-height: 520px;
+    }
+  }
+
+  @media (max-width: 991.98px) {
+    .mapa-sticky-wrapper {
+      height: 420px;
+      margin-bottom: 20px;
+    }
+    #mapa-search {
+      height: 420px !important;
+    }
+  }
+
+  .property-card .card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    border-radius: 10px;
+    overflow: hidden;
+  }
+
+  .property-card .card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.12) !important;
   }
 
   .button-container {
@@ -306,36 +341,48 @@
     </div>
   </div>
 
-  <!-- Barra de control de vista (Lista / Mapa) -->
-  <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+  <!-- Barra de control y visualización de resultados (Split View / Solo Lista / Solo Mapa) -->
+  <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2 pt-2 border-top">
     <div>
-      <h4 class="mb-0 d-inline me-2">Propiedades encontradas</h4>
-      <span class="text-muted small" id="contador-resultados-texto"></span>
+      <h4 class="mb-0 d-inline me-2 fw-bold text-dark">Propiedades</h4>
+      <span class="text-muted small" id="contador-resultados-texto">Cargando...</span>
     </div>
-    <div class="btn-group shadow-sm" role="group" aria-label="Cambiar vista">
-      <button type="button" class="btn btn-outline-primary active" id="btn-vista-lista">
-        <i class="fas fa-th-large me-1"></i> Lista
+    <div class="btn-group shadow-sm" role="group" aria-label="Modo de visualización">
+      <button type="button" class="btn btn-outline-primary active btn-sm" id="btn-vista-split" title="Lista y Mapa lateral simultáneo">
+        <i class="fas fa-columns me-1"></i> Lista + Mapa
       </button>
-      <button type="button" class="btn btn-outline-primary" id="btn-vista-mapa">
-        <i class="fas fa-map-marked-alt me-1"></i> Ver en Mapa
+      <button type="button" class="btn btn-outline-primary btn-sm" id="btn-vista-lista" title="Ver solo listado completo">
+        <i class="fas fa-th-large me-1"></i> Solo Lista
+      </button>
+      <button type="button" class="btn btn-outline-primary btn-sm" id="btn-vista-mapa" title="Ver solo mapa grande">
+        <i class="fas fa-map-marked-alt me-1"></i> Solo Mapa
       </button>
     </div>
   </div>
 
-  <!-- Vista Lista (Grilla de tarjetas) -->
-  <div id="contenedor-lista">
-    <div class="results-container" id="property-results">
-      <!-- Los resultados se cargarán aquí -->
+  <!-- Layout Principal de Resultados (Split-View en Desktop) -->
+  <div class="row g-3" id="contenedor-principal-resultados">
+    <!-- Columna Izquierda: Listado de Propiedades -->
+    <div class="col-lg-7 col-xl-7" id="columna-lista">
+      <div class="results-container" id="property-results">
+        <!-- Los resultados se cargarán aquí por AJAX -->
+      </div>
     </div>
-  </div>
 
-  <!-- Vista Mapa Interactivo -->
-  <div id="contenedor-mapa" style="display: none;">
-    <div class="card shadow-sm border-0 mb-4">
-      <div class="card-body p-0 position-relative">
-        <div id="mapa-search" style="height: 580px; width: 100%; border-radius: 8px;"></div>
-        <div class="position-absolute bottom-0 start-0 m-3 bg-white p-2 rounded shadow-sm small border" style="z-index: 1000;">
-          <i class="fas fa-info-circle text-primary me-1"></i> Hacé clic en los marcadores para ver precio, fotos y detalles de la propiedad.
+    <!-- Columna Derecha: Mapa Lateral Interactivo (Sticky) -->
+    <div class="col-lg-5 col-xl-5" id="columna-mapa">
+      <div class="mapa-sticky-wrapper">
+        <div class="card shadow-sm border-0 h-100 overflow-hidden">
+          <div class="card-header bg-white py-2 d-flex justify-content-between align-items-center border-bottom">
+            <span class="small fw-bold text-primary"><i class="fas fa-map-marker-alt me-1"></i> Ubicación en el mapa</span>
+            <span class="badge bg-light text-dark border small" id="badge-mapa-count">Explorá la zona</span>
+          </div>
+          <div class="card-body p-0 position-relative h-100">
+            <div id="mapa-search" style="border-radius: 0 0 8px 8px;"></div>
+            <div class="position-absolute bottom-0 start-0 m-2 bg-white py-1 px-2 rounded shadow-sm small border" style="z-index: 1000; font-size: 11px;">
+              <i class="fas fa-info-circle text-primary me-1"></i> Hacé clic en los pines para ver detalles
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -428,10 +475,6 @@
     }
 
     function loadProperties(page = 1) {
-      if (vistaActual === 'mapa') {
-        cargarMapaProperties();
-        return;
-      }
       var formData = $('#search-form').serialize();
       $.ajax({
         url: '/buscar-propiedades?page=' + page,
@@ -439,7 +482,6 @@
         data: formData,
         success: function(data) {
           $('#property-results').html(data);
-          $('#contador-resultados-texto').text('');
         },
         error: function(xhr) {
           console.error(xhr.responseText);
@@ -447,34 +489,46 @@
       });
     }
 
-    $('#btn-vista-lista').on('click', function() {
-      vistaActual = 'lista';
-      $(this).addClass('active');
-      $('#btn-vista-mapa').removeClass('active');
-      $('#contenedor-mapa').hide();
-      $('#contenedor-lista').show();
-      loadProperties();
-    });
+    function aplicarVista(modo) {
+      vistaActual = modo;
+      $('#btn-vista-split, #btn-vista-lista, #btn-vista-mapa').removeClass('active');
+      $('#btn-vista-' + modo).addClass('active');
 
-    $('#btn-vista-mapa').on('click', function() {
-      vistaActual = 'mapa';
-      $(this).addClass('active');
-      $('#btn-vista-lista').removeClass('active');
-      $('#contenedor-lista').hide();
-      $('#contenedor-mapa').show();
-      cargarMapaProperties();
-    });
+      if (modo === 'split') {
+        $('#columna-lista').removeClass('col-12 d-none').addClass('col-lg-7 col-xl-7').show();
+        $('#columna-mapa').removeClass('col-12 d-none').addClass('col-lg-5 col-xl-5').show();
+        loadProperties();
+        cargarMapaProperties();
+      } else if (modo === 'lista') {
+        $('#columna-lista').removeClass('col-lg-7 col-xl-7 d-none').addClass('col-12').show();
+        $('#columna-mapa').addClass('d-none').hide();
+        loadProperties();
+      } else if (modo === 'mapa') {
+        $('#columna-lista').addClass('d-none').hide();
+        $('#columna-mapa').removeClass('col-lg-5 col-xl-5 d-none').addClass('col-12').show();
+        cargarMapaProperties();
+      }
+    }
 
-    // Detectar si en la URL viene ?vista=mapa
+    $('#btn-vista-split').on('click', function() { aplicarVista('split'); });
+    $('#btn-vista-lista').on('click', function() { aplicarVista('lista'); });
+    $('#btn-vista-mapa').on('click', function() { aplicarVista('mapa'); });
+
+    // Determinar vista inicial
     var urlParams = new URLSearchParams(window.location.search);
     if (urlParams.get('vista') === 'mapa') {
-      $('#btn-vista-mapa').trigger('click');
+      aplicarVista('mapa');
+    } else if (window.innerWidth >= 992) {
+      aplicarVista('split');
     } else {
-      loadProperties();
+      aplicarVista('lista');
     }
 
     $('#search-button').click(function() {
-      if (vistaActual === 'mapa') {
+      if (vistaActual === 'split') {
+        loadProperties();
+        cargarMapaProperties();
+      } else if (vistaActual === 'mapa') {
         cargarMapaProperties();
       } else {
         loadProperties();

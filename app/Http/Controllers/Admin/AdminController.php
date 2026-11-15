@@ -193,6 +193,23 @@ class AdminController extends Controller
 
         $inmueble = Inmueble::create($data);
 
+        if ($request->hasFile('imagenes')) {
+            $images = $request->file('imagenes');
+            $limiteFotos = (int) ($inmobiliaria->plan->limite_fotos ?? 10);
+            $fotos = [];
+            foreach (array_slice($images, 0, $limiteFotos) as $imagen) {
+                if ($imagen->isValid()) {
+                    $nombre = $inmueble->id . '_' . \Illuminate\Support\Str::uuid() . '.' . strtolower($imagen->getClientOriginalExtension());
+                    $imagen->move(public_path('images/fotosinmuebles'), $nombre);
+                    $fotos[] = $nombre;
+                }
+            }
+            if (!empty($fotos)) {
+                $inmueble->fotos = $fotos;
+                $inmueble->save();
+            }
+        }
+
         if (!empty($data['publicado'])) {
             BusquedaGuardada::notificarNuevaPropiedad($inmueble);
         }

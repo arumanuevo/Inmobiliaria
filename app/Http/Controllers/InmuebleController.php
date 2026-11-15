@@ -111,6 +111,25 @@ class InmuebleController extends Controller
 
         $inmueble = Inmueble::create($data);
 
+        // Guardado directo de imágenes si fueron adjuntadas en el alta
+        if ($request->hasFile('imagenes')) {
+            $images = $request->file('imagenes');
+            $inmobiliaria = $inmueble->inmobiliaria;
+            $limiteFotos = (int) ($inmobiliaria?->plan->limite_fotos ?? 10);
+            $fotos = [];
+            foreach (array_slice($images, 0, $limiteFotos) as $imagen) {
+                if ($imagen->isValid()) {
+                    $nombre = $inmueble->id . '_' . Str::uuid() . '.' . strtolower($imagen->getClientOriginalExtension());
+                    $imagen->move(public_path('images/fotosinmuebles'), $nombre);
+                    $fotos[] = $nombre;
+                }
+            }
+            if (!empty($fotos)) {
+                $inmueble->fotos = $fotos;
+                $inmueble->save();
+            }
+        }
+
         // Alerta a búsquedas guardadas (email a interesados) cuando se publica
         if (!empty($data['publicado'])) {
             BusquedaGuardada::notificarNuevaPropiedad($inmueble);
