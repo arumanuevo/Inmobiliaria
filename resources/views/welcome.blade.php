@@ -210,6 +210,9 @@
         </li>
         <li class="nav-item">
           <a class="nav-link" href="{{ route('propiedades.index') }}" target="_blank">Propiedades</a>
+        <li class="nav-item">
+          <a class="nav-link" href="{{ route('propiedades.mapa') }}">Mapa</a>
+        </li>
         </li>
         <li class="nav-item">
           <a class="nav-link" href="{{ route('contacto') }}" target="_blank">Contacto</a>
@@ -305,7 +308,7 @@
             <div class="card-body">
               <h5 class="card-title">{{ $inmueble->titulo }}</h5>
               <p class="card-text text-muted mb-1">{{ $inmueble->inmobiliaria->nombre_comercial ?? '' }}</p>
-              <p class="card-text">${{ number_format($inmueble->precio, 2) }} • {{ $inmueble->habitaciones }} Habitaciones • {{ $inmueble->banos }} Baños • {{ $inmueble->superficie_cubierta }} m²</p>
+              <p class="card-text">{{ $inmueble->precio_formateado }} • {{ $inmueble->habitaciones }} Habitaciones • {{ $inmueble->banos }} Baños • {{ $inmueble->superficie_cubierta }} m²</p>
               <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#propertyModal{{ $inmueble->id }}">
                 Ver Detalles
               </button>
@@ -340,9 +343,16 @@
                   </button>
                 </div>
                 <hr>
-                <p><strong>Precio:</strong> ${{ number_format($inmueble->precio, 2) }}</p>
+                <p><strong>Precio:</strong> {{ $inmueble->precio_formateado }}</p>
                 <p><strong>Habitaciones:</strong> {{ $inmueble->habitaciones }}</p>
                 <p><strong>Baños:</strong> {{ $inmueble->banos }}</p>
+@if($inmueble->tipo_propiedad)<p><strong>Tipo:</strong> {{ \App\Models\Inmueble::tiposPropiedad()[$inmueble->tipo_propiedad] ?? ucfirst($inmueble->tipo_propiedad) }}</p>@endif
+                @if($inmueble->ambientes)<p><strong>Ambientes:</strong> {{ $inmueble->ambientes }}</p>@endif
+                @if($inmueble->cocheras)<p><strong>Cocheras:</strong> {{ $inmueble->cocheras }}</p>@endif
+                @if($inmueble->expensas)<p><strong>Expensas:</strong> ${{ number_format($inmueble->expensas, 2) }}</p>@endif
+                @if($inmueble->orientacion)<p><strong>Orientación:</strong> {{ $inmueble->orientacion }}</p>@endif
+                @if($inmueble->estado_propiedad)<p><strong>Estado:</strong> {{ ['a_estrenar'=>'A estrenar','usado'=>'Usado / buen estado','a_refaccionar'=>'A refaccionar','en_construccion'=>'En construcción'][$inmueble->estado_propiedad] ?? $inmueble->estado_propiedad }}</p>@endif
+
                 <p><strong>Superficie Cubierta:</strong> {{ $inmueble->superficie_cubierta }} m²</p>
                 <p><strong>Descripción:</strong> {{ $inmueble->descripcion }}</p>
                 <p><strong>Dirección:</strong> {{ $inmueble->direccion }}, {{ $inmueble->ciudad }}, {{ $inmueble->estado }}</p>

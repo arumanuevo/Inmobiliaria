@@ -9,14 +9,17 @@ class Inmobiliaria extends Model
     protected $table = 'inmobiliarias';
 
     protected $fillable = [
-        'usuario_id', 'plan_id', 'nombre_comercial', 'slug', 'logo',
-        'descripcion', 'direccion', 'ciudad', 'provincia', 'codigo_postal',
+        'usuario_id', 'plan_id', 'nombre_comercial', 'slug', 'logo', 'imagen_portada', 'galeria',
+        'descripcion', 'direccion', 'ciudad', 'provincia', 'codigo_postal', 'zonas_cobertura', 'lat', 'lng',
         'telefono', 'whatsapp', 'email', 'sitio_web',
         'facebook', 'instagram', 'color_tema', 'estado', 'plan_vence_at',
     ];
 
     protected $casts = [
         'plan_vence_at' => 'date',
+        'galeria' => 'array',
+        'lat' => 'float',
+        'lng' => 'float',
     ];
 
     public function usuario()

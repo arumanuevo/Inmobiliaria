@@ -57,6 +57,9 @@
         </li>
         <li class="nav-item">
           <a class="nav-link" href="{{ route('inmuebles.index') }}" target="_blank">Propiedades</a>
+        <li class="nav-item">
+          <a class="nav-link" href="{{ route('propiedades.mapa') }}">Mapa</a>
+        </li>
         </li>
         <li class="nav-item">
           <a class="nav-link" href="{{ route('contacto') }}" target="_blank">Contacto</a>

@@ -44,6 +44,13 @@ class InmuebleController extends Controller
 
         $data = $request->validate([
             'tipo_operacion'      => 'required|string|max:50',
+            'tipo_propiedad'      => 'nullable|string|max:30',
+            'moneda'              => 'nullable|in:ARS,USD',
+            'ambientes'           => 'nullable|integer|min:0',
+            'cocheras'            => 'nullable|integer|min:0',
+            'expensas'            => 'nullable|numeric|min:0',
+            'orientacion'         => 'nullable|string|max:20',
+            'estado_propiedad'    => 'nullable|string|max:30',
             'titulo'              => 'required|string|max:255',
             'descripcion'         => 'required',
             'precio'              => 'required|numeric',
@@ -70,6 +77,8 @@ class InmuebleController extends Controller
         $data['garaje']   = $request->has('garaje') ? 1 : 0;
         $data['ascensor'] = $request->has('ascensor') ? 1 : 0;
         $data['publicado'] = $request->has('publicado') ? 1 : 0;
+        $data['moneda'] = $data['moneda'] ?? 'ARS';
+        $data['cocheras'] = $data['cocheras'] ?? 0;
 
         $user = auth()->user();
         $data['usuario_id'] = $user->id;
@@ -114,6 +123,13 @@ class InmuebleController extends Controller
     {
         $data = $request->validate([
             'tipo_operacion'      => 'required|string|max:50',
+            'tipo_propiedad'      => 'nullable|string|max:30',
+            'moneda'              => 'nullable|in:ARS,USD',
+            'ambientes'           => 'nullable|integer|min:0',
+            'cocheras'            => 'nullable|integer|min:0',
+            'expensas'            => 'nullable|numeric|min:0',
+            'orientacion'         => 'nullable|string|max:20',
+            'estado_propiedad'    => 'nullable|string|max:30',
             'titulo'              => 'required|string|max:255',
             'descripcion'         => 'required',
             'precio'              => 'required|numeric',
@@ -140,6 +156,8 @@ class InmuebleController extends Controller
         $data['garaje']   = $request->has('garaje') ? 1 : 0;
         $data['ascensor'] = $request->has('ascensor') ? 1 : 0;
         $data['publicado'] = $request->has('publicado') ? 1 : 0;
+        $data['moneda'] = $data['moneda'] ?? 'ARS';
+        $data['cocheras'] = $data['cocheras'] ?? 0;
 
         $this->authorize('update', $inmueble);
 

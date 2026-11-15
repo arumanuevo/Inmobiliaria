@@ -63,6 +63,8 @@ Route::post('/guardar_imagenes', [InmuebleController::class, 'guardarImagenes'])
 Route::post('/inmuebles/toggle-destacado/{id}', [InmuebleController::class, 'toggleDestacado'])->name('inmuebles.toggleDestacado');
 Route::get('/buscar-propiedades', [PropertySearchController::class, 'search'])->name('buscar-propiedades');
 Route::get('/propiedades', [PropertySearchController::class, 'index'])->name('propiedades.index');
+Route::get('/mapa', [PropertySearchController::class, 'mapa'])->name('propiedades.mapa');
+Route::get('/api/propiedades', [PropertySearchController::class, 'apiMapa'])->name('propiedades.api');
 
 // Ruta para la página de contacto
 Route::get('/contacto', function () {

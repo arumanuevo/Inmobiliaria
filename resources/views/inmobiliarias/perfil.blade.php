@@ -134,6 +134,43 @@
                                        value="{{ old('provincia', $inmobiliaria->provincia) }}">
                             </div>
                         </div>
+                        <div class="form-group">
+                            <label for="zonas_cobertura">Zonas de cobertura (ciudades/partidos que atienden)</label>
+                            <input type="text" name="zonas_cobertura" id="zonas_cobertura" class="form-control"
+                                   value="{{ old('zonas_cobertura', $inmobiliaria->zonas_cobertura) }}" placeholder="Ej: Chivilcoy, Bragado, 25 de Mayo">
+                            <small class="text-muted">Se usa para buscar tu inmobiliaria por zona en el directorio del portal.</small>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 form-group">
+                                <label>Ubicación de la oficina en el mapa</label>
+                                <div class="row">
+                                    <div class="col-6"><input type="text" name="lat" id="lat" class="form-control" placeholder="Latitud" value="{{ old('lat', $inmobiliaria->lat) }}"></div>
+                                    <div class="col-6"><input type="text" name="lng" id="lng" class="form-control" placeholder="Longitud" value="{{ old('lng', $inmobiliaria->lng) }}"></div>
+                                </div>
+                                <div id="mapa-perfil" style="height: 240px; border-radius: 8px; border: 1px solid #ccc;" class="mt-2"></div>
+                                <small class="text-muted">Hacé clic en el mapa para marcar la oficina.</small>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="imagen_portada">Imagen de portada (jumbotron de tu perfil)</label>
+                                    <input type="file" name="imagen_portada" id="imagen_portada" class="form-control-file" accept="image/*">
+                                    @if($inmobiliaria->imagen_portada)
+                                        <img src="{{ asset($inmobiliaria->imagen_portada) }}" class="img-thumbnail mt-2" style="max-height: 90px;">
+                                    @endif
+                                </div>
+                                <div class="form-group">
+                                    <label for="galeria">Galería del jumbotron (varias imágenes = carrusel, máx. 10)</label>
+                                    <input type="file" name="galeria[]" id="galeria" class="form-control-file" accept="image/*" multiple>
+                                    @if(!empty($inmobiliaria->galeria))
+                                        <div class="d-flex flex-wrap mt-2">
+                                            @foreach($inmobiliaria->galeria as $img)
+                                                <img src="{{ asset($img) }}" class="img-thumbnail me-1 mb-1" style="height: 60px;">
+                                            @endforeach
+                                        </div>
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
                         <div class="row">
                             <div class="col-md-6 form-group">
                                 <label for="telefono">Teléfono</label>
@@ -192,4 +229,35 @@
         </div>
     </div>
 </div>
+@stop
+
+@section('css')
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+@stop
+
+@section('js')
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    var div = document.getElementById('mapa-perfil');
+    if (!div || typeof L === 'undefined') { return; }
+    var latInput = document.getElementById('lat');
+    var lngInput = document.getElementById('lng');
+    var lat0 = parseFloat(latInput.value), lng0 = parseFloat(lngInput.value);
+    var tieneCoords = !isNaN(lat0) && !isNaN(lng0);
+    var map = L.map('mapa-perfil').setView(tieneCoords ? [lat0, lng0] : [-38.5, -64.5], tieneCoords ? 14 : 4);
+    var osm = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '&copy; OpenStreetMap' }).addTo(map);
+    var sat = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', { maxZoom: 19, attribution: 'Tiles &copy; Esri' });
+    L.control.layers({ 'Callejera': osm, 'Satelital': sat }, null, { position: 'topright' }).addTo(map);
+    var marker = null;
+    function setMarker(lat, lng) {
+        latInput.value = lat.toFixed(6);
+        lngInput.value = lng.toFixed(6);
+        if (marker) { map.removeLayer(marker); }
+        marker = L.marker([lat, lng]).addTo(map);
+    }
+    if (tieneCoords) { setMarker(lat0, lng0); }
+    map.on('click', function (e) { setMarker(e.latlng.lat, e.latlng.lng); });
+});
+</script>
 @stop

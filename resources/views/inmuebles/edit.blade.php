@@ -26,6 +26,60 @@
                         <option value="alquiler" {{ $inmueble->tipo_operacion == 'alquiler' ? 'selected' : '' }}>Alquiler</option>
                     </select>
                 </div>
+
+                <!-- Características (estilo portales AR) -->
+                <div class="row">
+                    <div class="col-md-4 form-group">
+                        <label for="tipo_propiedad">Tipo de propiedad</label>
+                        <select name="tipo_propiedad" id="tipo_propiedad" class="form-control">
+                            <option value="">Seleccione</option>
+                            @foreach(\App\Models\Inmueble::tiposPropiedad() as $val => $lbl)
+                                <option value="{{ $val }}" {{ old('tipo_propiedad', $inmueble->tipo_propiedad) == $val ? 'selected' : '' }}>{{ $lbl }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-md-4 form-group">
+                        <label for="moneda">Moneda</label>
+                        <select name="moneda" id="moneda" class="form-control">
+                            <option value="ARS" {{ old('moneda', $inmueble->moneda ?? 'ARS') == 'ARS' ? 'selected' : '' }}>Pesos (ARS $)</option>
+                            <option value="USD" {{ old('moneda', $inmueble->moneda) == 'USD' ? 'selected' : '' }}>Dólares (USD U$S)</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4 form-group">
+                        <label for="ambientes">Ambientes</label>
+                        <input type="number" name="ambientes" id="ambientes" class="form-control" min="0" value="{{ old('ambientes', $inmueble->ambientes) }}">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4 form-group">
+                        <label for="cocheras">Cocheras</label>
+                        <input type="number" name="cocheras" id="cocheras" class="form-control" min="0" value="{{ old('cocheras', $inmueble->cocheras ?? 0) }}">
+                    </div>
+                    <div class="col-md-4 form-group">
+                        <label for="expensas">Expensas</label>
+                        <input type="number" step="0.01" name="expensas" id="expensas" class="form-control" min="0" value="{{ old('expensas', $inmueble->expensas) }}">
+                    </div>
+                    <div class="col-md-4 form-group">
+                        <label for="orientacion">Orientación</label>
+                        <select name="orientacion" id="orientacion" class="form-control">
+                            <option value="">-</option>
+                            @foreach(['Norte','Noreste','Este','Sudeste','Sur','Suroeste','Oeste','Noroeste'] as $o)
+                                <option value="{{ $o }}" {{ old('orientacion', $inmueble->orientacion) == $o ? 'selected' : '' }}>{{ $o }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4 form-group">
+                        <label for="estado_propiedad">Estado de la propiedad</label>
+                        <select name="estado_propiedad" id="estado_propiedad" class="form-control">
+                            <option value="">-</option>
+                            @foreach(['a_estrenar'=>'A estrenar','usado'=>'Usado / buen estado','a_refaccionar'=>'A refaccionar','en_construccion'=>'En construcción'] as $val => $lbl)
+                                <option value="{{ $val }}" {{ old('estado_propiedad', $inmueble->estado_propiedad) == $val ? 'selected' : '' }}>{{ $lbl }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
                 <div class="form-group">
                     <label for="titulo">Título</label>
                     <input type="text" name="titulo" class="form-control" value="{{ $inmueble->titulo }}" required>

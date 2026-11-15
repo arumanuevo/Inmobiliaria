@@ -81,6 +81,9 @@
         </li>
         <li class="nav-item">
           <a class="nav-link" href="{{ route('propiedades.index') }}" target="_blank">Propiedades</a>
+        <li class="nav-item">
+          <a class="nav-link" href="{{ route('propiedades.mapa') }}">Mapa</a>
+        </li>
         </li>
         <li class="nav-item">
           <a class="nav-link" href="{{ route('contacto') }}" target="_blank">Contacto</a>
@@ -176,6 +179,41 @@
           <div class="form-group">
             <label for="ciudad">Ciudad</label>
             <input type="text" class="form-control" id="ciudad" name="ciudad" placeholder="Ciudad">
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-md-3">
+          <div class="form-group">
+            <label for="tipo_propiedad">Tipo de propiedad</label>
+            <select class="form-control" id="tipo_propiedad" name="tipo_propiedad">
+              <option value="">Todos</option>
+              @foreach($tipos as $val => $lbl)
+                <option value="{{ $val }}">{{ $lbl }}</option>
+              @endforeach
+            </select>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="form-group">
+            <label for="moneda">Moneda</label>
+            <select class="form-control" id="moneda" name="moneda">
+              <option value="">ARS y USD</option>
+              <option value="ARS">Pesos (ARS)</option>
+              <option value="USD">Dólares (USD)</option>
+            </select>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="form-group">
+            <label for="ambientes_min">Ambientes mín.</label>
+            <input type="number" class="form-control" id="ambientes_min" name="ambientes_min" min="0" placeholder="Ej: 3">
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="form-group">
+            <label for="cocheras_min">Cocheras mín.</label>
+            <input type="number" class="form-control" id="cocheras_min" name="cocheras_min" min="0" placeholder="Ej: 1">
           </div>
         </div>
       </div>

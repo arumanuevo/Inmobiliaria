@@ -32,7 +32,8 @@
       <ul class="navbar-nav ms-auto">
         <li class="nav-item"><a class="nav-link" href="{{ route('inicio') }}">Inicio</a></li>
         <li class="nav-item"><a class="nav-link active" href="{{ route('inmobiliarias.index') }}">Inmobiliarias</a></li>
-        <li class="nav-item"><a class="nav-link" href="{{ route('propiedades.index') }}">Propiedades</a></li>
+        <li class="nav-item"><a class="nav-link" href="{{ route('propiedades.index') }}">Propiedades</a>
+        <li class="nav-item"><a class="nav-link" href="{{ route('propiedades.mapa') }}">Mapa</a></li></li>
         <li class="nav-item"><a class="nav-link" href="{{ route('contacto') }}">Contacto</a></li>
         <li class="nav-item"><a class="nav-link" href="{{ route('login') }}">Acceso</a></li>
       </ul>
@@ -45,6 +46,15 @@
     <h1>Nuestras Inmobiliarias</h1>
     <p class="text-muted">Conocé las inmobiliarias que publican en nuestro portal y explorá sus propiedades.</p>
   </div>
+
+  <form method="GET" action="{{ route('inmobiliarias.index') }}" class="row justify-content-center mb-4">
+    <div class="col-md-6">
+      <div class="input-group">
+        <input type="text" name="q" class="form-control" placeholder="Buscar por nombre, ciudad, provincia o zona de cobertura..." value="{{ $q ?? '' }}">
+        <button class="btn btn-primary" type="submit"><i class="fas fa-search"></i> Buscar</button>
+      </div>
+    </div>
+  </form>
 
   <div class="row">
     @forelse($inmobiliarias as $inmobiliaria)
@@ -60,6 +70,9 @@
             @endif
             <h5 class="mt-3 mb-1">{{ $inmobiliaria->nombre_comercial }}</h5>
             <p class="text-muted mb-1">{{ trim($inmobiliaria->ciudad . ', ' . $inmobiliaria->provincia, ', ') ?: 'Sin ubicación' }}</p>
+            @if($inmobiliaria->zonas_cobertura)
+              <p class="text-muted mb-1"><i class="fas fa-map-marker-alt"></i> Atiende: {{ $inmobiliaria->zonas_cobertura }}</p>
+            @endif
             <p class="text-muted mb-3">{{ $inmobiliaria->inmuebles_publicados_count }} {{ Str::plural('propiedad', $inmobiliaria->inmuebles_publicados_count) }} publicada(s)</p>
             <a href="{{ route('inmobiliarias.show', $inmobiliaria->slug) }}" class="btn btn-primary btn-sm">Ver perfil</a>
           </div>

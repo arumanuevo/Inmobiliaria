@@ -22,7 +22,7 @@
         <div class="card-body">
           <h5 class="card-title">{{ $property->titulo }}</h5>
           <p class="card-text text-muted mb-1">{{ $property->inmobiliaria->nombre_comercial ?? '' }}</p>
-          <p class="card-text">${{ number_format($property->precio, 2) }} • {{ $property->habitaciones }} Habitaciones • {{ $property->banos }} Baños • {{ $property->superficie_cubierta }} m²</p>
+          <p class="card-text">{{ $property->precio_formateado }} • {{ $property->habitaciones }} Habitaciones • {{ $property->banos }} Baños • {{ $property->superficie_cubierta }} m²</p>
           <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#propertyModal{{ $property->id }}">
             Ver Detalles
           </button>
@@ -57,9 +57,16 @@
               </button>
             </div>
             <hr>
-            <p><strong>Precio:</strong> ${{ number_format($property->precio, 2) }}</p>
+            <p><strong>Precio:</strong> {{ $property->precio_formateado }}</p>
             <p><strong>Habitaciones:</strong> {{ $property->habitaciones }}</p>
             <p><strong>Baños:</strong> {{ $property->banos }}</p>
+@if($property->tipo_propiedad)<p><strong>Tipo:</strong> {{ \App\Models\Inmueble::tiposPropiedad()[$property->tipo_propiedad] ?? ucfirst($property->tipo_propiedad) }}</p>@endif
+            @if($property->ambientes)<p><strong>Ambientes:</strong> {{ $property->ambientes }}</p>@endif
+            @if($property->cocheras)<p><strong>Cocheras:</strong> {{ $property->cocheras }}</p>@endif
+            @if($property->expensas)<p><strong>Expensas:</strong> ${{ number_format($property->expensas, 2) }}</p>@endif
+            @if($property->orientacion)<p><strong>Orientación:</strong> {{ $property->orientacion }}</p>@endif
+            @if($property->estado_propiedad)<p><strong>Estado:</strong> {{ ['a_estrenar'=>'A estrenar','usado'=>'Usado / buen estado','a_refaccionar'=>'A refaccionar','en_construccion'=>'En construcción'][$property->estado_propiedad] ?? $property->estado_propiedad }}</p>@endif
+
             <p><strong>Superficie Cubierta:</strong> {{ $property->superficie_cubierta }} m²</p>
             <p><strong>Descripción:</strong> {{ $property->descripcion }}</p>
             <p><strong>Dirección:</strong> {{ $property->direccion }}, {{ $property->ciudad }}, {{ $property->estado }}</p>

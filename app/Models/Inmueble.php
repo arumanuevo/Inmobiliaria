@@ -8,11 +8,12 @@ class Inmueble extends Model
     protected $table = 'inmuebles';
 
     protected $fillable = [
-        'usuario_id', 'inmobiliaria_id', 'tipo_operacion', 'titulo', 'descripcion', 'precio',
-        'superficie_cubierta', 'habitaciones', 'banos', 'anio_construccion',
+        'usuario_id', 'inmobiliaria_id', 'tipo_operacion', 'tipo_propiedad', 'moneda', 'titulo', 'descripcion', 'precio',
+        'superficie_cubierta', 'habitaciones', 'ambientes', 'banos', 'cocheras', 'expensas',
+        'anio_construccion', 'orientacion', 'estado_propiedad',
         'direccion', 'ciudad', 'estado', 'codigo_postal', 'coordenadas',
         'piscina', 'jardin', 'garaje', 'ascensor', 'fotos', 'destacado', 'publicado', 'visitas',
-        'propdom', 'propnombre', 'propdni', 'propemail', 'proptel' // Nuevos campos
+        'propdom', 'propnombre', 'propdni', 'propemail', 'proptel'
     ];
 
     protected $casts = [
@@ -20,6 +21,21 @@ class Inmueble extends Model
         'destacado' => 'boolean',
         'publicado' => 'boolean',
     ];
+
+    public static function tiposPropiedad(): array
+    {
+        return [
+            'casa' => 'Casa', 'departamento' => 'Departamento', 'ph' => 'PH', 'duplex' => 'Dúplex',
+            'terreno' => 'Terreno', 'local' => 'Local comercial', 'oficina' => 'Oficina',
+            'galpon' => 'Galpón', 'quinta' => 'Quinta', 'campo' => 'Campo', 'cochera' => 'Cochera',
+        ];
+    }
+
+    public function getPrecioFormateadoAttribute(): string
+    {
+        $simbolo = (($this->moneda ?? 'ARS') === 'USD') ? 'U$S ' : '$';
+        return $simbolo . number_format((float) $this->precio, 2);
+    }
 
     // Relación: un inmueble tiene muchas fotos
     public function fotos()

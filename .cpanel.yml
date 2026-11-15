@@ -12,3 +12,4 @@ deployment:
     - /bin/cp -R storage $DEPLOYPATH
     - /bin/rm -f $DEPLOYPATH/bootstrap/cache/routes-v7.php
     - /bin/rm -f $DEPLOYPATH/bootstrap/cache/config.php
+    - /bin/rm -f $DEPLOYPATH/storage/framework/views/*.php
