@@ -4,6 +4,7 @@
 
 @section('css')
 <link rel="stylesheet" href="{{ asset('css/landing.css') }}">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
 <style>
   body {
@@ -73,19 +74,13 @@
     </button>
     <div class="collapse navbar-collapse" id="navbarResponsive">
       <ul class="navbar-nav ms-auto">
-        <li class="nav-item">
-          <a class="nav-link" href="{{ route('inicio') }}">Inicio</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="{{ route('inmobiliarias.index') }}">Inmobiliarias</a>
-        </li>
-        <li class="nav-item"><a class="nav-link" href="{{ route('propiedades.index') }}">Propiedades</a></li>
-        <li class="nav-item"><a class="nav-link" href="{{ route('propiedades.mapa') }}">Mapa</a></li>
-        <li class="nav-item"><a class="nav-link" href="{{ route('contacto') }}">Contacto</a></li>
+        <li class="nav-item"><a class="nav-link" href="{{ route('inicio') }}">Inicio</a></li>
+        <li class="nav-item"><a class="nav-link active" href="{{ route('propiedades.index') }}">Propiedades</a></li>
+        <li class="nav-item"><a class="nav-link" href="{{ route('inmobiliarias.index') }}">Inmobiliarias</a></li>
+        <li class="nav-item"><a class="nav-link text-success fw-bold" href="{{ route('register', ['tipo' => 'particular']) }}"><i class="fas fa-plus-circle me-1"></i> Publicar gratis</a></li>
         <li class="nav-item"><a class="nav-link" href="{{ route('sumate') }}">Soy inmobiliaria</a></li>
-        <li class="nav-item">
-          <a class="nav-link" href="{{ route('login') }}">Acceso</a>
-        </li>
+        <li class="nav-item"><a class="nav-link" href="{{ route('contacto') }}">Contacto</a></li>
+        <li class="nav-item"><a class="nav-link" href="{{ route('login') }}">Acceso</a></li>
       </ul>
     </div>
   </div>
@@ -311,8 +306,39 @@
     </div>
   </div>
 
-  <div class="results-container" id="property-results">
-    <!-- Los resultados se cargarán aquí -->
+  <!-- Barra de control de vista (Lista / Mapa) -->
+  <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+    <div>
+      <h4 class="mb-0 d-inline me-2">Propiedades encontradas</h4>
+      <span class="text-muted small" id="contador-resultados-texto"></span>
+    </div>
+    <div class="btn-group shadow-sm" role="group" aria-label="Cambiar vista">
+      <button type="button" class="btn btn-outline-primary active" id="btn-vista-lista">
+        <i class="fas fa-th-large me-1"></i> Lista
+      </button>
+      <button type="button" class="btn btn-outline-primary" id="btn-vista-mapa">
+        <i class="fas fa-map-marked-alt me-1"></i> Ver en Mapa
+      </button>
+    </div>
+  </div>
+
+  <!-- Vista Lista (Grilla de tarjetas) -->
+  <div id="contenedor-lista">
+    <div class="results-container" id="property-results">
+      <!-- Los resultados se cargarán aquí -->
+    </div>
+  </div>
+
+  <!-- Vista Mapa Interactivo -->
+  <div id="contenedor-mapa" style="display: none;">
+    <div class="card shadow-sm border-0 mb-4">
+      <div class="card-body p-0 position-relative">
+        <div id="mapa-search" style="height: 580px; width: 100%; border-radius: 8px;"></div>
+        <div class="position-absolute bottom-0 start-0 m-3 bg-white p-2 rounded shadow-sm small border" style="z-index: 1000;">
+          <i class="fas fa-info-circle text-primary me-1"></i> Hacé clic en los marcadores para ver precio, fotos y detalles de la propiedad.
+        </div>
+      </div>
+    </div>
   </div>
 
   
@@ -333,11 +359,79 @@
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <!-- Incluir Bootstrap JS -->
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/5.1.3/js/bootstrap.bundle.min.js"></script>
+<!-- Incluir Leaflet JS -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <!-- Incluir DataTables -->
 <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
 <script>
   $(document).ready(function() {
+    var vistaActual = 'lista';
+    var mapInstancia = null;
+    var markersLayer = null;
+
+    function initMapa() {
+      if (mapInstancia) return;
+      mapInstancia = L.map('mapa-search').setView([-38.5, -64.5], 5);
+      var osm = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+      }).addTo(mapInstancia);
+      var satelite = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+        maxZoom: 19,
+        attribution: 'Tiles &copy; Esri'
+      });
+      L.control.layers({ 'Callejera (OSM)': osm, 'Satelital (Esri)': satelite }, null, { position: 'topright' }).addTo(mapInstancia);
+      markersLayer = L.featureGroup().addTo(mapInstancia);
+    }
+
+    function cargarMapaProperties() {
+      initMapa();
+      setTimeout(function() {
+        if (mapInstancia) { mapInstancia.invalidateSize(); }
+      }, 200);
+
+      var formData = $('#search-form').serialize();
+      $.ajax({
+        url: '/api/propiedades',
+        method: 'GET',
+        data: formData,
+        success: function(items) {
+          markersLayer.clearLayers();
+          if (!items || !items.length) {
+            $('#contador-resultados-texto').text('(0 propiedades en mapa)');
+            return;
+          }
+          $('#contador-resultados-texto').text('(' + items.length + ' propiedades encontradas en mapa)');
+          items.forEach(function(it) {
+            if (it.lat === null || it.lng === null) return;
+            var foto = it.foto ? '<img src="' + it.foto + '" style="width:100%; height:120px; object-fit:cover; border-radius:4px; margin-bottom:6px;">' : '';
+            var badge = it.es_particular
+              ? '<span class="badge bg-success mb-1" style="font-size:10px;">Dueño Directo</span>'
+              : '<span class="badge bg-primary mb-1" style="font-size:10px;">Inmobiliaria</span>';
+            var popup = '<div style="min-width:210px; max-width:260px;">' +
+              foto +
+              '<div>' + badge + '</div>' +
+              '<div class="fw-bold mb-1">' + it.titulo + '</div>' +
+              '<div class="text-primary fw-bold">' + it.precio_fmt + '</div>' +
+              '<div class="small text-muted mb-1">' + (it.ciudad || '') + ' · ' + (it.inmobiliaria || '') + '</div>' +
+              (it.url ? '<a href="' + it.url + '" class="btn btn-primary btn-sm w-100 py-1" style="font-size:12px;">Ver propiedad</a>' : '') +
+              '</div>';
+            var marker = L.marker([it.lat, it.lng]).bindPopup(popup);
+            markersLayer.addLayer(marker);
+          });
+
+          if (markersLayer.getLayers().length > 0) {
+            mapInstancia.fitBounds(markersLayer.getBounds().pad(0.15));
+          }
+        }
+      });
+    }
+
     function loadProperties(page = 1) {
+      if (vistaActual === 'mapa') {
+        cargarMapaProperties();
+        return;
+      }
       var formData = $('#search-form').serialize();
       $.ajax({
         url: '/buscar-propiedades?page=' + page,
@@ -345,6 +439,7 @@
         data: formData,
         success: function(data) {
           $('#property-results').html(data);
+          $('#contador-resultados-texto').text('');
         },
         error: function(xhr) {
           console.error(xhr.responseText);
@@ -352,8 +447,38 @@
       });
     }
 
-    $('#search-button').click(function() {
+    $('#btn-vista-lista').on('click', function() {
+      vistaActual = 'lista';
+      $(this).addClass('active');
+      $('#btn-vista-mapa').removeClass('active');
+      $('#contenedor-mapa').hide();
+      $('#contenedor-lista').show();
       loadProperties();
+    });
+
+    $('#btn-vista-mapa').on('click', function() {
+      vistaActual = 'mapa';
+      $(this).addClass('active');
+      $('#btn-vista-lista').removeClass('active');
+      $('#contenedor-lista').hide();
+      $('#contenedor-mapa').show();
+      cargarMapaProperties();
+    });
+
+    // Detectar si en la URL viene ?vista=mapa
+    var urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('vista') === 'mapa') {
+      $('#btn-vista-mapa').trigger('click');
+    } else {
+      loadProperties();
+    }
+
+    $('#search-button').click(function() {
+      if (vistaActual === 'mapa') {
+        cargarMapaProperties();
+      } else {
+        loadProperties();
+      }
     });
 
     // Manejar la paginación
@@ -362,9 +487,6 @@
       var page = $(this).attr('href').split('page=')[1];
       loadProperties(page);
     });
-
-    // Cargar propiedades al cargar la página
-    loadProperties();
 
     // Lógica Geográfica GIS: Geocoder con Nominatim
     var timerGeo = null;

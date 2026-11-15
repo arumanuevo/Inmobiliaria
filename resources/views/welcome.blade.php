@@ -206,12 +206,12 @@
     </button>
     <div class="collapse navbar-collapse" id="navbarResponsive">
       <ul class="navbar-nav ms-auto">
-        <li class="nav-item"><a class="nav-link" href="{{ route('inicio') }}">Inicio</a></li>
-        <li class="nav-item"><a class="nav-link" href="{{ route('inmobiliarias.index') }}">Inmobiliarias</a></li>
+        <li class="nav-item"><a class="nav-link active" href="{{ route('inicio') }}">Inicio</a></li>
         <li class="nav-item"><a class="nav-link" href="{{ route('propiedades.index') }}">Propiedades</a></li>
-        <li class="nav-item"><a class="nav-link" href="{{ route('propiedades.mapa') }}">Mapa</a></li>
-        <li class="nav-item"><a class="nav-link" href="{{ route('contacto') }}">Contacto</a></li>
+        <li class="nav-item"><a class="nav-link" href="{{ route('inmobiliarias.index') }}">Inmobiliarias</a></li>
+        <li class="nav-item"><a class="nav-link text-success fw-bold" href="{{ route('register', ['tipo' => 'particular']) }}"><i class="fas fa-plus-circle me-1"></i> Publicar gratis</a></li>
         <li class="nav-item"><a class="nav-link" href="{{ route('sumate') }}">Soy inmobiliaria</a></li>
+        <li class="nav-item"><a class="nav-link" href="{{ route('contacto') }}">Contacto</a></li>
         <li class="nav-item"><a class="nav-link" href="{{ route('login') }}">Acceso</a></li>
       </ul>
     </div>
@@ -234,11 +234,20 @@
     <div style="position: absolute; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.5);"></div>
     <div class="container hero-content">
       <div class="row align-items-center justify-content-center text-center">
-        <div class="col-md-10">
-          <h1 class="display-5 fw-bold text-white">Encontrá tu próximo hogar en un solo lugar</h1>
-          <p class="lead text-white">Explorá propiedades de inmobiliarias verificadas de la zona y contactá directo con la inmobiliaria, sin intermediarios.</p>
-          <a href="{{ route('propiedades.index') }}" class="btn btn-primary btn-lg me-2">Buscar propiedades</a>
-          <a href="{{ route('sumate') }}" class="btn btn-outline-light btn-lg">Soy inmobiliaria</a>
+        <div class="col-md-11">
+          <h1 class="display-5 fw-bold text-white">Encontrá tu próximo hogar o publicá tu propiedad</h1>
+          <p class="lead text-white">Explorá propiedades de inmobiliarias verificadas y dueños directos de la zona, o publicá tu inmueble sin intermediarios.</p>
+          <div class="d-flex justify-content-center gap-2 flex-wrap mt-3">
+            <a href="{{ route('propiedades.index') }}" class="btn btn-primary btn-lg shadow-sm">
+              <i class="fas fa-search me-1"></i> Buscar propiedades
+            </a>
+            <a href="{{ route('register', ['tipo' => 'particular']) }}" class="btn btn-success btn-lg shadow-sm">
+              <i class="fas fa-home me-1"></i> Publicar mi inmueble gratis
+            </a>
+            <a href="{{ route('sumate') }}" class="btn btn-outline-light btn-lg">
+              <i class="fas fa-building me-1"></i> Soy inmobiliaria
+            </a>
+          </div>
         </div>
       </div>
     </div>
@@ -253,8 +262,8 @@
         </div>
         <div class="col-md-6">
           <h2 class="mb-4">¿Qué es {{ config('app.name') }}?</h2>
-          <p>Somos el portal donde las inmobiliarias de la zona publican sus propiedades con su propia marca y su propia página pública. Vos buscás y contactás directo con la inmobiliaria: sin intermediarios.</p>
-          <p>Buscá por zona o en el mapa, guardá tus búsquedas y recibí un aviso por email cuando aparezca una propiedad que te interese. ¿Tenés una inmobiliaria? Creá tu vidriera gratis en minutos.</p>
+          <p>Somos el portal donde las <strong>inmobiliarias de la zona</strong> y los <strong>dueños particulares</strong> publican sus propiedades de manera transparente. Vos buscás por características o en el mapa interactivo y contactás directo con el anunciante: sin intermediarios ni comisiones sorpresa.</p>
+          <p>Buscá por localidad o en el mapa con geolocalización, guardá tus alertas y recibí un aviso por email cuando aparezca una propiedad que coincida con tus gustos. ¿Querés vender o alquilar tu casa? Publicala gratis en minutos.</p>
           <div class="row text-center my-4">
             <div class="col-4">
               <div class="h3 fw-bold text-primary mb-0">{{ $stats['inmobiliarias'] }}</div>
@@ -269,7 +278,10 @@
               <small class="text-muted">operaciones concretadas</small>
             </div>
           </div>
-          <a href="{{ route('sumate') }}" class="btn btn-outline-primary mt-2">Sumá tu inmobiliaria gratis</a>
+          <div class="d-flex gap-2 flex-wrap">
+            <a href="{{ route('register', ['tipo' => 'particular']) }}" class="btn btn-success"><i class="fas fa-home me-1"></i> Publicar como particular</a>
+            <a href="{{ route('sumate') }}" class="btn btn-outline-primary"><i class="fas fa-building me-1"></i> Sumá tu inmobiliaria</a>
+          </div>
         </div>
       </div>
     </div>

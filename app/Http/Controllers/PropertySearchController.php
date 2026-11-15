@@ -109,44 +109,26 @@ class PropertySearchController extends Controller
         return view('inmuebles.mapa', compact('tipos'));
     }
 
-    // JSON de propiedades publicadas con coordenadas, filtradas por bounds del mapa y filtros
+    // JSON de propiedades publicadas con coordenadas, filtradas por filtros y opcionalmente por bounds
     public function apiMapa(Request $request)
     {
-        $items = Inmueble::publicados()
+        $query = Inmueble::publicados()
             ->whereHas('inmobiliaria', function ($q) {
                 $q->where('estado', 'activa');
             })
             ->whereNotNull('coordenadas')
             ->where('coordenadas', '!=', '')
+            ->where('coordenadas', 'like', '%,%')
             ->with(['inmobiliaria.usuario.roles'])
-            ->latest()
-            ->get();
+            ->aplicarFiltros($request->only([
+                'inmobiliaria', 'tipo_anunciante', 'tipo_operacion', 'tipo_propiedad', 'moneda',
+                'ambientes_min', 'cocheras_min', 'precio_min', 'precio_max',
+                'habitaciones', 'banos', 'superficie_min', 'superficie_max', 'ciudad',
+                'geo_lat', 'geo_lng', 'radio_km',
+            ]));
 
-        if ($request->filled('tipo_anunciante')) {
-            if ($request->tipo_anunciante === 'particular') {
-                $items = $items->filter(fn ($i) => $i->inmobiliaria?->usuario?->hasRole('particular'));
-            } elseif ($request->tipo_anunciante === 'inmobiliaria') {
-                $items = $items->filter(fn ($i) => $i->inmobiliaria?->usuario?->hasRole('inmobiliaria'));
-            }
-        }
-        if ($request->filled('tipo_operacion')) {
-            $items = $items->where('tipo_operacion', $request->tipo_operacion);
-        }
-        if ($request->filled('tipo_propiedad')) {
-            $items = $items->where('tipo_propiedad', $request->tipo_propiedad);
-        }
-        if ($request->filled('moneda')) {
-            $items = $items->where('moneda', $request->moneda);
-        }
-        if (is_numeric($request->precio_min)) {
-            $items = $items->where('precio', '>=', (float) $request->precio_min);
-        }
-        if (is_numeric($request->precio_max)) {
-            $items = $items->where('precio', '<=', (float) $request->precio_max);
-        }
-        if ($request->filled('ciudad')) {
-            $items = $items->filter(fn ($i) => str_contains(mb_strtolower((string) $i->ciudad), mb_strtolower($request->ciudad)));
-        }
+        $items = $query->latest()->get();
+
         if ($request->filled('q')) {
             $q = mb_strtolower($request->q);
             $items = $items->filter(fn ($i) => str_contains(mb_strtolower($i->titulo . ' ' . $i->descripcion), $q));
