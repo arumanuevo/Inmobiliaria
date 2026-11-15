@@ -80,9 +80,16 @@
       <input type="number" name="precio_max" class="form-control form-control-sm" placeholder="Precio máx.">
     </div>
     <div class="col-md-2">
-      <input type="text" name="ciudad" class="form-control form-control-sm" placeholder="Ciudad">
+      <input type="text" name="ciudad" class="form-control form-control-sm" placeholder="Ciudad / Pueblo">
     </div>
-    <div class="col-md-10">
+    <div class="col-md-6 position-relative">
+      <div class="input-group input-group-sm">
+        <input type="text" id="mapa_geo_input" class="form-control" placeholder="Buscar y centrar en ciudad, pueblo, dirección..." autocomplete="off">
+        <button type="button" id="btn-mapa-gps" class="btn btn-outline-primary" title="Ir a mi ubicación actual"><i class="fas fa-crosshairs"></i> Mi ubicación</button>
+      </div>
+      <div id="mapa_geo_sugerencias" class="list-group position-absolute w-100 shadow" style="z-index: 1050; max-height: 220px; overflow-y: auto; display: none;"></div>
+    </div>
+    <div class="col-md-4">
       <input type="text" name="q" class="form-control form-control-sm" placeholder="Buscar por título o descripción...">
     </div>
   </form>
@@ -193,10 +200,86 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     map.on('moveend', cargar);
-    document.getElementById('filtros-mapa').addEventListener('input', function () {
+    document.getElementById('filtros-mapa').addEventListener('input', function (e) {
+        if (e.target && e.target.id === 'mapa_geo_input') { return; }
         clearTimeout(window.__tMapa);
         window.__tMapa = setTimeout(cargar, 400);
     });
+
+    // Geocoder para centrar el mapa en ciudad, pueblo o lugar
+    var timerMapaGeo = null;
+    var inputMapaGeo = document.getElementById('mapa_geo_input');
+    var sugMapaGeo = document.getElementById('mapa_geo_sugerencias');
+
+    if (inputMapaGeo) {
+        inputMapaGeo.addEventListener('input', function() {
+            clearTimeout(timerMapaGeo);
+            var q = this.value.trim();
+            if (q.length < 3) {
+                sugMapaGeo.style.display = 'none';
+                sugMapaGeo.innerHTML = '';
+                return;
+            }
+            timerMapaGeo = setTimeout(function() {
+                fetch('https://nominatim.openstreetmap.org/search?format=jsonv2&countrycodes=ar&limit=5&addressdetails=1&q=' + encodeURIComponent(q), {
+                    headers: { 'Accept': 'application/json', 'Accept-Language': 'es' }
+                })
+                .then(function(r) { return r.json(); })
+                .then(function(data) {
+                    sugMapaGeo.innerHTML = '';
+                    if (!data || !data.length) {
+                        sugMapaGeo.innerHTML = '<div class="list-group-item small text-muted py-2 px-3">No se encontraron lugares</div>';
+                        sugMapaGeo.style.display = 'block';
+                        return;
+                    }
+                    data.forEach(function(item) {
+                        var a = document.createElement('a');
+                        a.href = '#';
+                        a.className = 'list-group-item list-group-item-action py-1 px-2 small';
+                        a.innerHTML = '<i class="fas fa-map-marker-alt text-primary me-1"></i> ' + item.display_name;
+                        a.onclick = function(e) {
+                            e.preventDefault();
+                            var lat = parseFloat(item.lat);
+                            var lng = parseFloat(item.lon);
+                            var zoom = (item.type === 'city' || item.type === 'town') ? 13 : ((item.type === 'village') ? 14 : 16);
+                            map.flyTo([lat, lng], zoom);
+                            sugMapaGeo.style.display = 'none';
+                            inputMapaGeo.value = item.display_name.split(',')[0];
+                        };
+                        sugMapaGeo.appendChild(a);
+                    });
+                    sugMapaGeo.style.display = 'block';
+                });
+            }, 350);
+        });
+
+        document.addEventListener('click', function(e) {
+            if (!inputMapaGeo.contains(e.target) && !sugMapaGeo.contains(e.target)) {
+                sugMapaGeo.style.display = 'none';
+            }
+        });
+    }
+
+    // Botón GPS para centrar en mi ubicación
+    var btnMapaGps = document.getElementById('btn-mapa-gps');
+    if (btnMapaGps) {
+        btnMapaGps.addEventListener('click', function() {
+            if (!navigator.geolocation) {
+                alert('Geolocalización no soportada por el navegador.');
+                return;
+            }
+            var origText = btnMapaGps.innerHTML;
+            btnMapaGps.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+            navigator.geolocation.getCurrentPosition(function(pos) {
+                btnMapaGps.innerHTML = origText;
+                map.flyTo([pos.coords.latitude, pos.coords.longitude], 14);
+            }, function() {
+                btnMapaGps.innerHTML = origText;
+                alert('No se pudo obtener tu ubicación.');
+            });
+        });
+    }
+
     cargar();
 });
 

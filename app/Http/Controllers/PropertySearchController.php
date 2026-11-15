@@ -20,9 +20,10 @@ class PropertySearchController extends Controller
                 'inmobiliaria', 'tipo_anunciante', 'tipo_operacion', 'tipo_propiedad', 'moneda',
                 'ambientes_min', 'cocheras_min', 'precio_min', 'precio_max',
                 'habitaciones', 'banos', 'superficie_min', 'superficie_max', 'ciudad',
+                'geo_lat', 'geo_lng', 'radio_km',
             ]));
 
-        $properties = $query->paginate(3);
+        $properties = $query->paginate(6);
 
         return view('inmuebles.partials.property_results', compact('properties'));
     }
@@ -31,8 +32,14 @@ class PropertySearchController extends Controller
     {
         $inmobiliarias = Inmobiliaria::activas()->with('usuario')->orderBy('nombre_comercial')->get();
         $tipos = Inmueble::tiposPropiedad();
+        $ciudades = Inmueble::publicados()
+            ->whereNotNull('ciudad')
+            ->where('ciudad', '!=', '')
+            ->distinct()
+            ->orderBy('ciudad')
+            ->pluck('ciudad');
 
-        return view('inmuebles.search', compact('inmobiliarias', 'tipos'));
+        return view('inmuebles.search', compact('inmobiliarias', 'tipos', 'ciudades'));
     }
 
     // Página SEO por zona: /propiedades-en-{venta|alquiler}-en-{ciudad}

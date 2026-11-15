@@ -75,6 +75,33 @@ class Inmueble extends Model
         return $query->where('inmobiliaria_id', $inmobiliariaId);
     }
 
+    // Scope geográfico GIS: busca propiedades en un radio (en km) alrededor de unas coordenadas (lat, lng)
+    public function scopeCercanosA($query, float $lat, float $lng, float $radioKm = 10)
+    {
+        $metros = (float) $radioKm * 1000.0;
+
+        $query->whereNotNull('coordenadas')
+            ->where('coordenadas', '!=', '')
+            ->where('coordenadas', 'like', '%,%');
+
+        $driver = $query->getConnection()->getDriverName();
+
+        if ($driver === 'sqlite') {
+            return $query;
+        }
+
+        $sqlLng = "CAST(TRIM(SUBSTRING_INDEX(coordenadas, ',', -1)) AS DECIMAL(10,6))";
+        $sqlLat = "CAST(TRIM(SUBSTRING_INDEX(coordenadas, ',', 1)) AS DECIMAL(10,6))";
+
+        $distanciaFormula = "ST_Distance_Sphere(POINT({$sqlLng}, {$sqlLat}), POINT(?, ?))";
+
+        return $query
+            ->select('inmuebles.*')
+            ->selectRaw("({$distanciaFormula} / 1000) AS distancia_km", [$lng, $lat])
+            ->whereRaw("{$distanciaFormula} <= ?", [$lng, $lat, $metros])
+            ->orderBy('distancia_km', 'asc');
+    }
+
     // Filtros compartidos entre la búsqueda pública y las alertas de búsquedas guardadas
     public function scopeAplicarFiltros($query, array $f)
     {
@@ -87,6 +114,13 @@ class Inmueble extends Model
             } elseif ($f['tipo_anunciante'] === 'inmobiliaria') {
                 $query->whereHas('usuario.roles', fn ($q) => $q->where('name', 'inmobiliaria'));
             }
+        }
+        // Filtrado geográfico GIS por radio o por ciudad/pueblo
+        if (isset($f['geo_lat']) && isset($f['geo_lng']) && is_numeric($f['geo_lat']) && is_numeric($f['geo_lng'])) {
+            $radio = (isset($f['radio_km']) && is_numeric($f['radio_km'])) ? (float) $f['radio_km'] : 10;
+            $query->cercanosA((float) $f['geo_lat'], (float) $f['geo_lng'], $radio);
+        } elseif (!empty($f['ciudad'])) {
+            $query->where('ciudad', 'like', '%' . $f['ciudad'] . '%');
         }
         foreach (['tipo_operacion', 'tipo_propiedad', 'moneda'] as $k) {
             if (!empty($f[$k])) {
@@ -117,9 +151,6 @@ class Inmueble extends Model
             if (isset($f[$k]) && is_numeric($f[$k])) {
                 $query->where($k, $f[$k]);
             }
-        }
-        if (!empty($f['ciudad'])) {
-            $query->where('ciudad', 'like', '%' . $f['ciudad'] . '%');
         }
         return $query;
     }

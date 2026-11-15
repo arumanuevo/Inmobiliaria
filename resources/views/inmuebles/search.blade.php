@@ -96,6 +96,61 @@
 
   <div class="filter-container">
     <form id="search-form">
+      <input type="hidden" name="geo_lat" id="geo_lat" value="">
+      <input type="hidden" name="geo_lng" id="geo_lng" value="">
+
+      <!-- Búsqueda Geográfica GIS con Geocoder y radio -->
+      <div class="card mb-3 border-primary shadow-sm bg-light">
+        <div class="card-body py-3">
+          <label class="form-label fw-bold text-primary mb-1">
+            <i class="fas fa-map-marked-alt me-1"></i> Búsqueda Geográfica (Ciudad, pueblo, barrio o dirección)
+          </label>
+          <div class="row g-2 align-items-center">
+            <div class="col-md-7 position-relative">
+              <div class="input-group">
+                <span class="input-group-text bg-white"><i class="fas fa-search-location text-primary"></i></span>
+                <input type="text" id="geo_input" class="form-control" placeholder="Escribí una ciudad, pueblo, barrio o dirección (ej: Chivilcoy, Alberti, Suipacha, Palermo)..." autocomplete="off">
+                <button type="button" id="btn-limpiar-geo" class="btn btn-outline-secondary" style="display:none;" title="Quitar búsqueda geográfica"><i class="fas fa-times"></i></button>
+              </div>
+              <div id="geo_sugerencias" class="list-group position-absolute w-100 shadow" style="z-index: 1050; max-height: 260px; overflow-y: auto; display: none;"></div>
+            </div>
+            <div class="col-md-3">
+              <select name="radio_km" id="radio_km" class="form-select">
+                <option value="2">Radio: 2 km</option>
+                <option value="5">Radio: 5 km</option>
+                <option value="10" selected>Radio: 10 km (Recomendado)</option>
+                <option value="20">Radio: 20 km</option>
+                <option value="35">Radio: 35 km</option>
+                <option value="50">Radio: 50 km</option>
+              </select>
+            </div>
+            <div class="col-md-2">
+              <button type="button" id="btn-gps" class="btn btn-outline-primary w-100" title="Buscar cerca de mi ubicación actual">
+                <i class="fas fa-crosshairs me-1"></i> Cerca de mí
+              </button>
+            </div>
+          </div>
+
+          <div id="geo_seleccionado_info" class="mt-2 small text-success fw-bold" style="display:none;">
+            <i class="fas fa-check-circle me-1"></i> Filtrando propiedades a <span id="geo_radio_lbl">10</span> km de: <span id="geo_lugar_lbl" class="text-dark"></span>
+            <a href="#" id="link-quitar-geo" class="text-danger ms-2 text-decoration-none"><i class="fas fa-times-circle"></i> Quitar filtro geográfico</a>
+          </div>
+
+          @if(isset($ciudades) && $ciudades->count())
+            <div class="mt-2 pt-2 border-top">
+              <small class="text-muted d-block mb-1"><i class="fas fa-city me-1"></i> Ciudades y pueblos con propiedades:</small>
+              <div class="d-flex flex-wrap gap-1">
+                @foreach($ciudades as $c)
+                  <button type="button" class="btn btn-sm btn-outline-secondary py-0 px-2 btn-chip-ciudad" data-ciudad="{{ $c }}" style="font-size: 11px;">
+                    {{ $c }}
+                  </button>
+                @endforeach
+              </div>
+            </div>
+          @endif
+        </div>
+      </div>
+
       <div class="row">
         <div class="col-md-3">
           <div class="form-group">
@@ -310,6 +365,128 @@
 
     // Cargar propiedades al cargar la página
     loadProperties();
+
+    // Lógica Geográfica GIS: Geocoder con Nominatim
+    var timerGeo = null;
+    $('#geo_input').on('input', function() {
+      clearTimeout(timerGeo);
+      var q = $(this).val().trim();
+      if (q.length < 3) {
+        $('#geo_sugerencias').hide().empty();
+        return;
+      }
+      timerGeo = setTimeout(function() {
+        $.ajax({
+          url: 'https://nominatim.openstreetmap.org/search',
+          method: 'GET',
+          data: {
+            format: 'jsonv2',
+            countrycodes: 'ar',
+            limit: 6,
+            addressdetails: 1,
+            q: q
+          },
+          headers: { 'Accept': 'application/json', 'Accept-Language': 'es' },
+          success: function(data) {
+            var $sug = $('#geo_sugerencias');
+            $sug.empty();
+            if (!data || !data.length) {
+              $sug.append('<div class="list-group-item small text-muted py-2 px-3">No se encontraron ciudades, pueblos o direcciones</div>');
+              $sug.show();
+              return;
+            }
+            data.forEach(function(item) {
+              var nombrePrincipal = item.name || (item.address && (item.address.city || item.address.town || item.address.village)) || item.display_name.split(',')[0];
+              var tipo = item.type || item.class || 'Lugar';
+              var icono = (item.type === 'city' || item.type === 'town' || item.type === 'village' || item.type === 'administrative') ? 'fa-city' : 'fa-map-marker-alt';
+              var $item = $('<a href="#" class="list-group-item list-group-item-action py-2 px-3"></a>');
+              $item.html('<div class="d-flex w-100 justify-content-between align-items-center">' +
+                '<div><i class="fas ' + icono + ' text-primary me-2"></i><strong>' + nombrePrincipal + '</strong>' +
+                '<div class="small text-muted text-truncate" style="max-width: 420px;">' + item.display_name + '</div></div>' +
+                '<span class="badge bg-light text-dark border">' + tipo + '</span>' +
+                '</div>');
+              $item.on('click', function(e) {
+                e.preventDefault();
+                seleccionarUbicacion(item.lat, item.lon, item.display_name);
+              });
+              $sug.append($item);
+            });
+            $sug.show();
+          },
+          error: function() {
+            $('#geo_sugerencias').hide();
+          }
+        });
+      }, 350);
+    });
+
+    $(document).on('click', function(e) {
+      if (!$(e.target).closest('#geo_input, #geo_sugerencias').length) {
+        $('#geo_sugerencias').hide();
+      }
+    });
+
+    function seleccionarUbicacion(lat, lng, nombre) {
+      $('#geo_lat').val(lat);
+      $('#geo_lng').val(lng);
+      $('#geo_input').val('');
+      $('#geo_sugerencias').hide().empty();
+      $('#geo_lugar_lbl').text(nombre);
+      $('#geo_radio_lbl').text($('#radio_km').val());
+      $('#geo_seleccionado_info').show();
+      $('#btn-limpiar-geo').show();
+      $('#ciudad').val('');
+      loadProperties();
+    }
+
+    function limpiarUbicacionGeo() {
+      $('#geo_lat').val('');
+      $('#geo_lng').val('');
+      $('#geo_input').val('');
+      $('#geo_seleccionado_info').hide();
+      $('#btn-limpiar-geo').hide();
+    }
+
+    $('#btn-limpiar-geo, #link-quitar-geo').on('click', function(e) {
+      e.preventDefault();
+      limpiarUbicacionGeo();
+      loadProperties();
+    });
+
+    $('#radio_km').on('change', function() {
+      if ($('#geo_lat').val() && $('#geo_lng').val()) {
+        $('#geo_radio_lbl').text($(this).val());
+        loadProperties();
+      }
+    });
+
+    // Botón GPS Cerca de mí
+    $('#btn-gps').on('click', function() {
+      if (!navigator.geolocation) {
+        alert('Tu navegador no tiene soporte para geolocalización.');
+        return;
+      }
+      var $btn = $(this);
+      var origHtml = $btn.html();
+      $btn.html('<i class="fas fa-spinner fa-spin me-1"></i> Ubicando...').prop('disabled', true);
+      navigator.geolocation.getCurrentPosition(function(pos) {
+        $btn.html(origHtml).prop('disabled', false);
+        seleccionarUbicacion(pos.coords.latitude, pos.coords.longitude, 'Mi ubicación actual (GPS)');
+      }, function(err) {
+        $btn.html(origHtml).prop('disabled', false);
+        alert('No se pudo obtener tu ubicación. Verificá los permisos de GPS de tu navegador.');
+      }, { timeout: 8000, enableHighAccuracy: true });
+    });
+
+    // Clic en chips de ciudades o pueblos
+    $('.btn-chip-ciudad').on('click', function() {
+      var ciudad = $(this).data('ciudad');
+      $('#ciudad').val(ciudad);
+      limpiarUbicacionGeo();
+      // Mostramos visualmente que se filtró por esa ciudad
+      $('#geo_input').attr('placeholder', 'Filtrando por ciudad: ' + ciudad);
+      loadProperties();
+    });
 
     // Al enviar el formulario de alerta, serializar los filtros actuales de la búsqueda
     $('#alert-form').on('submit', function () {

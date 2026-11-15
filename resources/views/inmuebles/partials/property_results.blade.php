@@ -37,6 +37,13 @@
             @endif
           </p>
           <p class="card-text">{{ $property->precio_formateado }} • {{ $property->habitaciones }} Hab. • {{ $property->banos }} Baños • {{ $property->superficie_cubierta }} m²</p>
+          @if(isset($property->distancia_km))
+            <div class="mb-2">
+              <span class="badge bg-light text-dark border">
+                <i class="fas fa-location-arrow text-primary me-1"></i> a {{ number_format((float) $property->distancia_km, 1) }} km del punto buscado
+              </span>
+            </div>
+          @endif
           <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#propertyModal{{ $property->id }}">
             Ver Detalles
           </button>
@@ -72,6 +79,9 @@
             </div>
             <hr>
             <p><strong>Precio:</strong> {{ $property->precio_formateado }}</p>
+            @if(isset($property->distancia_km))
+              <p><strong>Distancia:</strong> <span class="badge bg-light text-dark border"><i class="fas fa-location-arrow text-primary me-1"></i> a {{ number_format((float) $property->distancia_km, 1) }} km de tu búsqueda</span></p>
+            @endif
             <p><strong>Anunciante:</strong>
               @if($property->inmobiliaria?->usuario?->hasRole('particular'))
                 <span class="badge bg-success"><i class="fas fa-user-check me-1"></i> Dueño Directo</span> {{ $property->inmobiliaria->nombre_comercial }} <small class="text-success fw-bold">(Sin comisión)</small>
