@@ -13,12 +13,20 @@ use Illuminate\Support\Str;
 
 class GoogleAuthController extends Controller
 {
-    public function redirect()
+    public function redirect(Request $request)
     {
         abort_if(!config('services.google.client_id'), 404);
 
         $state = Str::random(40);
         session(['google_oauth_state' => $state]);
+
+        // Tipo de cuenta elegido en el registro (particular publica gratis e inmediatamente)
+        $tipo = $request->input('tipo');
+        if ($tipo === 'particular') {
+            session(['google_oauth_tipo' => 'particular']);
+        } else {
+            session()->forget('google_oauth_tipo');
+        }
 
         $redirectUri = route('login.google.callback');
 
@@ -41,6 +49,9 @@ class GoogleAuthController extends Controller
             abort(403, 'Estado OAuth inválido.');
         }
         session()->forget('google_oauth_state');
+
+        $tipoNuevo = session('google_oauth_tipo') === 'particular' ? 'particular' : 'inmobiliaria';
+        session()->forget('google_oauth_tipo');
 
         if ($request->has('error')) {
             return redirect()->route('login')->with('error', 'Se canceló el inicio de sesión con Google.');
@@ -77,6 +88,29 @@ class GoogleAuthController extends Controller
                 'email_verified_at' => now(),
                 'password' => bcrypt(Str::random(32)),
             ]);
+
+            if ($tipoNuevo === 'particular') {
+                // Particular: cuenta gratuita, activa de inmediato, plan Particular (1 publicación, 5 fotos)
+                $user->syncRoles(['particular']);
+
+                $plan = Plan::where('slug', 'particular')->where('activo', 1)->first()
+                    ?: Plan::where('slug', 'gratis')->where('activo', 1)->first();
+
+                Inmobiliaria::create([
+                    'usuario_id' => $user->id,
+                    'plan_id' => $plan?->id,
+                    'nombre_comercial' => $nombre,
+                    'slug' => Inmobiliaria::generarSlug($nombre),
+                    'email' => $email,
+                    'estado' => 'activa',
+                ]);
+
+                Auth::login($user);
+
+                return redirect()->route('home')
+                    ->with('success', 'Cuenta de particular creada: ya podés publicar tu propiedad gratis (1 publicación, 5 fotos, sin destacados).');
+            }
+
             $user->syncRoles(['inmobiliaria']);
 
             $planGratis = Plan::where('slug', 'gratis')->where('activo', 1)->first();

@@ -134,11 +134,11 @@
         </div>
         <div class="col-md-3">
           <div class="form-group">
-            <label for="inmobiliaria">Inmobiliaria</label>
+            <label for="inmobiliaria">Anunciante (inmobiliaria o particular)</label>
             <select class="form-control" id="inmobiliaria" name="inmobiliaria">
-              <option value="">Todas</option>
+              <option value="">Todos</option>
               @foreach($inmobiliarias as $inmobiliaria)
-                <option value="{{ $inmobiliaria->slug }}">{{ $inmobiliaria->nombre_comercial }}</option>
+                <option value="{{ $inmobiliaria->slug }}">{{ $inmobiliaria->nombre_comercial }}{{ $inmobiliaria->usuario?->hasRole('particular') ? ' (Particular)' : '' }}</option>
               @endforeach
             </select>
           </div>

@@ -419,9 +419,10 @@
   <section id="cta" class="py-5 bg-primary text-white">
     <div class="container text-center">
       <h2 class="mb-4">¿Buscás propiedad o querés publicar la tuya?</h2>
-      <p class="mb-4">Explorá todas las propiedades del portal o creá gratis la página pública de tu inmobiliaria.</p>
-      <a href="{{ route('propiedades.index') }}" class="btn btn-light btn-lg me-2">Buscar propiedades</a>
-      <a href="{{ route('sumate') }}" class="btn btn-outline-light btn-lg">Soy inmobiliaria</a>
+      <p class="mb-4">Explorá todas las propiedades del portal, creá gratis la página pública de tu inmobiliaria o publicá tu propia vivienda como particular.</p>
+      <a href="{{ route('propiedades.index') }}" class="btn btn-light btn-lg me-2 mb-2">Buscar propiedades</a>
+      <a href="{{ route('sumate') }}" class="btn btn-outline-light btn-lg me-2 mb-2">Soy inmobiliaria</a>
+      <a href="{{ route('register', ['tipo' => 'particular']) }}" class="btn btn-outline-light btn-lg mb-2">Publicar mi propiedad (gratis)</a>
     </div>
   </section>
   <!-- Footer -->

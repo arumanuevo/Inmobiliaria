@@ -29,7 +29,7 @@ class PropertySearchController extends Controller
 
     public function index()
     {
-        $inmobiliarias = Inmobiliaria::activas()->orderBy('nombre_comercial')->get();
+        $inmobiliarias = Inmobiliaria::activas()->with('usuario')->orderBy('nombre_comercial')->get();
         $tipos = Inmueble::tiposPropiedad();
 
         return view('inmuebles.search', compact('inmobiliarias', 'tipos'));
