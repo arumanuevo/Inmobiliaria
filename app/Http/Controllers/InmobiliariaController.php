@@ -13,6 +13,9 @@ class InmobiliariaController extends Controller
         $q = trim((string) $request->input('q', ''));
 
         $query = Inmobiliaria::activas()
+            ->whereDoesntHave('usuario.roles', function ($q) {
+                $q->where('name', 'particular');
+            })
             ->withCount('inmueblesPublicados')
             ->with('usuario');
 

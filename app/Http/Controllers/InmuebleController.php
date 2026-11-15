@@ -307,12 +307,14 @@ class InmuebleController extends Controller
             ->whereHas('inmobiliaria', function ($q) {
                 $q->where('estado', 'activa');
             })
-            ->with('inmobiliaria')
+            ->with(['inmobiliaria.usuario.roles'])
             ->latest()
             ->get();
 
         $stats = [
-            'inmobiliarias' => Inmobiliaria::activas()->count(),
+            'inmobiliarias' => Inmobiliaria::activas()
+                ->whereDoesntHave('usuario.roles', fn ($q) => $q->where('name', 'particular'))
+                ->count(),
             'propiedades' => Inmueble::publicados()
                 ->whereHas('inmobiliaria', fn ($q) => $q->where('estado', 'activa'))
                 ->count(),
@@ -320,6 +322,7 @@ class InmuebleController extends Controller
         ];
 
         $inmobiliariasTop = Inmobiliaria::activas()
+            ->whereDoesntHave('usuario.roles', fn ($q) => $q->where('name', 'particular'))
             ->withCount(['inmueblesPublicados', 'operaciones'])
             ->with('usuario')
             ->orderByDesc('inmuebles_publicados_count')

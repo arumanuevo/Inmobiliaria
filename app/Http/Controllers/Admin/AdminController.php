@@ -168,7 +168,7 @@ class AdminController extends Controller
 
     public function formCargaAsistida($id)
     {
-        $inmobiliaria = Inmobiliaria::findOrFail($id);
+        $inmobiliariaAsistida = Inmobiliaria::findOrFail($id);
 
         return view('inmuebles.create', compact('inmobiliariaAsistida'));
     }

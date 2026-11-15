@@ -15,9 +15,9 @@ class PropertySearchController extends Controller
             ->whereHas('inmobiliaria', function ($q) {
                 $q->where('estado', 'activa');
             })
-            ->with('inmobiliaria')
+            ->with(['inmobiliaria.usuario.roles'])
             ->aplicarFiltros($request->only([
-                'inmobiliaria', 'tipo_operacion', 'tipo_propiedad', 'moneda',
+                'inmobiliaria', 'tipo_anunciante', 'tipo_operacion', 'tipo_propiedad', 'moneda',
                 'ambientes_min', 'cocheras_min', 'precio_min', 'precio_max',
                 'habitaciones', 'banos', 'superficie_min', 'superficie_max', 'ciudad',
             ]));
@@ -48,7 +48,7 @@ class PropertySearchController extends Controller
             })
             ->where('tipo_operacion', $operacion)
             ->whereRaw('LOWER(ciudad) = ?', [mb_strtolower($ciudadNombre)])
-            ->with('inmobiliaria')
+            ->with(['inmobiliaria.usuario.roles'])
             ->latest()
             ->paginate(12)
             ->withQueryString();
@@ -111,10 +111,17 @@ class PropertySearchController extends Controller
             })
             ->whereNotNull('coordenadas')
             ->where('coordenadas', '!=', '')
-            ->with('inmobiliaria')
+            ->with(['inmobiliaria.usuario.roles'])
             ->latest()
             ->get();
 
+        if ($request->filled('tipo_anunciante')) {
+            if ($request->tipo_anunciante === 'particular') {
+                $items = $items->filter(fn ($i) => $i->inmobiliaria?->usuario?->hasRole('particular'));
+            } elseif ($request->tipo_anunciante === 'inmobiliaria') {
+                $items = $items->filter(fn ($i) => $i->inmobiliaria?->usuario?->hasRole('inmobiliaria'));
+            }
+        }
         if ($request->filled('tipo_operacion')) {
             $items = $items->where('tipo_operacion', $request->tipo_operacion);
         }
@@ -171,8 +178,9 @@ class PropertySearchController extends Controller
                 'lat' => isset($p[0]) && is_numeric($p[0]) ? (float) $p[0] : null,
                 'lng' => isset($p[1]) && is_numeric($p[1]) ? (float) $p[1] : null,
                 'foto' => !empty($i->fotos) ? asset('images/fotosinmuebles/' . $i->fotos[0]) : null,
-                'url' => $i->inmobiliaria ? route('inmobiliarias.show', $i->inmobiliaria->slug) : null,
+                'url' => $i->inmobiliaria ? route('propiedad.show', [$i->inmobiliaria->slug, $i->id]) : null,
                 'inmobiliaria' => $i->inmobiliaria?->nombre_comercial,
+                'es_particular' => (bool) $i->inmobiliaria?->usuario?->hasRole('particular'),
             ];
         })->values());
     }

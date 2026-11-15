@@ -170,10 +170,12 @@
           @endif
           <h5 class="card-title mb-1">
             {{ $inmobiliaria->nombre_comercial }}
-            @if($inmobiliaria->usuario?->hasRole('particular'))
-              <span class="badge bg-secondary">Particular</span>
-            @endif
           </h5>
+          @if($inmobiliaria->usuario?->hasRole('particular'))
+            <div class="mb-2"><span class="badge bg-success"><i class="fas fa-user-check me-1"></i> Dueño Directo</span> <small class="text-success fw-bold d-block mt-1">Operación sin comisión inmobiliaria</small></div>
+          @else
+            <div class="mb-2"><span class="badge bg-primary"><i class="fas fa-building me-1"></i> Inmobiliaria</span></div>
+          @endif
           <p class="text-muted small mb-3">{{ $inmobiliaria->ciudad }}{{ $inmobiliaria->provincia ? ', ' . $inmobiliaria->provincia : '' }}</p>
           <a href="{{ route('contacto', ['property' => $inmueble->id, 'inmobiliaria' => $inmobiliaria->id]) }}" class="btn btn-primary w-100 mb-2">Me interesa</a>
           @if($inmobiliaria->whatsapp)

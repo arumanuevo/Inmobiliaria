@@ -109,6 +109,50 @@
         </div>
         <div class="col-md-3">
           <div class="form-group">
+            <label for="tipo_anunciante">Tipo de Anunciante</label>
+            <select class="form-control" id="tipo_anunciante" name="tipo_anunciante">
+              <option value="">Todos (Inmobiliarias y Dueños)</option>
+              <option value="inmobiliaria">Solo Inmobiliarias</option>
+              <option value="particular">Solo Dueño Directo (Particular)</option>
+            </select>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="form-group">
+            <label for="tipo_propiedad">Tipo de propiedad</label>
+            <select class="form-control" id="tipo_propiedad" name="tipo_propiedad">
+              <option value="">Todos los tipos</option>
+              @foreach($tipos as $val => $lbl)
+                <option value="{{ $val }}">{{ $lbl }}</option>
+              @endforeach
+            </select>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="form-group">
+            <label for="inmobiliaria">Anunciante específico</label>
+            <select class="form-control" id="inmobiliaria" name="inmobiliaria">
+              <option value="">Todos</option>
+              @foreach($inmobiliarias as $inmobiliaria)
+                <option value="{{ $inmobiliaria->slug }}">{{ $inmobiliaria->nombre_comercial }}{{ $inmobiliaria->usuario?->hasRole('particular') ? ' (Dueño directo)' : '' }}</option>
+              @endforeach
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-md-3">
+          <div class="form-group">
+            <label for="moneda">Moneda</label>
+            <select class="form-control" id="moneda" name="moneda">
+              <option value="">ARS y USD</option>
+              <option value="ARS">Pesos (ARS)</option>
+              <option value="USD">Dólares (USD)</option>
+            </select>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="form-group">
             <label for="precio_min">Precio Mínimo</label>
             <input type="number" class="form-control" id="precio_min" name="precio_min" placeholder="Precio mínimo">
           </div>
@@ -119,6 +163,14 @@
             <input type="number" class="form-control" id="precio_max" name="precio_max" placeholder="Precio máximo">
           </div>
         </div>
+        <div class="col-md-3">
+          <div class="form-group">
+            <label for="ciudad">Ciudad</label>
+            <input type="text" class="form-control" id="ciudad" name="ciudad" placeholder="Ciudad">
+          </div>
+        </div>
+      </div>
+      <div class="row">
         <div class="col-md-3">
           <div class="form-group">
             <label for="habitaciones">Habitaciones</label>
@@ -134,19 +186,6 @@
         </div>
         <div class="col-md-3">
           <div class="form-group">
-            <label for="inmobiliaria">Anunciante (inmobiliaria o particular)</label>
-            <select class="form-control" id="inmobiliaria" name="inmobiliaria">
-              <option value="">Todos</option>
-              @foreach($inmobiliarias as $inmobiliaria)
-                <option value="{{ $inmobiliaria->slug }}">{{ $inmobiliaria->nombre_comercial }}{{ $inmobiliaria->usuario?->hasRole('particular') ? ' (Particular)' : '' }}</option>
-              @endforeach
-            </select>
-          </div>
-        </div>
-      </div>
-      <div class="row">
-        <div class="col-md-3">
-          <div class="form-group">
             <label for="banos">Baños</label>
             <select class="form-control" id="banos" name="banos">
               <option value="">Cualquiera</option>
@@ -160,47 +199,6 @@
         </div>
         <div class="col-md-3">
           <div class="form-group">
-            <label for="superficie_min">Superficie Mínima (m²)</label>
-            <input type="number" class="form-control" id="superficie_min" name="superficie_min" placeholder="Superficie mínima">
-          </div>
-        </div>
-        <div class="col-md-3">
-          <div class="form-group">
-            <label for="superficie_max">Superficie Máxima (m²)</label>
-            <input type="number" class="form-control" id="superficie_max" name="superficie_max" placeholder="Superficie máxima">
-          </div>
-        </div>
-        <div class="col-md-3">
-          <div class="form-group">
-            <label for="ciudad">Ciudad</label>
-            <input type="text" class="form-control" id="ciudad" name="ciudad" placeholder="Ciudad">
-          </div>
-        </div>
-      </div>
-      <div class="row">
-        <div class="col-md-3">
-          <div class="form-group">
-            <label for="tipo_propiedad">Tipo de propiedad</label>
-            <select class="form-control" id="tipo_propiedad" name="tipo_propiedad">
-              <option value="">Todos</option>
-              @foreach($tipos as $val => $lbl)
-                <option value="{{ $val }}">{{ $lbl }}</option>
-              @endforeach
-            </select>
-          </div>
-        </div>
-        <div class="col-md-3">
-          <div class="form-group">
-            <label for="moneda">Moneda</label>
-            <select class="form-control" id="moneda" name="moneda">
-              <option value="">ARS y USD</option>
-              <option value="ARS">Pesos (ARS)</option>
-              <option value="USD">Dólares (USD)</option>
-            </select>
-          </div>
-        </div>
-        <div class="col-md-3">
-          <div class="form-group">
             <label for="ambientes_min">Ambientes mín.</label>
             <input type="number" class="form-control" id="ambientes_min" name="ambientes_min" min="0" placeholder="Ej: 3">
           </div>
@@ -209,6 +207,20 @@
           <div class="form-group">
             <label for="cocheras_min">Cocheras mín.</label>
             <input type="number" class="form-control" id="cocheras_min" name="cocheras_min" min="0" placeholder="Ej: 1">
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-md-3">
+          <div class="form-group">
+            <label for="superficie_min">Superficie Mínima (m²)</label>
+            <input type="number" class="form-control" id="superficie_min" name="superficie_min" placeholder="Superficie mínima">
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="form-group">
+            <label for="superficie_max">Superficie Máxima (m²)</label>
+            <input type="number" class="form-control" id="superficie_max" name="superficie_max" placeholder="Superficie máxima">
           </div>
         </div>
       </div>

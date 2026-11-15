@@ -304,8 +304,16 @@
               </a>
             </div>
             <div class="card-body">
+              <div class="d-flex justify-content-between align-items-start mb-2">
+                @if($inmueble->inmobiliaria?->usuario?->hasRole('particular'))
+                  <span class="badge bg-success"><i class="fas fa-user-check me-1"></i> Dueño Directo</span>
+                @else
+                  <span class="badge bg-primary"><i class="fas fa-building me-1"></i> Inmobiliaria</span>
+                @endif
+                <small class="text-muted">{{ ucfirst($inmueble->tipo_operacion) }}</small>
+              </div>
               <h5 class="card-title"><a href="{{ route('propiedad.show', [$inmueble->inmobiliaria->slug, $inmueble->id]) }}" class="text-decoration-none text-dark">{{ $inmueble->titulo }}</a></h5>
-              <p class="card-text text-muted mb-1">{{ $inmueble->inmobiliaria->nombre_comercial ?? '' }}</p>
+              <p class="card-text text-muted mb-1 small">{{ $inmueble->inmobiliaria->nombre_comercial ?? '' }}</p>
               <p class="card-text">{{ $inmueble->precio_formateado }} • {{ $inmueble->habitaciones }} Habitaciones • {{ $inmueble->banos }} Baños • {{ $inmueble->superficie_cubierta }} m²</p>
               <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#propertyModal{{ $inmueble->id }}">
                 Ver Detalles
@@ -342,6 +350,13 @@
                 </div>
                 <hr>
                 <p><strong>Precio:</strong> {{ $inmueble->precio_formateado }}</p>
+                <p><strong>Anunciante:</strong>
+                  @if($inmueble->inmobiliaria?->usuario?->hasRole('particular'))
+                    <span class="badge bg-success"><i class="fas fa-user-check me-1"></i> Dueño Directo</span> {{ $inmueble->inmobiliaria->nombre_comercial }} <small class="text-success fw-bold">(Sin comisión)</small>
+                  @else
+                    <span class="badge bg-primary"><i class="fas fa-building me-1"></i> Inmobiliaria</span> {{ $inmueble->inmobiliaria->nombre_comercial }}
+                  @endif
+                </p>
                 <p><strong>Habitaciones:</strong> {{ $inmueble->habitaciones }}</p>
                 <p><strong>Baños:</strong> {{ $inmueble->banos }}</p>
 @if($inmueble->tipo_propiedad)<p><strong>Tipo:</strong> {{ \App\Models\Inmueble::tiposPropiedad()[$inmueble->tipo_propiedad] ?? ucfirst($inmueble->tipo_propiedad) }}</p>@endif

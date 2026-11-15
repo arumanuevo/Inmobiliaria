@@ -56,7 +56,7 @@
 
 <div class="container mt-5 mb-5">
   <h1 class="h3 mb-1">Propiedades en {{ $operacion }} en {{ ucfirst($ciudadNombre) }}</h1>
-  <p class="text-muted mb-4">{{ $propiedades->total() }} {{ Str::plural('resultado', $propiedades->total()) }} publicados por inmobiliarias verificadas.</p>
+  <p class="text-muted mb-4">{{ $propiedades->total() }} {{ Str::plural('resultado', $propiedades->total()) }} publicados por inmobiliarias verificadas y dueños directos.</p>
 
   <div class="row">
     @forelse($propiedades as $p)
@@ -68,6 +68,14 @@
             <div class="bg-secondary d-flex align-items-center justify-content-center text-white">Sin foto</div>
           @endif
           <div class="card-body">
+            <div class="d-flex justify-content-between align-items-start mb-2">
+              @if($p->inmobiliaria?->usuario?->hasRole('particular'))
+                <span class="badge bg-success"><i class="fas fa-user-check me-1"></i> Dueño Directo</span>
+              @else
+                <span class="badge bg-primary"><i class="fas fa-building me-1"></i> Inmobiliaria</span>
+              @endif
+              <small class="text-muted">{{ ucfirst($p->tipo_operacion) }}</small>
+            </div>
             <h5 class="card-title">
               <a href="{{ $p->inmobiliaria ? route('propiedad.show', [$p->inmobiliaria->slug, $p->id]) : '#' }}" class="text-decoration-none text-dark">{{ $p->titulo }}</a>
             </h5>

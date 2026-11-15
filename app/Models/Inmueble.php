@@ -81,6 +81,13 @@ class Inmueble extends Model
         if (!empty($f['inmobiliaria'])) {
             $query->whereHas('inmobiliaria', fn ($q) => $q->where('slug', $f['inmobiliaria']));
         }
+        if (!empty($f['tipo_anunciante'])) {
+            if ($f['tipo_anunciante'] === 'particular') {
+                $query->whereHas('usuario.roles', fn ($q) => $q->where('name', 'particular'));
+            } elseif ($f['tipo_anunciante'] === 'inmobiliaria') {
+                $query->whereHas('usuario.roles', fn ($q) => $q->where('name', 'inmobiliaria'));
+            }
+        }
         foreach (['tipo_operacion', 'tipo_propiedad', 'moneda'] as $k) {
             if (!empty($f[$k])) {
                 $query->where($k, $f[$k]);

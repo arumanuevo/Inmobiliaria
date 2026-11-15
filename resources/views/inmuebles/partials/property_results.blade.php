@@ -20,9 +20,23 @@
           </button>
         </div>
         <div class="card-body">
+          <div class="d-flex justify-content-between align-items-start mb-2">
+            @if($property->inmobiliaria?->usuario?->hasRole('particular'))
+              <span class="badge bg-success"><i class="fas fa-user-check me-1"></i> Dueño Directo</span>
+            @else
+              <span class="badge bg-primary"><i class="fas fa-building me-1"></i> Inmobiliaria</span>
+            @endif
+            <small class="text-muted">{{ ucfirst($property->tipo_operacion) }}</small>
+          </div>
           <h5 class="card-title"><a href="{{ route('propiedad.show', [$property->inmobiliaria->slug, $property->id]) }}" class="text-decoration-none text-dark">{{ $property->titulo }}</a></h5>
-          <p class="card-text text-muted mb-1">{{ $property->inmobiliaria->nombre_comercial ?? '' }}</p>
-          <p class="card-text">{{ $property->precio_formateado }} • {{ $property->habitaciones }} Habitaciones • {{ $property->banos }} Baños • {{ $property->superficie_cubierta }} m²</p>
+          <p class="card-text text-muted mb-1 small">
+            @if($property->inmobiliaria?->usuario?->hasRole('particular'))
+              <span>{{ $property->inmobiliaria->nombre_comercial }} · <strong class="text-success">Sin comisión</strong></span>
+            @else
+              <span>{{ $property->inmobiliaria->nombre_comercial }}</span>
+            @endif
+          </p>
+          <p class="card-text">{{ $property->precio_formateado }} • {{ $property->habitaciones }} Hab. • {{ $property->banos }} Baños • {{ $property->superficie_cubierta }} m²</p>
           <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#propertyModal{{ $property->id }}">
             Ver Detalles
           </button>
@@ -58,6 +72,13 @@
             </div>
             <hr>
             <p><strong>Precio:</strong> {{ $property->precio_formateado }}</p>
+            <p><strong>Anunciante:</strong>
+              @if($property->inmobiliaria?->usuario?->hasRole('particular'))
+                <span class="badge bg-success"><i class="fas fa-user-check me-1"></i> Dueño Directo</span> {{ $property->inmobiliaria->nombre_comercial }} <small class="text-success fw-bold">(Sin comisión)</small>
+              @else
+                <span class="badge bg-primary"><i class="fas fa-building me-1"></i> Inmobiliaria</span> {{ $property->inmobiliaria->nombre_comercial }}
+              @endif
+            </p>
             <p><strong>Habitaciones:</strong> {{ $property->habitaciones }}</p>
             <p><strong>Baños:</strong> {{ $property->banos }}</p>
 @if($property->tipo_propiedad)<p><strong>Tipo:</strong> {{ \App\Models\Inmueble::tiposPropiedad()[$property->tipo_propiedad] ?? ucfirst($property->tipo_propiedad) }}</p>@endif

@@ -52,6 +52,13 @@
       </select>
     </div>
     <div class="col-md-2">
+      <select name="tipo_anunciante" class="form-control form-control-sm">
+        <option value="">Inmobiliarias y Dueños</option>
+        <option value="inmobiliaria">Solo Inmobiliarias</option>
+        <option value="particular">Solo Dueño Directo</option>
+      </select>
+    </div>
+    <div class="col-md-2">
       <select name="tipo_propiedad" class="form-control form-control-sm">
         <option value="">Todos los tipos</option>
         @foreach($tipos as $val => $lbl)
@@ -75,7 +82,7 @@
     <div class="col-md-2">
       <input type="text" name="ciudad" class="form-control form-control-sm" placeholder="Ciudad">
     </div>
-    <div class="col-12">
+    <div class="col-md-10">
       <input type="text" name="q" class="form-control form-control-sm" placeholder="Buscar por título o descripción...">
     </div>
   </form>
@@ -159,20 +166,25 @@ document.addEventListener('DOMContentLoaded', function () {
                 items.forEach(function (it) {
                     if (it.lat === null || it.lng === null) { return; }
                     var foto = it.foto ? '<img src="' + it.foto + '" alt="">' : '';
+                    var badge = it.es_particular
+                        ? '<span class="badge bg-success mb-1" style="font-size:10px;">Dueño Directo</span>'
+                        : '<span class="badge bg-primary mb-1" style="font-size:10px;">Inmobiliaria</span>';
                     var popup = '<div style="min-width:220px;">' + foto +
+                        '<div class="mt-1">' + badge + '</div>' +
                         '<strong>' + it.titulo + '</strong><br>' +
                         it.precio_fmt + ' · ' + (it.tipo_operacion || '') + (it.tipo_propiedad ? ' · ' + it.tipo_propiedad : '') + '<br>' +
                         (it.ciudad || '') + ' · ' + (it.inmobiliaria || '') + '<br>' +
-                        (it.url ? '<a href="' + it.url + '" target="_blank">Ver en la inmobiliaria</a>' : '') +
+                        (it.url ? '<a href="' + it.url + '" target="_blank" class="btn btn-outline-primary btn-sm mt-1 w-100">Ver propiedad</a>' : '') +
                         '</div>';
                     L.marker([it.lat, it.lng]).addTo(capa).bindPopup(popup);
 
                     var div = document.createElement('div');
                     div.className = 'item-mapa';
                     div.innerHTML = foto +
+                        '<div class="mt-1">' + badge + '</div>' +
                         '<div class="fw-bold small mt-1">' + it.titulo + '</div>' +
                         '<div class="text-muted small">' + it.precio_fmt + ' · ' + (it.tipo_operacion || '') + ' · ' + (it.ciudad || '') + '</div>' +
-                        '<div class="small">' + (it.inmobiliaria || '') + '</div>' +
+                        '<div class="small text-truncate">' + (it.inmobiliaria || '') + '</div>' +
                         (it.url ? '<a href="' + it.url + '" target="_blank" class="btn btn-primary btn-sm mt-1">Ver</a>' : '');
                     lista.appendChild(div);
                 });
