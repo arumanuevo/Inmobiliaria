@@ -53,7 +53,8 @@ class RegisterController extends Controller
     {
         return Validator::make($data, [
             'name' => ['required', 'string', 'max:255'],
-            'nombre_comercial' => ['required', 'string', 'max:150'],
+            'tipo_cuenta' => ['required', 'in:inmobiliaria,particular'],
+            'nombre_comercial' => ['required_if:tipo_cuenta,inmobiliaria', 'nullable', 'string', 'max:150'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
             'telefono' => ['nullable', 'string', 'max:30'],
             'whatsapp' => ['nullable', 'string', 'max:30'],
@@ -77,9 +78,28 @@ class RegisterController extends Controller
             'password' => Hash::make($data['password']),
         ]);
 
-        $user->syncRoles(['inmobiliaria']);
-
         $planGratis = Plan::where('slug', 'gratis')->where('activo', 1)->first();
+
+        // Particular: dueño que publica su propia vivienda. No pasa por aprobación:
+        // su perfil público nace activo con el plan Gratis.
+        if (($data['tipo_cuenta'] ?? 'inmobiliaria') === 'particular') {
+            $user->syncRoles(['particular']);
+
+            Inmobiliaria::create([
+                'usuario_id' => $user->id,
+                'plan_id' => $planGratis?->id,
+                'nombre_comercial' => $data['name'],
+                'slug' => Inmobiliaria::generarSlug($data['name']),
+                'telefono' => $data['telefono'] ?? null,
+                'whatsapp' => $data['whatsapp'] ?? null,
+                'email' => $data['email'],
+                'estado' => 'activa',
+            ]);
+
+            return $user;
+        }
+
+        $user->syncRoles(['inmobiliaria']);
 
         Inmobiliaria::create([
             'usuario_id' => $user->id,

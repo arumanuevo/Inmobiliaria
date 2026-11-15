@@ -13,7 +13,7 @@ class InmuebleController extends Controller
 {
     public function __construct()
     {
-        $this->middleware('role:admin|inmobiliaria')->except(['destacados']); // Solo admin e inmobiliarias; 'destacados' es público
+        $this->middleware('role:admin|inmobiliaria|particular')->except(['destacados']); // Solo admin, inmobiliarias y particulares; 'destacados' es público
     }
 
     // Mostrar listado de inmuebles (cada inmobiliaria solo ve los suyos)
@@ -317,6 +317,7 @@ class InmuebleController extends Controller
 
         $inmobiliariasTop = Inmobiliaria::activas()
             ->withCount(['inmueblesPublicados', 'operaciones'])
+            ->with('usuario')
             ->orderByDesc('inmuebles_publicados_count')
             ->take(6)
             ->get();

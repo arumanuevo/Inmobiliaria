@@ -22,7 +22,7 @@
             <a href="{{ route('inicio') }}" class="{{ request()->is('/') || request()->is('inicio') ? 'active' : '' }}">
                 <i class="fas fa-globe"></i><span>Portal</span>
             </a>
-            @if(auth()->user()->hasAnyRole(['admin', 'inmobiliaria']))
+            @if(auth()->user()->hasAnyRole(['admin', 'inmobiliaria', 'particular']))
                 <a href="{{ route('inmuebles.index') }}" class="{{ request()->is('inmuebles*') ? 'active' : '' }}">
                     <i class="fas fa-key"></i><span>Mis Inmuebles</span>
                 </a>
@@ -30,7 +30,7 @@
                     <i class="fas fa-plus"></i><span>Nuevo Inmueble</span>
                 </a>
                 <a href="{{ route('inmobiliaria.perfil') }}" class="{{ request()->is('mi-inmobiliaria') ? 'active' : '' }}">
-                    <i class="fas fa-store"></i><span>Mi Inmobiliaria</span>
+                    <i class="fas fa-store"></i><span>{{ auth()->user()->hasRole('particular') ? 'Mi perfil público' : 'Mi Inmobiliaria' }}</span>
                 </a>
                 <a href="{{ route('boletos.mios') }}" class="{{ request()->is('mis-boletos') || request()->is('boletos/*') ? 'active' : '' }}">
                     <i class="fas fa-receipt"></i><span>Mis Boletos</span>

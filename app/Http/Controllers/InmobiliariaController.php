@@ -13,7 +13,8 @@ class InmobiliariaController extends Controller
         $q = trim((string) $request->input('q', ''));
 
         $query = Inmobiliaria::activas()
-            ->withCount('inmueblesPublicados');
+            ->withCount('inmueblesPublicados')
+            ->with('usuario');
 
         if ($q !== '') {
             $query->where(function ($qq) use ($q) {

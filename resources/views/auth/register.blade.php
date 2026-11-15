@@ -1,6 +1,6 @@
 @extends('layouts.landing')
 
-@section('title', 'Registrá tu inmobiliaria')
+@section('title', 'Creá tu cuenta en ' . config('app.name'))
 
 @section('css')
 <link rel="stylesheet" href="{{ asset('css/landing.css') }}">
@@ -32,8 +32,8 @@
       <ul class="navbar-nav ms-auto">
         <li class="nav-item"><a class="nav-link" href="{{ route('inicio') }}">Inicio</a></li>
         <li class="nav-item"><a class="nav-link" href="{{ route('inmobiliarias.index') }}">Inmobiliarias</a></li>
-        <li class="nav-item"><a class="nav-link" href="{{ route('propiedades.index') }}">Propiedades</a>
-        <li class="nav-item"><a class="nav-link" href="{{ route('propiedades.mapa') }}">Mapa</a></li></li>
+        <li class="nav-item"><a class="nav-link" href="{{ route('propiedades.index') }}">Propiedades</a></li>
+        <li class="nav-item"><a class="nav-link" href="{{ route('propiedades.mapa') }}">Mapa</a></li>
         <li class="nav-item"><a class="nav-link" href="{{ route('contacto') }}">Contacto</a></li>
         <li class="nav-item"><a class="nav-link" href="{{ route('sumate') }}">Soy inmobiliaria</a></li>
         <li class="nav-item"><a class="nav-link" href="{{ route('login') }}">Acceso</a></li>
@@ -47,26 +47,45 @@
     <div class="col-md-8">
       <div class="card shadow-sm">
         <div class="card-header bg-primary text-white">
-          <h3 class="card-title mb-0">Creá la cuenta de tu inmobiliaria</h3>
+          <h3 class="card-title mb-0">Creá tu cuenta en el portal</h3>
         </div>
         <div class="card-body">
           <p class="text-muted">
-            Registrate gratis con el plan <strong>Gratis</strong> y empezá a publicar tus propiedades en el portal.
-            Tu perfil queda <strong>pendiente de aprobación</strong> hasta que el administrador lo active.
+            Registrate gratis con el plan <strong>Gratis</strong> y empezá a publicar.
+            Si sos <strong>inmobiliaria</strong>, tu perfil queda pendiente de aprobación.
+            Si sos <strong>particular</strong> (publicás vos tu propia vivienda), ya podés empezar hoy.
           </p>
 
           <form method="POST" action="{{ route('register') }}">
             @csrf
             <div class="form-group mb-3">
-              <label for="name">Tu nombre (responsable)</label>
+              <label>¿Qué vas a publicar?</label>
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="tipo_cuenta" id="tipo_inmobiliaria" value="inmobiliaria"
+                       {{ old('tipo_cuenta', request('tipo')) === 'particular' ? '' : 'checked' }}>
+                <label class="form-check-label" for="tipo_inmobiliaria">
+                  <strong>Soy inmobiliaria</strong> — tengo una agencia y publico varias propiedades
+                </label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="tipo_cuenta" id="tipo_particular" value="particular"
+                       {{ old('tipo_cuenta', request('tipo')) === 'particular' ? 'checked' : '' }}>
+                <label class="form-check-label" for="tipo_particular">
+                  <strong>Soy particular</strong> — quiero publicar mi propia casa o departamento
+                </label>
+              </div>
+              @error('tipo_cuenta')<div class="text-danger small mt-1">{{ $message }}</div>@enderror
+            </div>
+            <div class="form-group mb-3">
+              <label for="name">Tu nombre</label>
               <input id="name" type="text" class="form-control @error('name') is-invalid @enderror"
                      name="name" value="{{ old('name') }}" required autocomplete="name" autofocus>
               @error('name')<div class="invalid-feedback">{{ $message }}</div>@enderror
             </div>
-            <div class="form-group mb-3">
+            <div class="form-group mb-3" id="campo-nombre-comercial">
               <label for="nombre_comercial">Nombre comercial de la inmobiliaria</label>
               <input id="nombre_comercial" type="text" class="form-control @error('nombre_comercial') is-invalid @enderror"
-                     name="nombre_comercial" value="{{ old('nombre_comercial') }}" required>
+                     name="nombre_comercial" value="{{ old('nombre_comercial') }}">
               @error('nombre_comercial')<div class="invalid-feedback">{{ $message }}</div>@enderror
             </div>
             <div class="form-group mb-3">
@@ -131,4 +150,16 @@
 @if(config('services.recaptcha.site_key'))
 <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 @endif
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    function toggleCampo() {
+      var esParticular = document.getElementById('tipo_particular').checked;
+      document.getElementById('campo-nombre-comercial').style.display = esParticular ? 'none' : 'block';
+    }
+    document.querySelectorAll('input[name="tipo_cuenta"]').forEach(function (r) {
+      r.addEventListener('change', toggleCampo);
+    });
+    toggleCampo();
+  });
+</script>
 @stop

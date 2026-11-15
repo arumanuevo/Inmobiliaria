@@ -69,7 +69,12 @@
                 {{ strtoupper(substr($inmobiliaria->nombre_comercial, 0, 1)) }}
               </div>
             @endif
-            <h5 class="mt-3 mb-1">{{ $inmobiliaria->nombre_comercial }}</h5>
+            <h5 class="mt-3 mb-1">
+              {{ $inmobiliaria->nombre_comercial }}
+              @if($inmobiliaria->usuario?->hasRole('particular'))
+                <span class="badge bg-secondary ms-1">Particular</span>
+              @endif
+            </h5>
             <p class="text-muted mb-1">{{ trim($inmobiliaria->ciudad . ', ' . $inmobiliaria->provincia, ', ') ?: 'Sin ubicación' }}</p>
             @if($inmobiliaria->zonas_cobertura)
               <p class="text-muted mb-1"><i class="fas fa-map-marker-alt"></i> Atiende: {{ $inmobiliaria->zonas_cobertura }}</p>

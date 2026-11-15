@@ -9,7 +9,7 @@ class InmueblePolicy
 {
     public function viewAny(User $user): bool
     {
-        return $user->hasAnyRole(['admin', 'inmobiliaria']);
+        return $user->hasAnyRole(['admin', 'inmobiliaria', 'particular']);
     }
 
     public function view(User $user, Inmueble $inmueble): bool
@@ -20,7 +20,7 @@ class InmueblePolicy
 
     public function create(User $user): bool
     {
-        return $user->hasAnyRole(['admin', 'inmobiliaria']);
+        return $user->hasAnyRole(['admin', 'inmobiliaria', 'particular']);
     }
 
     public function update(User $user, Inmueble $inmueble): bool

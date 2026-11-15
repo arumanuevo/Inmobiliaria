@@ -1,9 +1,9 @@
 @extends('layouts.panel')
 
-@section('title', 'Mi Inmobiliaria')
+@section('title', auth()->user()->hasRole('particular') ? 'Mi perfil' : 'Mi Inmobiliaria')
 
 @section('content_header')
-    <h1>Perfil de mi inmobiliaria</h1>
+    <h1>{{ auth()->user()->hasRole('particular') ? 'Mi perfil público' : 'Perfil de mi inmobiliaria' }}</h1>
 @stop
 
 @section('content')
@@ -84,7 +84,7 @@
         <div class="col-md-8">
             <div class="card card-primary">
                 <div class="card-header">
-                    <h3 class="card-title">Datos de la inmobiliaria</h3>
+                    <h3 class="card-title">{{ auth()->user()->hasRole('particular') ? 'Datos de mi perfil' : 'Datos de la inmobiliaria' }}</h3>
                 </div>
                 <div class="card-body" style="max-height: 75vh; overflow-y: auto;">
                     <form action="{{ route('inmobiliaria.update') }}" method="POST" enctype="multipart/form-data">
@@ -92,7 +92,7 @@
                         @method('PUT')
 
                         <div class="form-group">
-                            <label for="nombre_comercial">Nombre comercial</label>
+                            <label for="nombre_comercial">{{ auth()->user()->hasRole('particular') ? 'Tu nombre (así figura en el portal)' : 'Nombre comercial' }}</label>
                             <input type="text" name="nombre_comercial" id="nombre_comercial" class="form-control"
                                    value="{{ old('nombre_comercial', $inmobiliaria->nombre_comercial) }}" required>
                         </div>

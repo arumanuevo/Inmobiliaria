@@ -68,7 +68,7 @@
 @endif
 
 <div class="row g-3">
-    @if(auth()->user()->hasAnyRole(['admin', 'inmobiliaria']))
+    @if(auth()->user()->hasAnyRole(['admin', 'inmobiliaria', 'particular']))
     <div class="col-md-6 col-lg-3">
         <a href="{{ route('inmuebles.index') }}" class="dashboard-card">
             <i class="fas fa-key"></i>
@@ -86,7 +86,7 @@
     <div class="col-md-6 col-lg-3">
         <a href="{{ route('inmobiliaria.perfil') }}" class="dashboard-card">
             <i class="fas fa-store"></i>
-            <span class="dc-title">Mi Inmobiliaria</span>
+            <span class="dc-title">{{ auth()->user()->hasRole('particular') ? 'Mi perfil' : 'Mi Inmobiliaria' }}</span>
             <span class="dc-sub">Perfil público y datos</span>
         </a>
     </div>

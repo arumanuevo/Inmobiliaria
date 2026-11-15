@@ -29,7 +29,7 @@ class HomeController extends Controller
             return redirect()->route('admin.inmobiliarias');
         }
 
-        if ($user->hasRole('inmobiliaria')) {
+        if ($user->hasAnyRole(['inmobiliaria', 'particular'])) {
             $inmobiliaria = $user->inmobiliaria;
             $cuenta = null;
             if ($inmobiliaria) {

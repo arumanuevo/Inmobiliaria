@@ -22,6 +22,7 @@
                     <tr>
                         <th>ID</th>
                         <th>Inmobiliaria</th>
+                        <th>Tipo</th>
                         <th>Responsable</th>
                         <th>Estado</th>
                         <th>Plan</th>
@@ -37,6 +38,13 @@
                         <td>
                             {{ $inmobiliaria->nombre_comercial }}
                             <br><small class="text-muted">/{{ $inmobiliaria->slug }}</small>
+                        </td>
+                        <td>
+                            @if($inmobiliaria->usuario?->hasRole('particular'))
+                                <span class="badge badge-secondary">Particular</span>
+                            @else
+                                <span class="badge badge-primary">Inmobiliaria</span>
+                            @endif
                         </td>
                         <td>
                             {{ $inmobiliaria->usuario->name ?? '-' }}

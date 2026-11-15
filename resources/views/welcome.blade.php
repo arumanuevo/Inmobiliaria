@@ -394,7 +394,12 @@
               @else
                 <div class="rounded bg-primary text-white d-inline-flex align-items-center justify-content-center mb-2" style="width: 60px; height: 60px; font-weight: 700; font-size: 24px;">{{ mb_substr($inmobiliaria->nombre_comercial, 0, 1) }}</div>
               @endif
-              <h5 class="card-title mb-1">{{ $inmobiliaria->nombre_comercial }}</h5>
+              <h5 class="card-title mb-1">
+                {{ $inmobiliaria->nombre_comercial }}
+                @if($inmobiliaria->usuario?->hasRole('particular'))
+                  <span class="badge bg-secondary ms-1">Particular</span>
+                @endif
+              </h5>
               <p class="text-muted small mb-2">{{ $inmobiliaria->ciudad }}{{ $inmobiliaria->provincia ? ', ' . $inmobiliaria->provincia : '' }}</p>
               <p class="small mb-3">{{ $inmobiliaria->inmuebles_publicados_count }} propiedades &middot; {{ $inmobiliaria->operaciones_count }} operaciones</p>
               <a href="{{ route('inmobiliarias.show', $inmobiliaria->slug) }}" class="btn btn-outline-primary btn-sm">Ver vidriera</a>

@@ -124,6 +124,16 @@
     </div>
   </div>
 
+  <div class="row justify-content-center mb-5">
+    <div class="col-lg-8">
+      <div class="plan-card text-center" style="background: #f8faff;">
+        <h4 class="fw-bold"><i class="fas fa-home text-primary"></i> ¿Vendés o alquilás vos solo, sin inmobiliaria?</h4>
+        <p class="text-muted mb-3">No hace falta ser agencia: como <strong>particular</strong> creás tu cuenta gratis y publicás tu propia casa o departamento hoy mismo, con tu propio perfil público en el portal.</p>
+        <a href="{{ route('register', ['tipo' => 'particular']) }}" class="btn btn-primary btn-lg">Publicar mi propiedad</a>
+      </div>
+    </div>
+  </div>
+
   <h2 class="text-center fw-bold mb-4">Planes simples, sin letra chica</h2>
   <div class="row g-4 mb-5">
     @foreach($planes as $plan)

@@ -33,7 +33,7 @@ class AppServiceProvider extends ServiceProvider
         });
 
         Gate::define('gestionar-inmobiliarias', fn ($user) => $user->hasRole('admin'));
-        Gate::define('gestionar-inmuebles', fn ($user) => $user->hasAnyRole(['admin', 'inmobiliaria']));
+        Gate::define('gestionar-inmuebles', fn ($user) => $user->hasAnyRole(['admin', 'inmobiliaria', 'particular']));
 
         // Email de contacto del portal, disponible en todas las vistas (footers, etc.)
         view()->composer('*', function ($view) {
