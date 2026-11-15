@@ -3,6 +3,7 @@ namespace App\Http\Controllers;
 
 use App\Models\BusquedaGuardada;
 use App\Models\Inmueble;
+use App\Models\Inmobiliaria;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
@@ -294,7 +295,7 @@ class InmuebleController extends Controller
         return back()->with('success', 'Propiedad marcada como ' . $data['tipo_cierre'] . 'da. Ya no es visible en el portal público.' . $extra);
     }
 
-    // Método para obtener propiedades destacadas (solo publicadas, de inmobiliarias activas)
+    // Home del portal SaaS: destacadas de todas las inmobiliarias activas + datos reales del portal
     public function destacados()
     {
         $destacados = Inmueble::publicados()
@@ -305,7 +306,22 @@ class InmuebleController extends Controller
             ->with('inmobiliaria')
             ->latest()
             ->get();
-        return view('welcome', compact('destacados'));
+
+        $stats = [
+            'inmobiliarias' => Inmobiliaria::activas()->count(),
+            'propiedades' => Inmueble::publicados()
+                ->whereHas('inmobiliaria', fn ($q) => $q->where('estado', 'activa'))
+                ->count(),
+            'operaciones' => Inmueble::where('cerrada', 1)->count(),
+        ];
+
+        $inmobiliariasTop = Inmobiliaria::activas()
+            ->withCount(['inmueblesPublicados', 'operaciones'])
+            ->orderByDesc('inmuebles_publicados_count')
+            ->take(6)
+            ->get();
+
+        return view('welcome', compact('destacados', 'stats', 'inmobiliariasTop'));
     }
 
     public function toggleDestacado(Request $request, $id)

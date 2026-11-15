@@ -1,6 +1,9 @@
 @extends('layouts.landing')
 
-@section('title', 'Bienvenido a ' . config('app.name'))
+@section('title', config('app.name') . ' | Portal inmobiliario')
+@section('meta')
+<meta name="description" content="{{ config('app.name') }}: el portal donde inmobiliarias verificadas publican sus propiedades. Buscá por zona o en el mapa y contactá directo con la inmobiliaria. ¿Tenés una inmobiliaria? Creá tu página gratis.">
+@stop
 @section('css')
 <link rel="stylesheet" href="{{ asset('css/landing.css') }}">
 <style>
@@ -18,6 +21,7 @@
     position: relative;
     height: 60vh;
     overflow: hidden;
+    background: linear-gradient(135deg, #101828 0%, #1d2939 100%);
   }
 
   .hero .container {
@@ -202,25 +206,13 @@
     </button>
     <div class="collapse navbar-collapse" id="navbarResponsive">
       <ul class="navbar-nav ms-auto">
-        <li class="nav-item">
-          <a class="nav-link" href="{{ route('inicio') }}">Inicio</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="{{ route('inmobiliarias.index') }}">Inmobiliarias</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="{{ route('propiedades.index') }}" target="_blank">Propiedades</a>
-        <li class="nav-item">
-          <a class="nav-link" href="{{ route('propiedades.mapa') }}">Mapa</a>
-        </li>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="{{ route('contacto') }}" target="_blank">Contacto</a>
-        </li>
+        <li class="nav-item"><a class="nav-link" href="{{ route('inicio') }}">Inicio</a></li>
+        <li class="nav-item"><a class="nav-link" href="{{ route('inmobiliarias.index') }}">Inmobiliarias</a></li>
+        <li class="nav-item"><a class="nav-link" href="{{ route('propiedades.index') }}">Propiedades</a></li>
+        <li class="nav-item"><a class="nav-link" href="{{ route('propiedades.mapa') }}">Mapa</a></li>
+        <li class="nav-item"><a class="nav-link" href="{{ route('contacto') }}">Contacto</a></li>
         <li class="nav-item"><a class="nav-link" href="{{ route('sumate') }}">Soy inmobiliaria</a></li>
-        <li class="nav-item">
-          <a class="nav-link" href="{{ route('login') }}" target="_blank" >Acceso</a>
-        </li>
+        <li class="nav-item"><a class="nav-link" href="{{ route('login') }}">Acceso</a></li>
       </ul>
     </div>
   </div>
@@ -231,7 +223,7 @@
 <div style="padding-top: 56px;">
   <!-- Sección Hero -->
   <section class="hero" style="position: relative;">
-    <div id="carouselExampleIndicators" class="carousel slide" data-ride="carousel">
+    <div id="carouselExampleIndicators" class="carousel slide" data-bs-ride="carousel">
       <ol class="carousel-indicators" id="carousel-indicators">
         <!-- Indicadores dinámicos -->
       </ol>
@@ -251,28 +243,41 @@
     <div class="container hero-content">
       <div class="row align-items-center justify-content-center text-center">
         <div class="col-md-10">
-          <h1 class="display-5 fw-bold text-white">Encuentra el hogar de tus sueños</h1>
-          <p class="lead text-white">Propiedades exclusivas para compra, venta y alquiler en las mejores ubicaciones.</p>
-          <a href="{{ route('propiedades.index') }}" target="_blank" class="btn btn-primary btn-lg">Explorar Propiedades</a>
+          <h1 class="display-5 fw-bold text-white">Encontrá tu próximo hogar en un solo lugar</h1>
+          <p class="lead text-white">Explorá propiedades de inmobiliarias verificadas de la zona y contactá directo con la inmobiliaria, sin intermediarios.</p>
+          <a href="{{ route('propiedades.index') }}" class="btn btn-primary btn-lg me-2">Buscar propiedades</a>
+          <a href="{{ route('sumate') }}" class="btn btn-outline-light btn-lg">Soy inmobiliaria</a>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- Sección Sobre Nosotros -->
+  <!-- Sección Qué es el portal -->
   <section id="about" class="py-5">
     <div class="container">
       <div class="row align-items-center">
         <div class="col-md-6 mb-4 mb-md-0">
-          <img src="{{ asset('images/about.jpg') }}" class="img-fluid rounded" alt="Sobre {{ config('app.name') }}">
+          <img src="{{ asset('images/about.jpg') }}" class="img-fluid rounded" alt="{{ config('app.name') }}">
         </div>
         <div class="col-md-6">
-          <h2 class="mb-4">Sobre Nosotros</h2>
-          <p>Con más de 20 años de experiencia, nos dedicamos a conectar a personas con el hogar ideal. Nuestro compromiso es ofrecer asesoramiento personalizado, propiedades de alta calidad y un servicio excepcional en cada transacción.</p>
-          <p>Ya sea que busques comprar, vender o alquilar, nuestro equipo de profesionales está listo para acompañarte en cada paso del camino.</p>
-          <p><strong>Dirección:</strong> Calle Falsa 123, Ciudad, País</p>
-          <p><strong>Teléfono:</strong> +123 456 7890</p>
-          <a href="{{ route('contacto') }}" target="_blank" class="btn btn-outline-primary mt-3">Contáctanos</a>
+          <h2 class="mb-4">¿Qué es {{ config('app.name') }}?</h2>
+          <p>Somos el portal donde las inmobiliarias de la zona publican sus propiedades con su propia marca y su propia página pública. Vos buscás y contactás directo con la inmobiliaria: sin intermediarios.</p>
+          <p>Buscá por zona o en el mapa, guardá tus búsquedas y recibí un aviso por email cuando aparezca una propiedad que te interese. ¿Tenés una inmobiliaria? Creá tu vidriera gratis en minutos.</p>
+          <div class="row text-center my-4">
+            <div class="col-4">
+              <div class="h3 fw-bold text-primary mb-0">{{ $stats['inmobiliarias'] }}</div>
+              <small class="text-muted">inmobiliarias verificadas</small>
+            </div>
+            <div class="col-4">
+              <div class="h3 fw-bold text-primary mb-0">{{ $stats['propiedades'] }}</div>
+              <small class="text-muted">propiedades publicadas</small>
+            </div>
+            <div class="col-4">
+              <div class="h3 fw-bold text-primary mb-0">{{ $stats['operaciones'] }}</div>
+              <small class="text-muted">operaciones concretadas</small>
+            </div>
+          </div>
+          <a href="{{ route('sumate') }}" class="btn btn-outline-primary mt-2">Sumá tu inmobiliaria gratis</a>
         </div>
       </div>
     </div>
@@ -283,10 +288,10 @@
     <div class="container">
       <div class="text-center mb-4">
         <h2 class="mb-4">Propiedades Destacadas</h2>
-        <p class="text-muted">Explora algunas de las propiedades más exclusivas que tenemos para ti.</p>
+        <p class="text-muted">Seleccionadas por las inmobiliarias verificadas del portal.</p>
       </div>
       <div class="row">
-        @foreach($destacados as $inmueble)
+        @forelse($destacados as $inmueble)
         <div class="col-md-4 mb-4">
           <div class="card shadow-sm">
             <div id="carousel{{ $inmueble->id }}" class="carousel carousel-destacado slide" data-ride="carousel">
@@ -371,46 +376,44 @@
             </div>
           </div>
         </div>
-        @endforeach
+        @empty
+        <div class="col-12 text-center text-muted py-4">
+          Todavía no hay propiedades destacadas. <a href="{{ route('propiedades.index') }}">Explorá todas las propiedades del portal</a>
+        </div>
+        @endforelse
       </div>
     </div>
   </section>
 
-  <!-- Sección Testimonios -->
-  <section id="testimonials" class="py-5">
+  <!-- Sección Inmobiliarias verificadas (datos reales del portal) -->
+  <section id="inmobiliarias" class="py-5">
     <div class="container">
       <div class="text-center mb-5">
-        <h2 class="fw-bold">Testimonios</h2>
-        <p class="text-muted">Lo que dicen nuestros clientes</p>
+        <h2 class="fw-bold">Inmobiliarias verificadas</h2>
+        <p class="text-muted">Cada inmobiliaria del portal tiene su propia página pública y pasa por aprobación antes de figurar.</p>
       </div>
       <div class="row">
-        <!-- Testimonio 1 -->
+        @forelse($inmobiliariasTop as $inmobiliaria)
         <div class="col-md-4 mb-4">
-          <div class="card border-0 shadow-sm">
-            <div class="card-body">
-              <p class="card-text">"{{ config('app.name') }} hizo realidad el sueño de mi familia. Un servicio impecable y profesional."</p>
-              <h6 class="card-subtitle text-muted">- Juan Pérez</h6>
+          <div class="card border-0 shadow-sm h-100">
+            <div class="card-body text-center">
+              @if($inmobiliaria->logo)
+                <img src="{{ asset($inmobiliaria->logo) }}" alt="{{ $inmobiliaria->nombre_comercial }}" class="mb-2" style="max-height: 60px; max-width: 140px; object-fit: contain;">
+              @else
+                <div class="rounded bg-primary text-white d-inline-flex align-items-center justify-content-center mb-2" style="width: 60px; height: 60px; font-weight: 700; font-size: 24px;">{{ mb_substr($inmobiliaria->nombre_comercial, 0, 1) }}</div>
+              @endif
+              <h5 class="card-title mb-1">{{ $inmobiliaria->nombre_comercial }}</h5>
+              <p class="text-muted small mb-2">{{ $inmobiliaria->ciudad }}{{ $inmobiliaria->provincia ? ', ' . $inmobiliaria->provincia : '' }}</p>
+              <p class="small mb-3">{{ $inmobiliaria->inmuebles_publicados_count }} propiedades &middot; {{ $inmobiliaria->operaciones_count }} operaciones</p>
+              <a href="{{ route('inmobiliarias.show', $inmobiliaria->slug) }}" class="btn btn-outline-primary btn-sm">Ver vidriera</a>
             </div>
           </div>
         </div>
-        <!-- Testimonio 2 -->
-        <div class="col-md-4 mb-4">
-          <div class="card border-0 shadow-sm">
-            <div class="card-body">
-              <p class="card-text">"La atención y el compromiso de su equipo es excepcional. Recomiendo totalmente sus servicios."</p>
-              <h6 class="card-subtitle text-muted">- María Gómez</h6>
-            </div>
-          </div>
+        @empty
+        <div class="col-12 text-center text-muted py-4">
+          Pronto vas a ver acá las inmobiliarias verificadas. <a href="{{ route('inmobiliarias.index') }}">Ver directorio</a>
         </div>
-        <!-- Testimonio 3 -->
-        <div class="col-md-4 mb-4">
-          <div class="card border-0 shadow-sm">
-            <div class="card-body">
-              <p class="card-text">"Profesionales y confiables. Mi experiencia fue excelente desde el primer contacto."</p>
-              <h6 class="card-subtitle text-muted">- Carlos López</h6>
-            </div>
-          </div>
-        </div>
+        @endforelse
       </div>
     </div>
   </section>
@@ -418,9 +421,10 @@
   <!-- Sección Llamada a la Acción -->
   <section id="cta" class="py-5 bg-primary text-white">
     <div class="container text-center">
-      <h2 class="mb-4">¿Listo para encontrar tu nuevo hogar?</h2>
-      <p class="mb-4">Contáctanos hoy mismo y descubre cómo podemos ayudarte a dar el siguiente paso.</p>
-      <a href="{{ route('contacto') }}" class="btn btn-light btn-lg">Contáctanos</a>
+      <h2 class="mb-4">¿Buscás propiedad o querés publicar la tuya?</h2>
+      <p class="mb-4">Explorá todas las propiedades del portal o creá gratis la página pública de tu inmobiliaria.</p>
+      <a href="{{ route('propiedades.index') }}" class="btn btn-light btn-lg me-2">Buscar propiedades</a>
+      <a href="{{ route('sumate') }}" class="btn btn-outline-light btn-lg">Soy inmobiliaria</a>
     </div>
   </section>
 <!--Start of Tawk.to Script-->
