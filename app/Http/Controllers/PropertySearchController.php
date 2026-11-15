@@ -83,6 +83,65 @@ class PropertySearchController extends Controller
         return view('inmuebles.search', compact('inmobiliarias', 'tipos'));
     }
 
+    // Página SEO por zona: /propiedades-en-{venta|alquiler}-en-{ciudad}
+    public function porZona(string $operacion, string $ciudad)
+    {
+        abort_unless(in_array($operacion, ['venta', 'alquiler']), 404);
+
+        $ciudadNombre = str_replace('-', ' ', $ciudad);
+
+        $propiedades = Inmueble::publicados()
+            ->whereHas('inmobiliaria', function ($q) {
+                $q->where('estado', 'activa');
+            })
+            ->where('tipo_operacion', $operacion)
+            ->whereRaw('LOWER(ciudad) = ?', [mb_strtolower($ciudadNombre)])
+            ->with('inmobiliaria')
+            ->latest()
+            ->paginate(12)
+            ->withQueryString();
+
+        return view('inmuebles.zona', compact('propiedades', 'operacion', 'ciudadNombre'));
+    }
+
+    // Sitemap XML para SEO
+    public function sitemap()
+    {
+        $urls = [
+            route('inicio'),
+            route('inmobiliarias.index'),
+            route('propiedades.index'),
+            route('propiedades.mapa'),
+            route('contacto'),
+        ];
+
+        foreach (Inmobiliaria::activas()->get() as $inm) {
+            $urls[] = route('inmobiliarias.show', $inm->slug);
+        }
+
+        foreach (Inmueble::publicados()->whereHas('inmobiliaria', fn ($q) => $q->where('estado', 'activa'))->with('inmobiliaria')->get() as $p) {
+            if ($p->inmobiliaria) {
+                $urls[] = route('propiedad.show', [$p->inmobiliaria->slug, $p->id]);
+            }
+        }
+
+        $ciudades = Inmueble::publicados()->whereNotNull('ciudad')->where('ciudad', '!=', '')->distinct()->pluck('ciudad');
+        foreach ($ciudades as $c) {
+            $slug = \Illuminate\Support\Str::slug($c);
+            $urls[] = route('propiedades.zona', ['operacion' => 'venta', 'ciudad' => $slug]);
+            $urls[] = route('propiedades.zona', ['operacion' => 'alquiler', 'ciudad' => $slug]);
+        }
+
+        $xml = '<?xml version="1.0" encoding="UTF-8"?>' . "\n"
+            . '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' . "\n";
+        foreach (array_unique($urls) as $u) {
+            $xml .= '  <url><loc>' . htmlspecialchars($u, ENT_XML1) . '</loc></url>' . "\n";
+        }
+        $xml .= '</urlset>';
+
+        return response($xml, 200, ['Content-Type' => 'application/xml']);
+    }
+
     // Vista de mapa con marcadores (búsqueda por área visible)
     public function mapa()
     {

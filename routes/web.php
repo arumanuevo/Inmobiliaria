@@ -30,6 +30,9 @@ Route::post('/mp/webhook', [App\Http\Controllers\MercadoPagoController::class, '
 // Directorio público de inmobiliarias y perfil público de cada una
 Route::get('/inmobiliarias', [InmobiliariaController::class, 'index'])->name('inmobiliarias.index');
 Route::get('/inmobiliaria/{slug}', [InmobiliariaController::class, 'show'])->name('inmobiliarias.show');
+Route::get('/inmobiliaria/{slug}/propiedad/{inmueble}', [InmobiliariaController::class, 'propiedad'])->name('propiedad.show');
+Route::get('/propiedades-en-{operacion}-en-{ciudad}', [PropertySearchController::class, 'porZona'])->name('propiedades.zona');
+Route::get('/sitemap.xml', [PropertySearchController::class, 'sitemap'])->name('sitemap');
 
 // Perfil editable por la propia inmobiliaria (logueada)
 Route::middleware('auth')->group(function () {

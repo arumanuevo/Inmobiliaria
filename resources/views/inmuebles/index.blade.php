@@ -26,6 +26,7 @@
                     <th>Email</th>
                     <th>Teléfono</th>
                     <th>Publicado</th>
+                    <th>Visitas</th>
                     <th class="text-center">Destacado</th>
                     <th class="text-center">Acciones</th>
                 </tr>
@@ -49,6 +50,7 @@
                             <span class="badge badge-secondary">Borrador</span>
                         @endif
                     </td>
+                    <td>{{ $inmueble->visitas }}</td>
                     <td class="text-center">
                         <input type="checkbox" class="toggle-destacado form-check-input" data-id="{{ $inmueble->id }}" {{ $inmueble->destacado ? 'checked' : '' }}>
                     </td>
@@ -68,7 +70,7 @@
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="12" class="text-center text-muted py-4">
+                    <td colspan="13" class="text-center text-muted py-4">
                         Todavía no tenés inmuebles. <a href="{{ route('inmuebles.create') }}">Crear el primero</a>
                     </td>
                 </tr>
@@ -95,7 +97,7 @@ $(document).ready(function () {
         lengthMenu: [10, 15, 25, 50, 100],
         order: [[0, 'asc']],
         columnDefs: [
-            { orderable: false, searchable: false, targets: [10, 11] }
+            { orderable: false, searchable: false, targets: [11, 12] }
         ]
     });
 

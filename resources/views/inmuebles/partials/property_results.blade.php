@@ -20,7 +20,7 @@
           </button>
         </div>
         <div class="card-body">
-          <h5 class="card-title">{{ $property->titulo }}</h5>
+          <h5 class="card-title"><a href="{{ route('propiedad.show', [$property->inmobiliaria->slug, $property->id]) }}" class="text-decoration-none text-dark">{{ $property->titulo }}</a></h5>
           <p class="card-text text-muted mb-1">{{ $property->inmobiliaria->nombre_comercial ?? '' }}</p>
           <p class="card-text">{{ $property->precio_formateado }} • {{ $property->habitaciones }} Habitaciones • {{ $property->banos }} Baños • {{ $property->superficie_cubierta }} m²</p>
           <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#propertyModal{{ $property->id }}">

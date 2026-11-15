@@ -146,7 +146,7 @@
               </div>
             @endif
             <div class="card-body">
-              <h5 class="card-title">{{ $inmueble->titulo }}</h5>
+              <h5 class="card-title"><a href="{{ route('propiedad.show', [$inmobiliaria->slug, $inmueble->id]) }}" class="text-decoration-none text-dark">{{ $inmueble->titulo }}</a></h5>
               <p class="card-text">{{ $inmueble->precio_formateado }} &bull; {{ $inmueble->habitaciones }} Hab. &bull; {{ $inmueble->banos }} Baños &bull; {{ $inmueble->superficie_cubierta }} m²</p>
               <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#propertyModal{{ $inmueble->id }}">Ver Detalles</button>
             </div>
@@ -181,7 +181,7 @@
             </div>
           @endif
           <div class="card-body">
-            <h5 class="card-title">{{ $inmueble->titulo }}</h5>
+            <h5 class="card-title"><a href="{{ route('propiedad.show', [$inmobiliaria->slug, $inmueble->id]) }}" class="text-decoration-none text-dark">{{ $inmueble->titulo }}</a></h5>
             <p class="card-text">{{ ucfirst($inmueble->tipo_operacion) }} &bull; {{ $inmueble->precio_formateado }} &bull; {{ $inmueble->habitaciones }} Hab. &bull; {{ $inmueble->banos }} Baños &bull; {{ $inmueble->superficie_cubierta }} m²</p>
             <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#propertyModal{{ $inmueble->id }}">Ver Detalles</button>
           </div>

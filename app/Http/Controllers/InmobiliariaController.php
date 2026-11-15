@@ -49,6 +49,25 @@ class InmobiliariaController extends Controller
         return view('inmobiliarias.show', compact('inmobiliaria', 'destacados', 'inmuebles'));
     }
 
+    // Ficha pública individual de una propiedad (SEO) dentro del perfil de su inmobiliaria
+    public function propiedad(string $slug, \App\Models\Inmueble $inmueble)
+    {
+        $inmobiliaria = Inmobiliaria::activas()->where('slug', $slug)->with('plan')->firstOrFail();
+
+        abort_if((int) $inmueble->inmobiliaria_id !== (int) $inmobiliaria->id, 404);
+        abort_if(!$inmueble->publicado, 404);
+
+        $inmueble->increment('visitas');
+
+        $relacionados = $inmobiliaria->inmueblesPublicados()
+            ->where('id', '!=', $inmueble->id)
+            ->latest()
+            ->take(3)
+            ->get();
+
+        return view('inmuebles.public_show', compact('inmobiliaria', 'inmueble', 'relacionados'));
+    }
+
     // Formulario del perfil editable por la propia inmobiliaria
     public function perfil()
     {

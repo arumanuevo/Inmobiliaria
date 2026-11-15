@@ -306,7 +306,7 @@
               </a>
             </div>
             <div class="card-body">
-              <h5 class="card-title">{{ $inmueble->titulo }}</h5>
+              <h5 class="card-title"><a href="{{ route('propiedad.show', [$inmueble->inmobiliaria->slug, $inmueble->id]) }}" class="text-decoration-none text-dark">{{ $inmueble->titulo }}</a></h5>
               <p class="card-text text-muted mb-1">{{ $inmueble->inmobiliaria->nombre_comercial ?? '' }}</p>
               <p class="card-text">{{ $inmueble->precio_formateado }} • {{ $inmueble->habitaciones }} Habitaciones • {{ $inmueble->banos }} Baños • {{ $inmueble->superficie_cubierta }} m²</p>
               <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#propertyModal{{ $inmueble->id }}">
