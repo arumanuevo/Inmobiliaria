@@ -33,6 +33,8 @@ Route::get('/inmobiliaria/{slug}', [InmobiliariaController::class, 'show'])->nam
 Route::get('/inmobiliaria/{slug}/propiedad/{inmueble}', [InmobiliariaController::class, 'propiedad'])->name('propiedad.show');
 Route::get('/propiedades-en-{operacion}-en-{ciudad}', [PropertySearchController::class, 'porZona'])->name('propiedades.zona');
 Route::get('/sitemap.xml', [PropertySearchController::class, 'sitemap'])->name('sitemap');
+Route::get('/sumate', [InmobiliariaController::class, 'sumate'])->name('sumate');
+Route::post('/inmuebles/{inmueble}/cerrar', [InmuebleController::class, 'cerrar'])->name('inmuebles.cerrar');
 
 // Perfil editable por la propia inmobiliaria (logueada)
 Route::middleware('auth')->group(function () {

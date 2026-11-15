@@ -217,6 +217,7 @@
         <li class="nav-item">
           <a class="nav-link" href="{{ route('contacto') }}" target="_blank">Contacto</a>
         </li>
+        <li class="nav-item"><a class="nav-link" href="{{ route('sumate') }}">Soy inmobiliaria</a></li>
         <li class="nav-item">
           <a class="nav-link" href="{{ route('login') }}" target="_blank" >Acceso</a>
         </li>

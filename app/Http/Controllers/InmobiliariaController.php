@@ -65,7 +65,44 @@ class InmobiliariaController extends Controller
             ->take(3)
             ->get();
 
-        return view('inmuebles.public_show', compact('inmobiliaria', 'inmueble', 'relacionados'));
+        // Comparativa de precio: esta propiedad vs. promedio por m² de su ciudad
+        $comparativa = null;
+        if ($inmueble->superficie_cubierta > 0 && $inmueble->ciudad) {
+            $zona = \App\Models\Inmueble::publicados()
+                ->whereHas('inmobiliaria', fn ($q) => $q->where('estado', 'activa'))
+                ->whereRaw('LOWER(ciudad) = ?', [mb_strtolower((string) $inmueble->ciudad)])
+                ->where('superficie_cubierta', '>', 0)
+                ->where('id', '!=', $inmueble->id)
+                ->get();
+
+            if ($zona->count() >= 3) {
+                $promedioM2 = $zona->map(fn ($i) => (float) $i->precio / (float) $i->superficie_cubierta)->avg();
+                $m2 = (float) $inmueble->precio / (float) $inmueble->superficie_cubierta;
+                if ($promedioM2 > 0) {
+                    $comparativa = [
+                        'pct' => (int) round((($m2 - $promedioM2) / $promedioM2) * 100),
+                        'promedio_m2' => $promedioM2,
+                        'm2' => $m2,
+                        'n' => $zona->count(),
+                    ];
+                }
+            }
+        }
+
+        return view('inmuebles.public_show', compact('inmobiliaria', 'inmueble', 'relacionados', 'comparativa'));
+    }
+
+    // Landing B2B para captar inmobiliarias ("Soy inmobiliaria")
+    public function sumate()
+    {
+        $planes = \App\Models\Plan::where('activo', 1)->orderBy('precio_mensual')->get();
+        $stats = [
+            'inmobiliarias' => Inmobiliaria::activas()->count(),
+            'propiedades' => \App\Models\Inmueble::publicados()->whereHas('inmobiliaria', fn ($q) => $q->where('estado', 'activa'))->count(),
+            'operaciones' => \App\Models\Inmueble::where('cerrada', 1)->count(),
+        ];
+
+        return view('sumate', compact('planes', 'stats'));
     }
 
     // Formulario del perfil editable por la propia inmobiliaria

@@ -27,6 +27,7 @@
                     <th>Teléfono</th>
                     <th>Publicado</th>
                     <th>Visitas</th>
+                    <th>Consultas</th>
                     <th class="text-center">Destacado</th>
                     <th class="text-center">Acciones</th>
                 </tr>
@@ -44,13 +45,16 @@
                     <td>{{ $inmueble->propemail }}</td>
                     <td>{{ $inmueble->proptel }}</td>
                     <td>
-                        @if($inmueble->publicado)
+                        @if($inmueble->cerrada)
+                            <span class="badge badge-dark">Cerrada ({{ $inmueble->tipo_cierre }})</span>
+                        @elseif($inmueble->publicado)
                             <span class="badge badge-success">Visible</span>
                         @else
                             <span class="badge badge-secondary">Borrador</span>
                         @endif
                     </td>
                     <td>{{ $inmueble->visitas }}</td>
+                    <td>{{ $inmueble->contactos_count }}</td>
                     <td class="text-center">
                         <input type="checkbox" class="toggle-destacado form-check-input" data-id="{{ $inmueble->id }}" {{ $inmueble->destacado ? 'checked' : '' }}>
                     </td>
@@ -60,6 +64,13 @@
                             <a href="{{ route('inmuebles.edit', $inmueble) }}" class="btn btn-warning btn-sm" title="Editar"><i class="fas fa-pen"></i></a>
                             <a href="{{ route('inmuebles.addPhotos', $inmueble) }}" class="btn btn-primary btn-sm" title="Agregar fotos"><i class="fas fa-images"></i></a>
                             <a href="{{ route('inmuebles.deletePhotos', $inmueble) }}" class="btn btn-secondary btn-sm" title="Borrar fotos"><i class="fas fa-image"></i></a>
+                            @if(!$inmueble->cerrada)
+                            <form action="{{ route('inmuebles.cerrar', $inmueble) }}" method="POST" style="display:inline;">
+                                @csrf
+                                <input type="hidden" name="tipo_cierre" value="{{ $inmueble->tipo_operacion }}">
+                                <button class="btn btn-dark btn-sm" title="Marcar como {{ $inmueble->tipo_operacion }}da" onclick="return confirm('¿Marcar esta propiedad como {{ $inmueble->tipo_operacion }}da? Dejará de verse en el portal.')"><i class="fas fa-check"></i></button>
+                            </form>
+                            @endif
                             <form action="{{ route('inmuebles.destroy', $inmueble) }}" method="POST" style="display:inline;">
                                 @csrf
                                 @method('DELETE')
@@ -70,7 +81,7 @@
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="13" class="text-center text-muted py-4">
+                    <td colspan="14" class="text-center text-muted py-4">
                         Todavía no tenés inmuebles. <a href="{{ route('inmuebles.create') }}">Crear el primero</a>
                     </td>
                 </tr>
@@ -97,7 +108,7 @@ $(document).ready(function () {
         lengthMenu: [10, 15, 25, 50, 100],
         order: [[0, 'asc']],
         columnDefs: [
-            { orderable: false, searchable: false, targets: [11, 12] }
+            { orderable: false, searchable: false, targets: [12, 13] }
         ]
     });
 

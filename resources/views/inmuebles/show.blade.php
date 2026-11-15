@@ -22,6 +22,8 @@
             <p><strong>Dirección:</strong> {{ $inmueble->direccion ?? 'No definida' }}</p>
             <p><strong>Ciudad:</strong> {{ $inmueble->ciudad ?? 'No definida' }}</p>
             <p><strong>Coordenadas:</strong> {{ $inmueble->coordenadas ?? 'No definida' }}</p>
+            <p><strong>Visitas en el portal:</strong> {{ $inmueble->visitas }}</p>
+            <p><strong>Consultas recibidas:</strong> {{ $inmueble->contactos()->count() }}</p>
             <!-- Agrega más campos según necesidad -->
         </div>
         <div class="card-footer">

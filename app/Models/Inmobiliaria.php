@@ -47,6 +47,12 @@ class Inmobiliaria extends Model
         return $this->hasMany(Boleto::class, 'inmobiliaria_id');
     }
 
+    // Operaciones concretadas (vendidas/alquiladas): social proof del perfil
+    public function operaciones()
+    {
+        return $this->inmuebles()->where('cerrada', 1);
+    }
+
     public function scopeActivas($query)
     {
         return $query->where('estado', 'activa');

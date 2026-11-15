@@ -13,6 +13,7 @@ class Inmueble extends Model
         'anio_construccion', 'orientacion', 'estado_propiedad',
         'direccion', 'ciudad', 'estado', 'codigo_postal', 'coordenadas',
         'piscina', 'jardin', 'garaje', 'ascensor', 'fotos', 'destacado', 'publicado', 'visitas',
+        'cerrada', 'tipo_cierre', 'cerrada_at',
         'propdom', 'propnombre', 'propdni', 'propemail', 'proptel'
     ];
 
@@ -20,6 +21,8 @@ class Inmueble extends Model
         'fotos' => 'array',
         'destacado' => 'boolean',
         'publicado' => 'boolean',
+        'cerrada' => 'boolean',
+        'cerrada_at' => 'datetime',
     ];
 
     public static function tiposPropiedad(): array
@@ -63,6 +66,11 @@ class Inmueble extends Model
     public function scopeDeInmobiliaria($query, $inmobiliariaId)
     {
         return $query->where('inmobiliaria_id', $inmobiliariaId);
+    }
+
+    public function contactos()
+    {
+        return $this->hasMany(Contacto::class, 'inmueble_id');
     }
 }
 

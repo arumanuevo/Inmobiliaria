@@ -18,7 +18,7 @@ class InmuebleController extends Controller
     public function index()
     {
         $user = auth()->user();
-        $query = Inmueble::with('inmobiliaria')->latest();
+        $query = Inmueble::with('inmobiliaria')->withCount('contactos')->latest();
 
         if (!$user->hasRole('admin')) {
             $query->deInmobiliaria($user->inmobiliaria->id ?? 0);
@@ -263,6 +263,24 @@ class InmuebleController extends Controller
         $inmueble->save();
 
         return response()->json(['success' => true, 'message' => 'Imágenes cargadas con éxito.']);
+    }
+
+    // Marcar propiedad como vendida/alquilada (se oculta del portal, suma al contador de operaciones)
+    public function cerrar(Request $request, Inmueble $inmueble)
+    {
+        $this->authorize('update', $inmueble);
+
+        $data = $request->validate([
+            'tipo_cierre' => 'required|in:venta,alquiler',
+        ]);
+
+        $inmueble->cerrada = 1;
+        $inmueble->publicado = 0;
+        $inmueble->tipo_cierre = $data['tipo_cierre'];
+        $inmueble->cerrada_at = now();
+        $inmueble->save();
+
+        return back()->with('success', 'Propiedad marcada como ' . $data['tipo_cierre'] . 'da. Ya no es visible en el portal público.');
     }
 
     // Método para obtener propiedades destacadas (solo publicadas, de inmobiliarias activas)

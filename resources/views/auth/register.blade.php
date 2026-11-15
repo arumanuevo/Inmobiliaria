@@ -35,6 +35,7 @@
         <li class="nav-item"><a class="nav-link" href="{{ route('propiedades.index') }}">Propiedades</a>
         <li class="nav-item"><a class="nav-link" href="{{ route('propiedades.mapa') }}">Mapa</a></li></li>
         <li class="nav-item"><a class="nav-link" href="{{ route('contacto') }}">Contacto</a></li>
+        <li class="nav-item"><a class="nav-link" href="{{ route('sumate') }}">Soy inmobiliaria</a></li>
         <li class="nav-item"><a class="nav-link" href="{{ route('login') }}">Acceso</a></li>
       </ul>
     </div>

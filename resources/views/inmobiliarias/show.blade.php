@@ -58,6 +58,7 @@
         <li class="nav-item"><a class="nav-link" href="{{ route('propiedades.index') }}">Propiedades</a>
         <li class="nav-item"><a class="nav-link" href="{{ route('propiedades.mapa') }}">Mapa</a></li></li>
         <li class="nav-item"><a class="nav-link" href="{{ route('contacto') }}">Contacto</a></li>
+        <li class="nav-item"><a class="nav-link" href="{{ route('sumate') }}">Soy inmobiliaria</a></li>
         <li class="nav-item"><a class="nav-link" href="{{ route('login') }}">Acceso</a></li>
       </ul>
     </div>
@@ -98,6 +99,9 @@
       </div>
       <div class="col-md-9">
         <h1 class="mb-1">{{ $inmobiliaria->nombre_comercial }}</h1>
+        @if($inmobiliaria->operaciones()->count() > 0)
+          <p class="mb-1"><span class="badge bg-light text-dark"><i class="fas fa-check-circle"></i> {{ $inmobiliaria->operaciones()->count() }} {{ Str::plural('operación', $inmobiliaria->operaciones()->count()) }} concretada(s)</span></p>
+        @endif
         <p class="mb-1">{{ trim(($inmobiliaria->direccion ? $inmobiliaria->direccion . ', ' : '') . $inmobiliaria->ciudad . ', ' . $inmobiliaria->provincia, ', ') }}</p>
         @if($inmobiliaria->telefono)
           <p class="mb-1"><i class="fas fa-phone"></i> {{ $inmobiliaria->telefono }}</p>
