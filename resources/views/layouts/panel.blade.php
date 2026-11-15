@@ -35,6 +35,9 @@
                 <a href="{{ route('boletos.mios') }}" class="{{ request()->is('mis-boletos') || request()->is('boletos/*') ? 'active' : '' }}">
                     <i class="fas fa-receipt"></i><span>Mis Boletos</span>
                 </a>
+                <a href="{{ route('busquedas.mias') }}" class="{{ request()->is('mis-busquedas*') ? 'active' : '' }}">
+                    <i class="fas fa-bell"></i><span>Mis búsquedas</span>
+                </a>
             @endif
             @if(auth()->user()->hasRole('admin'))
                 <div class="menu-section">Administración</div>
@@ -43,6 +46,9 @@
                 </a>
                 <a href="{{ route('admin.boletos') }}" class="{{ request()->is('admin/boletos*') ? 'active' : '' }}">
                     <i class="fas fa-file-invoice-dollar"></i><span>Boletos</span>
+                </a>
+                <a href="{{ route('admin.operaciones') }}" class="{{ request()->is('admin/operaciones*') ? 'active' : '' }}">
+                    <i class="fas fa-handshake"></i><span>Operaciones</span>
                 </a>
                 @if(auth()->user()->esSuperAdmin())
                 <a href="{{ route('admin.planes') }}" class="{{ request()->is('admin/planes*') ? 'active' : '' }}">

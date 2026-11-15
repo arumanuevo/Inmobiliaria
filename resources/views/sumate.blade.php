@@ -108,6 +108,20 @@
         <p>Tu inmobiliaria pasa por aprobación y figura en el directorio del portal con insignia de verificada: más confianza, menos estafas.</p>
       </div>
     </div>
+    <div class="col-md-6 col-lg-4">
+      <div class="beneficio">
+        <i class="fas fa-bell"></i>
+        <h5>Alertas automáticas a interesados</h5>
+        <p>Quienes buscan en el portal guardan sus búsquedas y reciben un aviso por email apenas publicás algo que les interesa: más consultas entrantes sin mover un dedo.</p>
+      </div>
+    </div>
+    <div class="col-md-6 col-lg-4">
+      <div class="beneficio">
+        <i class="fas fa-hands-helping"></i>
+        <h5>Te ayudamos a arrancar</h5>
+        <p>Si querés, cargamos por vos tus primeras propiedades para que tu vidriera no arranque vacía. Tu portal, tu marca, desde el día uno.</p>
+      </div>
+    </div>
   </div>
 
   <h2 class="text-center fw-bold mb-4">Planes simples, sin letra chica</h2>

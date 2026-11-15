@@ -14,6 +14,8 @@ class Inmueble extends Model
         'direccion', 'ciudad', 'estado', 'codigo_postal', 'coordenadas',
         'piscina', 'jardin', 'garaje', 'ascensor', 'fotos', 'destacado', 'publicado', 'visitas',
         'cerrada', 'tipo_cierre', 'cerrada_at',
+        'comision_porcentaje', 'comision_monto', 'comision_estado', 'comision_cobrada_at',
+        'carga_asistida',
         'propdom', 'propnombre', 'propdni', 'propemail', 'proptel'
     ];
 
@@ -23,6 +25,10 @@ class Inmueble extends Model
         'publicado' => 'boolean',
         'cerrada' => 'boolean',
         'cerrada_at' => 'datetime',
+        'comision_porcentaje' => 'decimal:2',
+        'comision_monto' => 'decimal:2',
+        'comision_cobrada_at' => 'datetime',
+        'carga_asistida' => 'boolean',
     ];
 
     public static function tiposPropiedad(): array
@@ -66,6 +72,48 @@ class Inmueble extends Model
     public function scopeDeInmobiliaria($query, $inmobiliariaId)
     {
         return $query->where('inmobiliaria_id', $inmobiliariaId);
+    }
+
+    // Filtros compartidos entre la búsqueda pública y las alertas de búsquedas guardadas
+    public function scopeAplicarFiltros($query, array $f)
+    {
+        if (!empty($f['inmobiliaria'])) {
+            $query->whereHas('inmobiliaria', fn ($q) => $q->where('slug', $f['inmobiliaria']));
+        }
+        foreach (['tipo_operacion', 'tipo_propiedad', 'moneda'] as $k) {
+            if (!empty($f[$k])) {
+                $query->where($k, $f[$k]);
+            }
+        }
+        $minimos = [
+            'ambientes_min' => 'ambientes',
+            'cocheras_min' => 'cocheras',
+            'precio_min' => 'precio',
+            'superficie_min' => 'superficie_cubierta',
+        ];
+        foreach ($minimos as $k => $col) {
+            if (isset($f[$k]) && is_numeric($f[$k])) {
+                $query->where($col, '>=', $f[$k]);
+            }
+        }
+        $maximos = [
+            'precio_max' => 'precio',
+            'superficie_max' => 'superficie_cubierta',
+        ];
+        foreach ($maximos as $k => $col) {
+            if (isset($f[$k]) && is_numeric($f[$k])) {
+                $query->where($col, '<=', $f[$k]);
+            }
+        }
+        foreach (['habitaciones', 'banos'] as $k) {
+            if (isset($f[$k]) && is_numeric($f[$k])) {
+                $query->where($k, $f[$k]);
+            }
+        }
+        if (!empty($f['ciudad'])) {
+            $query->where('ciudad', 'like', '%' . $f['ciudad'] . '%');
+        }
+        return $query;
     }
 
     public function contactos()

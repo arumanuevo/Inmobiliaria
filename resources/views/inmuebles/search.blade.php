@@ -225,6 +225,31 @@
     </form>
   </div>
 
+  <div class="card mb-4">
+    <div class="card-body">
+      <h5 class="card-title mb-1"><i class="fas fa-bell text-primary"></i> Avisame cuando aparezca algo así</h5>
+      <p class="text-muted small mb-3">Guardamos esta búsqueda con los filtros actuales y te enviamos un email cuando publiquen una propiedad que coincida.</p>
+      <form id="alert-form" method="POST" action="{{ route('busquedas.guardar') }}">
+        @csrf
+        <input type="hidden" name="filtros_json" id="filtros_json" value="">
+        <div class="row g-2 align-items-end">
+          <div class="col-md-4">
+            <input type="text" name="nombre" class="form-control" placeholder="Tu nombre (opcional)" value="{{ auth()->user()->name ?? '' }}">
+          </div>
+          <div class="col-md-4">
+            <input type="email" name="email" class="form-control" placeholder="Tu email" required value="{{ auth()->user()->email ?? '' }}">
+          </div>
+          <div class="col-md-4">
+            <button type="submit" class="btn btn-outline-primary w-100"><i class="fas fa-bell"></i> Guardar búsqueda y avisarme</button>
+          </div>
+        </div>
+        @if(config('services.recaptcha.site_key'))
+          <div class="mt-2"><div class="g-recaptcha" data-sitekey="{{ config('services.recaptcha.site_key') }}"></div></div>
+        @endif
+      </form>
+    </div>
+  </div>
+
   <div class="results-container" id="property-results">
     <!-- Los resultados se cargarán aquí -->
   </div>
@@ -278,8 +303,20 @@
 
     // Cargar propiedades al cargar la página
     loadProperties();
+
+    // Al enviar el formulario de alerta, serializar los filtros actuales de la búsqueda
+    $('#alert-form').on('submit', function () {
+      var filtros = {};
+      $('#search-form').serializeArray().forEach(function (item) {
+        if (item.value !== '') { filtros[item.name] = item.value; }
+      });
+      $('#filtros_json').val(JSON.stringify(filtros));
+    });
   });
 </script>
+@if(config('services.recaptcha.site_key'))
+<script src="https://www.google.com/recaptcha/api.js" async defer></script>
+@endif
 @stop
 
 

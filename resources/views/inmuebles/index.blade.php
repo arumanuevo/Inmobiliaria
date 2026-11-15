@@ -28,6 +28,7 @@
                     <th>Publicado</th>
                     <th>Visitas</th>
                     <th>Consultas</th>
+                    <th>Comisión</th>
                     <th class="text-center">Destacado</th>
                     <th class="text-center">Acciones</th>
                 </tr>
@@ -35,7 +36,12 @@
             <tbody>
                 @forelse($inmuebles as $inmueble)
                 <tr>
-                    <td>{{ $inmueble->titulo }}</td>
+                    <td>
+                        {{ $inmueble->titulo }}
+                        @if($inmueble->carga_asistida)
+                            <span class="badge badge-info" title="Cargada por el administrador (carga asistida)"><i class="fas fa-hands-helping"></i> carga asistida</span>
+                        @endif
+                    </td>
                     <td>{{ ucfirst($inmueble->tipo_operacion) }}</td>
                     <td>{{ $inmueble->inmobiliaria->nombre_comercial ?? '-' }}</td>
                     <td>${{ number_format($inmueble->precio, 2) }}</td>
@@ -55,6 +61,18 @@
                     </td>
                     <td>{{ $inmueble->visitas }}</td>
                     <td>{{ $inmueble->contactos_count }}</td>
+                    <td>
+                        @if($inmueble->comision_monto !== null)
+                            ${{ number_format((float) $inmueble->comision_monto, 2) }}
+                            @if($inmueble->comision_estado === 'cobrada')
+                                <span class="badge badge-success">cobrada</span>
+                            @else
+                                <span class="badge badge-warning">pendiente</span>
+                            @endif
+                        @else
+                            <span class="text-muted">-</span>
+                        @endif
+                    </td>
                     <td class="text-center">
                         <input type="checkbox" class="toggle-destacado form-check-input" data-id="{{ $inmueble->id }}" {{ $inmueble->destacado ? 'checked' : '' }}>
                     </td>
@@ -65,11 +83,7 @@
                             <a href="{{ route('inmuebles.addPhotos', $inmueble) }}" class="btn btn-primary btn-sm" title="Agregar fotos"><i class="fas fa-images"></i></a>
                             <a href="{{ route('inmuebles.deletePhotos', $inmueble) }}" class="btn btn-secondary btn-sm" title="Borrar fotos"><i class="fas fa-image"></i></a>
                             @if(!$inmueble->cerrada)
-                            <form action="{{ route('inmuebles.cerrar', $inmueble) }}" method="POST" style="display:inline;">
-                                @csrf
-                                <input type="hidden" name="tipo_cierre" value="{{ $inmueble->tipo_operacion }}">
-                                <button class="btn btn-dark btn-sm" title="Marcar como {{ $inmueble->tipo_operacion }}da" onclick="return confirm('¿Marcar esta propiedad como {{ $inmueble->tipo_operacion }}da? Dejará de verse en el portal.')"><i class="fas fa-check"></i></button>
-                            </form>
+                            <button type="button" class="btn btn-dark btn-sm" data-bs-toggle="modal" data-bs-target="#cerrarModal{{ $inmueble->id }}" title="Marcar como {{ $inmueble->tipo_operacion }}da"><i class="fas fa-check"></i></button>
                             @endif
                             <form action="{{ route('inmuebles.destroy', $inmueble) }}" method="POST" style="display:inline;">
                                 @csrf
@@ -77,11 +91,53 @@
                                 <button class="btn btn-danger btn-sm" title="Eliminar" onclick="return confirm('¿Seguro de eliminar?')"><i class="fas fa-trash"></i></button>
                             </form>
                         </div>
+
+                        @if(!$inmueble->cerrada)
+                        <!-- Modal de cierre de operación (vendida/alquilada) con comisión opcional -->
+                        <div class="modal fade" id="cerrarModal{{ $inmueble->id }}" tabindex="-1" aria-hidden="true">
+                            <div class="modal-dialog">
+                                <form action="{{ route('inmuebles.cerrar', $inmueble) }}" method="POST">
+                                    @csrf
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title">Cerrar operación</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                                        </div>
+                                        <div class="modal-body text-start">
+                                            <p class="text-muted small">La propiedad dejará de verse en el portal y sumará a tu contador de operaciones concretadas.</p>
+                                            <div class="form-group mb-3">
+                                                <label>Tipo de cierre</label>
+                                                <select name="tipo_cierre" class="form-control" required>
+                                                    <option value="venta" {{ $inmueble->tipo_operacion === 'venta' ? 'selected' : '' }}>Vendida</option>
+                                                    <option value="alquiler" {{ $inmueble->tipo_operacion === 'alquiler' ? 'selected' : '' }}>Alquilada</option>
+                                                </select>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-6 form-group">
+                                                    <label>Comisión % (opcional)</label>
+                                                    <input type="number" step="0.01" min="0" max="100" name="comision_porcentaje" class="form-control" placeholder="Ej: 3">
+                                                </div>
+                                                <div class="col-6 form-group">
+                                                    <label>Comisión $ (opcional)</label>
+                                                    <input type="number" step="0.01" min="0" name="comision_monto" class="form-control" placeholder="Monto fijo">
+                                                </div>
+                                            </div>
+                                            <small class="text-muted">Si dejás el % y no el monto, se calcula sobre el precio de la propiedad.</small>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                            <button type="submit" class="btn btn-dark"><i class="fas fa-check"></i> Confirmar cierre</button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                        @endif
                     </td>
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="14" class="text-center text-muted py-4">
+                    <td colspan="15" class="text-center text-muted py-4">
                         Todavía no tenés inmuebles. <a href="{{ route('inmuebles.create') }}">Crear el primero</a>
                     </td>
                 </tr>
@@ -108,7 +164,7 @@ $(document).ready(function () {
         lengthMenu: [10, 15, 25, 50, 100],
         order: [[0, 'asc']],
         columnDefs: [
-            { orderable: false, searchable: false, targets: [12, 13] }
+            { orderable: false, searchable: false, targets: [13, 14] }
         ]
     });
 

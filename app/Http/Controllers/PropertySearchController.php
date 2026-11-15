@@ -10,65 +10,17 @@ class PropertySearchController extends Controller
 {
     public function search(Request $request)
     {
+        // Mismos filtros que usan las alertas de búsquedas guardadas (Inmueble::scopeAplicarFiltros)
         $query = Inmueble::publicados()
             ->whereHas('inmobiliaria', function ($q) {
                 $q->where('estado', 'activa');
             })
-            ->with('inmobiliaria');
-
-        if ($request->filled('inmobiliaria')) {
-            $query->whereHas('inmobiliaria', function ($q) use ($request) {
-                $q->where('slug', $request->inmobiliaria);
-            });
-        }
-
-        if ($request->has('tipo_operacion') && !empty($request->tipo_operacion)) {
-            $query->where('tipo_operacion', $request->tipo_operacion);
-        }
-
-        if ($request->filled('tipo_propiedad')) {
-            $query->where('tipo_propiedad', $request->tipo_propiedad);
-        }
-
-        if ($request->filled('moneda')) {
-            $query->where('moneda', $request->moneda);
-        }
-
-        if ($request->filled('ambientes_min') && is_numeric($request->ambientes_min)) {
-            $query->where('ambientes', '>=', (int) $request->ambientes_min);
-        }
-
-        if ($request->filled('cocheras_min') && is_numeric($request->cocheras_min)) {
-            $query->where('cocheras', '>=', (int) $request->cocheras_min);
-        }
-
-        if ($request->has('precio_min') && is_numeric($request->precio_min)) {
-            $query->where('precio', '>=', $request->precio_min);
-        }
-
-        if ($request->has('precio_max') && is_numeric($request->precio_max)) {
-            $query->where('precio', '<=', $request->precio_max);
-        }
-
-        if ($request->has('habitaciones') && is_numeric($request->habitaciones)) {
-            $query->where('habitaciones', $request->habitaciones);
-        }
-
-        if ($request->has('banos') && is_numeric($request->banos)) {
-            $query->where('banos', $request->banos);
-        }
-
-        if ($request->has('superficie_min') && is_numeric($request->superficie_min)) {
-            $query->where('superficie_cubierta', '>=', $request->superficie_min);
-        }
-
-        if ($request->has('superficie_max') && is_numeric($request->superficie_max)) {
-            $query->where('superficie_cubierta', '<=', $request->superficie_max);
-        }
-
-        if ($request->has('ciudad') && !empty($request->ciudad)) {
-            $query->where('ciudad', 'like', '%' . $request->ciudad . '%');
-        }
+            ->with('inmobiliaria')
+            ->aplicarFiltros($request->only([
+                'inmobiliaria', 'tipo_operacion', 'tipo_propiedad', 'moneda',
+                'ambientes_min', 'cocheras_min', 'precio_min', 'precio_max',
+                'habitaciones', 'banos', 'superficie_min', 'superficie_max', 'ciudad',
+            ]));
 
         $properties = $query->paginate(3);
 

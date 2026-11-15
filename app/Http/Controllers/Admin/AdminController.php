@@ -2,7 +2,10 @@
 namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Http\Controllers\InmuebleController;
 use App\Models\Boleto;
+use App\Models\BusquedaGuardada;
+use App\Models\Inmueble;
 use App\Models\Inmobiliaria;
 use App\Models\Plan;
 
@@ -124,6 +127,77 @@ class AdminController extends Controller
         $plan->save();
 
         return back()->with('success', 'Estado del paquete actualizado.');
+    }
+
+    // ===== Operaciones concretadas (vendidas/alquiladas) y comisiones por cierre =====
+
+    public function operaciones()
+    {
+        $operaciones = Inmueble::with('inmobiliaria')
+            ->where('cerrada', 1)
+            ->latest('cerrada_at')
+            ->paginate(25);
+
+        $base = Inmueble::where('cerrada', 1)->whereNotNull('comision_monto');
+        $totales = [
+            'pendiente' => (clone $base)->where('comision_estado', 'pendiente')->sum('comision_monto'),
+            'cobrada' => (clone $base)->where('comision_estado', 'cobrada')->sum('comision_monto'),
+            'cantidad' => Inmueble::where('cerrada', 1)->count(),
+        ];
+
+        return view('admin.operaciones', compact('operaciones', 'totales'));
+    }
+
+    public function cobrarOperacion(Request $request, $id)
+    {
+        $request->validate([
+            'estado' => 'required|in:pendiente,cobrada',
+        ]);
+
+        $inmueble = Inmueble::findOrFail($id);
+        abort_unless($inmueble->cerrada, 404);
+
+        $inmueble->comision_estado = $request->input('estado');
+        $inmueble->comision_cobrada_at = $request->input('estado') === 'cobrada' ? now() : null;
+        $inmueble->save();
+
+        return back()->with('success', 'Estado de la comisión actualizado.');
+    }
+
+    // ===== Carga asistida: el admin carga propiedades a nombre de una inmobiliaria =====
+
+    public function formCargaAsistida($id)
+    {
+        $inmobiliaria = Inmobiliaria::findOrFail($id);
+
+        return view('inmuebles.create', compact('inmobiliariaAsistida'));
+    }
+
+    public function cargarInmueble(Request $request, $id)
+    {
+        $inmobiliaria = Inmobiliaria::findOrFail($id);
+
+        $data = $request->validate(InmuebleController::reglasValidacion());
+
+        $data['piscina']  = $request->has('piscina') ? 1 : 0;
+        $data['jardin']   = $request->has('jardin') ? 1 : 0;
+        $data['garaje']   = $request->has('garaje') ? 1 : 0;
+        $data['ascensor'] = $request->has('ascensor') ? 1 : 0;
+        $data['publicado'] = $request->has('publicado') ? 1 : 0;
+        $data['moneda'] = $data['moneda'] ?? 'ARS';
+        $data['cocheras'] = $data['cocheras'] ?? 0;
+        $data['inmobiliaria_id'] = $inmobiliaria->id;
+        $data['usuario_id'] = $inmobiliaria->usuario_id;
+        $data['carga_asistida'] = 1;
+
+        $inmueble = Inmueble::create($data);
+
+        if (!empty($data['publicado'])) {
+            BusquedaGuardada::notificarNuevaPropiedad($inmueble);
+        }
+
+        return redirect()->route('admin.inmobiliarias')
+            ->with('success', 'Propiedad cargada para ' . $inmobiliaria->nombre_comercial . ' (carga asistida).');
     }
 
     // Panel de boletos de suscripción

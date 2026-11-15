@@ -8,6 +8,8 @@ use App\Http\Controllers\ImageController;
 use App\Http\Controllers\FotoController;
 use App\Http\Controllers\PropertySearchController;
 use App\Http\Controllers\MessageController;
+use App\Http\Controllers\BusquedaGuardadaController;
+use App\Http\Controllers\FeedController;
 
 Route::get('/', [InmuebleController::class, 'destacados'])->name('welcome');
 Route::get('/inicio', [InmuebleController::class, 'destacados'])->name('inicio');
@@ -42,7 +44,17 @@ Route::middleware('auth')->group(function () {
     Route::put('/mi-inmobiliaria', [InmobiliariaController::class, 'actualizarPerfil'])->name('inmobiliaria.update');
     Route::get('/mis-boletos', [App\Http\Controllers\BoletoController::class, 'mios'])->name('boletos.mios');
     Route::post('/boletos/{boleto}/pagar', [App\Http\Controllers\BoletoController::class, 'pagar'])->name('boletos.pagar');
+    Route::get('/mis-busquedas', [BusquedaGuardadaController::class, 'misBusquedas'])->name('busquedas.mias');
+    Route::delete('/mis-busquedas/{busqueda}', [BusquedaGuardadaController::class, 'destroy'])->name('busquedas.destroy');
 });
+
+// Búsquedas guardadas (público: cualquiera puede recibir alertas por email de nuevas propiedades)
+Route::post('/busquedas-guardadas', [BusquedaGuardadaController::class, 'guardar'])->name('busquedas.guardar');
+
+// Feeds XML de propiedades publicadas (para sindicar en portales inmobiliarios)
+Route::get('/feed.xml', [FeedController::class, 'generico'])->name('feed.generico');
+Route::get('/feed/zonaprop.xml', [FeedController::class, 'zonaprop'])->name('feed.zonaprop');
+Route::get('/feed/argenprop.xml', [FeedController::class, 'argenprop'])->name('feed.argenprop');
 
 // Panel de administración del SaaS (solo admin)
 Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
@@ -56,6 +68,10 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::post('/planes', [App\Http\Controllers\Admin\AdminController::class, 'crearPlan'])->name('planes.store');
     Route::put('/planes/{id}', [App\Http\Controllers\Admin\AdminController::class, 'actualizarPlan'])->name('planes.update');
     Route::post('/planes/{id}/toggle', [App\Http\Controllers\Admin\AdminController::class, 'togglePlan'])->name('planes.toggle');
+    Route::get('/operaciones', [App\Http\Controllers\Admin\AdminController::class, 'operaciones'])->name('operaciones');
+    Route::post('/operaciones/{id}/comision', [App\Http\Controllers\Admin\AdminController::class, 'cobrarOperacion'])->name('operaciones.comision');
+    Route::get('/inmobiliarias/{id}/cargar-inmueble', [App\Http\Controllers\Admin\AdminController::class, 'formCargaAsistida'])->name('carga.form');
+    Route::post('/inmobiliarias/{id}/cargar-inmueble', [App\Http\Controllers\Admin\AdminController::class, 'cargarInmueble'])->name('carga.store');
 });
 
 // Rutas para el CRUD de Inmuebles (admin e inmobiliarias; cada una solo gestiona lo suyo)

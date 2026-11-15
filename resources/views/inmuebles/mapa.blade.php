@@ -80,6 +80,24 @@
     </div>
   </form>
 
+  <div class="card mb-3">
+    <div class="card-body py-2">
+      <form id="alert-form-mapa" method="POST" action="{{ route('busquedas.guardar') }}" class="row g-2 align-items-center">
+        @csrf
+        <input type="hidden" name="filtros_json" id="filtros_json_mapa" value="">
+        <div class="col-md-6">
+          <span class="small text-muted"><i class="fas fa-bell text-primary"></i> Avisame por email cuando aparezca una propiedad con estos filtros</span>
+        </div>
+        <div class="col-md-3">
+          <input type="email" name="email" class="form-control form-control-sm" placeholder="Tu email" required value="{{ auth()->user()->email ?? '' }}">
+        </div>
+        <div class="col-md-3">
+          <button type="submit" class="btn btn-outline-primary btn-sm w-100"><i class="fas fa-bell"></i> Guardar búsqueda</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <div class="row g-3">
     <div class="col-lg-8">
       <div id="mapa-busqueda"></div>
@@ -166,6 +184,12 @@ document.addEventListener('DOMContentLoaded', function () {
         window.__tMapa = setTimeout(cargar, 400);
     });
     cargar();
+});
+
+document.getElementById('alert-form-mapa').addEventListener('submit', function () {
+    var filtros = {};
+    new FormData(document.getElementById('filtros-mapa')).forEach(function (v, k) { if (v !== '') { filtros[k] = v; } });
+    document.getElementById('filtros_json_mapa').value = JSON.stringify(filtros);
 });
 </script>
 @stop

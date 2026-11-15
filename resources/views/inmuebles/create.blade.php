@@ -1,9 +1,9 @@
 @extends('layouts.panel')
 
-@section('title', 'Nuevo Inmueble')
+@section('title', isset($inmobiliariaAsistida) ? 'Cargar propiedad - ' . $inmobiliariaAsistida->nombre_comercial : 'Nuevo Inmueble')
 
 @section('content_header')
-    <h1>Nuevo Inmueble</h1>
+    <h1>{{ isset($inmobiliariaAsistida) ? 'Cargar propiedad para ' . $inmobiliariaAsistida->nombre_comercial : 'Nuevo Inmueble' }}</h1>
 @stop
 
 @section('content')
@@ -13,7 +13,13 @@
             <h3 class="card-title">Crear Inmueble</h3>
         </div>
         <div class="card-body">
-            <form action="{{ route('inmuebles.store') }}" method="POST" enctype="multipart/form-data">
+            @if(isset($inmobiliariaAsistida))
+            <div class="alert alert-info">
+                <i class="fas fa-hands-helping"></i> <strong>Carga asistida:</strong> esta propiedad se publicará a nombre de
+                <strong>{{ $inmobiliariaAsistida->nombre_comercial }}</strong> (/inmobiliaria/{{ $inmobiliariaAsistida->slug }}).
+            </div>
+            @endif
+            <form action="{{ isset($inmobiliariaAsistida) ? route('admin.carga.store', $inmobiliariaAsistida->id) : route('inmuebles.store') }}" method="POST" enctype="multipart/form-data">
                 @csrf
                 <!-- Datos básicos -->
                 <div class="form-group">

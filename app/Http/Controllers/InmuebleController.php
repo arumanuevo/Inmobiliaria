@@ -1,6 +1,7 @@
 <?php
 namespace App\Http\Controllers;
 
+use App\Models\BusquedaGuardada;
 use App\Models\Inmueble;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -37,12 +38,10 @@ class InmuebleController extends Controller
         return view('inmuebles.create');
     }
 
-    public function store(Request $request)
+    // Reglas de validación compartidas entre el alta/edición propia y la carga asistida del admin
+    public static function reglasValidacion(): array
     {
-        // Log de todas las variables del request
-        Log::info('Request Data:', $request->all());
-
-        $data = $request->validate([
+        return [
             'tipo_operacion'      => 'required|string|max:50',
             'tipo_propiedad'      => 'nullable|string|max:30',
             'moneda'              => 'nullable|in:ARS,USD',
@@ -69,7 +68,15 @@ class InmuebleController extends Controller
             'propdni'             => 'nullable|string|max:20',
             'propemail'           => 'nullable|email|max:255',
             'proptel'             => 'nullable|string|max:20',
-        ]);
+        ];
+    }
+
+    public function store(Request $request)
+    {
+        // Log de todas las variables del request
+        Log::info('Request Data:', $request->all());
+
+        $data = $request->validate(static::reglasValidacion());
 
         // Asigna 1 si se marca la opción, de lo contrario 0
         $data['piscina']  = $request->has('piscina') ? 1 : 0;
@@ -98,7 +105,12 @@ class InmuebleController extends Controller
             $data['inmobiliaria_id'] = $inmobiliaria->id;
         }
 
-        Inmueble::create($data);
+        $inmueble = Inmueble::create($data);
+
+        // Alerta a búsquedas guardadas (email a interesados) cuando se publica
+        if (!empty($data['publicado'])) {
+            BusquedaGuardada::notificarNuevaPropiedad($inmueble);
+        }
 
         return redirect()->route('inmuebles.index')->with('success', 'Inmueble creado correctamente.');
     }
@@ -121,34 +133,9 @@ class InmuebleController extends Controller
 
     public function update(Request $request, Inmueble $inmueble)
     {
-        $data = $request->validate([
-            'tipo_operacion'      => 'required|string|max:50',
-            'tipo_propiedad'      => 'nullable|string|max:30',
-            'moneda'              => 'nullable|in:ARS,USD',
-            'ambientes'           => 'nullable|integer|min:0',
-            'cocheras'            => 'nullable|integer|min:0',
-            'expensas'            => 'nullable|numeric|min:0',
-            'orientacion'         => 'nullable|string|max:20',
-            'estado_propiedad'    => 'nullable|string|max:30',
-            'titulo'              => 'required|string|max:255',
-            'descripcion'         => 'required',
-            'precio'              => 'required|numeric',
-            'superficie_cubierta' => 'required|numeric',
-            'habitaciones'        => 'required|integer',
-            'banos'               => 'required|integer',
-            // Campos adicionales
-            'anio_construccion'   => 'nullable|integer',
-            'direccion'           => 'nullable|string|max:255',
-            'ciudad'              => 'nullable|string|max:100',
-            'estado'              => 'nullable|string|max:100',
-            'codigo_postal'       => 'nullable|string|max:20',
-            'coordenadas'         => 'nullable|string|max:255',
-            'propdom'             => 'nullable|string|max:255',
-            'propnombre'          => 'nullable|string|max:255',
-            'propdni'             => 'nullable|string|max:20',
-            'propemail'           => 'nullable|email|max:255',
-            'proptel'             => 'nullable|string|max:20',
-        ]);
+        $yaPublicado = (bool) $inmueble->publicado;
+
+        $data = $request->validate(static::reglasValidacion());
 
         // Gestionar prestaciones: asignar 1 si se marca, 0 si no se envía
         $data['piscina']  = $request->has('piscina') ? 1 : 0;
@@ -162,6 +149,11 @@ class InmuebleController extends Controller
         $this->authorize('update', $inmueble);
 
         $inmueble->update($data);
+
+        // Si pasó de borrador a publicado, avisar a las búsquedas guardadas
+        if (!$yaPublicado && $inmueble->publicado) {
+            BusquedaGuardada::notificarNuevaPropiedad($inmueble);
+        }
 
         return redirect()->route('inmuebles.index')->with('success', 'Inmueble actualizado correctamente.');
     }
@@ -266,21 +258,40 @@ class InmuebleController extends Controller
     }
 
     // Marcar propiedad como vendida/alquilada (se oculta del portal, suma al contador de operaciones)
+    // con comisión opcional por el cierre (monto fijo o % sobre el precio)
     public function cerrar(Request $request, Inmueble $inmueble)
     {
         $this->authorize('update', $inmueble);
 
         $data = $request->validate([
             'tipo_cierre' => 'required|in:venta,alquiler',
+            'comision_porcentaje' => 'nullable|numeric|min:0|max:100',
+            'comision_monto' => 'nullable|numeric|min:0',
         ]);
+
+        $pct = $data['comision_porcentaje'] ?? null;
+        $monto = $data['comision_monto'] ?? null;
+        if ($pct !== null && $monto === null && (float) $inmueble->precio > 0) {
+            $monto = round((float) $inmueble->precio * ((float) $pct / 100), 2);
+        }
 
         $inmueble->cerrada = 1;
         $inmueble->publicado = 0;
         $inmueble->tipo_cierre = $data['tipo_cierre'];
         $inmueble->cerrada_at = now();
+
+        if ($pct !== null || $monto !== null) {
+            $inmueble->comision_porcentaje = $pct !== null ? (float) $pct : null;
+            $inmueble->comision_monto = $monto !== null ? (float) $monto : null;
+            $inmueble->comision_estado = 'pendiente';
+            $inmueble->comision_cobrada_at = null;
+        }
+
         $inmueble->save();
 
-        return back()->with('success', 'Propiedad marcada como ' . $data['tipo_cierre'] . 'da. Ya no es visible en el portal público.');
+        $extra = ($monto !== null) ? ' Comisión registrada: $' . number_format((float) $monto, 2) . ' (pendiente).' : '';
+
+        return back()->with('success', 'Propiedad marcada como ' . $data['tipo_cierre'] . 'da. Ya no es visible en el portal público.' . $extra);
     }
 
     // Método para obtener propiedades destacadas (solo publicadas, de inmobiliarias activas)

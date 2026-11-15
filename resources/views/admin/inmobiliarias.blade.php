@@ -75,6 +75,7 @@
                             @endif
                         </td>
                         <td class="text-center">
+                            <a href="{{ route('admin.carga.form', $inmobiliaria->id) }}" class="btn btn-outline-primary btn-sm" title="Carga asistida: cargar una propiedad a nombre de esta inmobiliaria"><i class="fas fa-hands-helping"></i></a>
                             @if($inmobiliaria->estado !== 'activa')
                                 <form action="{{ route('admin.inmobiliarias.estado', $inmobiliaria->id) }}" method="POST" style="display:inline;">
                                     @csrf
