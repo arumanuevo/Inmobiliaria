@@ -225,7 +225,7 @@ document.addEventListener('DOMContentLoaded', function () {
     if (isNaN(lat) || isNaN(lng)) { return; }
     var map = L.map('mapa-ficha').setView([lat, lng], 16);
     var osm = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '&copy; OpenStreetMap' }).addTo(map);
-    var sat = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', { maxZoom: 19, attribution: 'Tiles &copy; Esri' });
+    var sat = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', { maxZoom: 19, maxNativeZoom: 18, attribution: 'Tiles &copy; Esri' });
     L.control.layers({ 'Callejera': osm, 'Satelital': sat }, null, { position: 'topright' }).addTo(map);
     L.marker([lat, lng]).addTo(map).bindPopup({{ Illuminate\Support\Json::encode($inmueble->titulo) }}).openPopup();
 });

@@ -247,7 +247,7 @@ document.addEventListener('DOMContentLoaded', function () {
     var tieneCoords = !isNaN(lat0) && !isNaN(lng0);
     var map = L.map('mapa-perfil').setView(tieneCoords ? [lat0, lng0] : [-38.5, -64.5], tieneCoords ? 14 : 4);
     var osm = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '&copy; OpenStreetMap' }).addTo(map);
-    var sat = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', { maxZoom: 19, attribution: 'Tiles &copy; Esri' });
+    var sat = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', { maxZoom: 19, maxNativeZoom: 18, attribution: 'Tiles &copy; Esri' });
     L.control.layers({ 'Callejera': osm, 'Satelital': sat }, null, { position: 'topright' }).addTo(map);
     var marker = null;
     function setMarker(lat, lng) {
