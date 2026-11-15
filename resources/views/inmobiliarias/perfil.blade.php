@@ -137,7 +137,7 @@
                         <div class="form-group">
                             <label for="zonas_cobertura">Zonas de cobertura (ciudades/partidos que atienden)</label>
                             <input type="text" name="zonas_cobertura" id="zonas_cobertura" class="form-control"
-                                   value="{{ old('zonas_cobertura', $inmobiliaria->zonas_cobertura) }}" placeholder="Ej: Chivilcoy, Bragado, 25 de Mayo">
+                                   value="{{ old('zonas_cobertura', $inmobiliaria->zonas_cobertura) }}" placeholder="Ej: tu ciudad y alrededores">
                             <small class="text-muted">Se usa para buscar tu inmobiliaria por zona en el directorio del portal.</small>
                         </div>
                         <div class="row">

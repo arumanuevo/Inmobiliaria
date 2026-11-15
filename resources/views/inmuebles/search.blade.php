@@ -79,15 +79,9 @@
         <li class="nav-item">
           <a class="nav-link" href="{{ route('inmobiliarias.index') }}">Inmobiliarias</a>
         </li>
-        <li class="nav-item">
-          <a class="nav-link" href="{{ route('propiedades.index') }}" target="_blank">Propiedades</a>
-        <li class="nav-item">
-          <a class="nav-link" href="{{ route('propiedades.mapa') }}">Mapa</a>
-        </li>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="{{ route('contacto') }}" target="_blank">Contacto</a>
-        </li>
+        <li class="nav-item"><a class="nav-link" href="{{ route('propiedades.index') }}">Propiedades</a></li>
+        <li class="nav-item"><a class="nav-link" href="{{ route('propiedades.mapa') }}">Mapa</a></li>
+        <li class="nav-item"><a class="nav-link" href="{{ route('contacto') }}">Contacto</a></li>
         <li class="nav-item"><a class="nav-link" href="{{ route('sumate') }}">Soy inmobiliaria</a></li>
         <li class="nav-item">
           <a class="nav-link" href="{{ route('login') }}">Acceso</a>
@@ -261,7 +255,7 @@
  <footer class="footer">
     <div class="container">
       <p>© {{ date('Y') }} Arumasoft | Todos los derechos reservados</p>
-      <p>Contacto: <a href="mailto:contacto@gertech-arumasoft.com" class="text-white">contacto@gertech-arumasoft.com</a></p>
+      <p>Contacto: <a href="mailto:{{ $mailContacto }}" class="text-white">{{ $mailContacto }}</a></p>
     </div>
   </footer>
 @stop

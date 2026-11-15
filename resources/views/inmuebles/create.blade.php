@@ -120,7 +120,7 @@
                 </div>
                 <div class="form-group">
                     <label for="ciudad">Ciudad</label>
-                    <input type="text" name="ciudad" class="form-control" value="Chivilcoy" readonly>
+                    <input type="text" name="ciudad" id="ciudad" class="form-control" value="{{ old('ciudad') }}" placeholder="Ciudad">
                 </div>
                 <div class="form-group">
                     <label for="coordenadas">Coordenadas</label>
@@ -129,7 +129,7 @@
                 <div class="form-group">
                     <label for="busqueda-mapa">Ubicación en el mapa</label>
                     <div class="input-group mb-1">
-                        <input type="text" id="busqueda-mapa" class="form-control" placeholder="Buscar dirección en Argentina... (ej: Av. Sarmiento 100, Chivilcoy)">
+                        <input type="text" id="busqueda-mapa" class="form-control" placeholder="Buscar dirección en Argentina... (ej: Av. Sarmiento 100, tu ciudad)">
                         <button type="button" id="btn-buscar-mapa" class="btn btn-outline-secondary">Buscar</button>
                     </div>
                     <div id="resultados-mapa" class="list-group mb-1"></div>

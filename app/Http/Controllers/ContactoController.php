@@ -33,7 +33,8 @@ class ContactoController extends Controller
             $data['inmobiliaria_nombre'] = $inmobiliaria->nombre_comercial;
         }
 
-        $destinatario = $inmobiliaria?->email ?: (config('mail.from.address') ?: 'contacto@gertech-arumasoft.com');
+        $host = parse_url((string) config('app.url'), PHP_URL_HOST) ?: 'localhost';
+        $destinatario = $inmobiliaria?->email ?: (config('mail.from.address') ?: 'contacto@' . $host);
 
         Mail::to($destinatario)->send(new ContactoMail($data));
 

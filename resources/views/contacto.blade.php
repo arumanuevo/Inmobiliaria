@@ -55,15 +55,9 @@
         <li class="nav-item">
           <a class="nav-link" href="{{ route('inmobiliarias.index') }}">Inmobiliarias</a>
         </li>
-        <li class="nav-item">
-          <a class="nav-link" href="{{ route('inmuebles.index') }}" target="_blank">Propiedades</a>
-        <li class="nav-item">
-          <a class="nav-link" href="{{ route('propiedades.mapa') }}">Mapa</a>
-        </li>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="{{ route('contacto') }}" target="_blank">Contacto</a>
-        </li>
+        <li class="nav-item"><a class="nav-link" href="{{ route('propiedades.index') }}">Propiedades</a></li>
+        <li class="nav-item"><a class="nav-link" href="{{ route('propiedades.mapa') }}">Mapa</a></li>
+        <li class="nav-item"><a class="nav-link" href="{{ route('contacto') }}">Contacto</a></li>
         <li class="nav-item"><a class="nav-link" href="{{ route('sumate') }}">Soy inmobiliaria</a></li>
         <li class="nav-item">
           <a class="nav-link" href="{{ route('login') }}">Acceso</a>
@@ -151,7 +145,7 @@ Me interesa la propiedad con las siguientes características:
 <footer class="footer">
   <div class="container">
     <p>© {{ date('Y') }} Arumasoft | Todos los derechos reservados</p>
-    <p>Contacto: <a href="mailto:contacto@gertech-arumasoft.com" class="text-white">contacto@gertech-arumasoft.com</a></p>
+    <p>Contacto: <a href="mailto:{{ $mailContacto }}" class="text-white">{{ $mailContacto }}</a></p>
   </div>
 </footer>
 @stop
@@ -160,37 +154,6 @@ Me interesa la propiedad con las siguientes características:
 @if(config('services.recaptcha.site_key'))
 <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 @endif
-<script>
-  document.addEventListener('DOMContentLoaded', function() {
-    const carouselInner = document.getElementById('carousel-inner');
-    const carouselIndicators = document.getElementById('carousel-indicators');
-
-    fetch('/portadaimages')
-      .then(response => response.json())
-      .then(images => {
-        images.forEach((image, index) => {
-          // Crear el elemento del carrusel
-          const carouselItem = document.createElement('div');
-          carouselItem.classList.add('carousel-item');
-          if (index === 0) {
-            carouselItem.classList.add('active');
-          }
-          carouselItem.innerHTML = `<img src="/images/portada/${image}" class="d-block w-100" alt="...">`;
-          carouselInner.appendChild(carouselItem);
-
-          // Crear el indicador del carrusel
-          const indicator = document.createElement('li');
-          indicator.setAttribute('data-target', '#carouselExampleIndicators');
-          indicator.setAttribute('data-slide-to', index);
-          if (index === 0) {
-            indicator.classList.add('active');
-          }
-          carouselIndicators.appendChild(indicator);
-        });
-      })
-      .catch(error => console.error('Error fetching images:', error));
-  });
-</script>
 @stop
 
 

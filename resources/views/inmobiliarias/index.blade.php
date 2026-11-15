@@ -94,7 +94,7 @@
 <footer class="footer">
   <div class="container">
     <p>&copy; {{ date('Y') }} Arumasoft | Todos los derechos reservados</p>
-    <p>Contacto: <a href="mailto:contacto@gertech-arumasoft.com" class="text-white">contacto@gertech-arumasoft.com</a></p>
+    <p>Contacto: <a href="mailto:{{ $mailContacto }}" class="text-white">{{ $mailContacto }}</a></p>
   </div>
 </footer>
 @stop

@@ -230,14 +230,6 @@
       <div class="carousel-inner" id="carousel-inner">
         <!-- Imágenes dinámicas -->
       </div>
-      <!--<a class="carousel-control-prev" href="#carouselExampleIndicators" role="button" data-slide="prev">
-        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-        <span class="sr-only">Previous</span>
-      </a>
-      <a class="carousel-control-next" href="#carouselExampleIndicators" role="button" data-slide="next">
-        <span class="carousel-control-next-icon" aria-hidden="true"></span>
-        <span class="sr-only">Next</span>
-      </a>-->
     </div>
     <div style="position: absolute; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.5);"></div>
     <div class="container hero-content">
@@ -294,7 +286,7 @@
         @forelse($destacados as $inmueble)
         <div class="col-md-4 mb-4">
           <div class="card shadow-sm">
-            <div id="carousel{{ $inmueble->id }}" class="carousel carousel-destacado slide" data-ride="carousel">
+            <div id="carousel{{ $inmueble->id }}" class="carousel carousel-destacado slide" data-bs-ride="carousel">
               <div class="carousel-inner">
                 @foreach($inmueble->fotos as $index => $foto)
                   <div class="carousel-item {{ $index === 0 ? 'active' : '' }}">
@@ -302,13 +294,13 @@
                   </div>
                 @endforeach
               </div>
-              <a class="carousel-control-prev" href="#carousel{{ $inmueble->id }}" role="button" data-slide="prev">
+              <a class="carousel-control-prev" href="#carousel{{ $inmueble->id }}" role="button" data-bs-target="#carousel{{ $inmueble->id }}" data-bs-slide="prev">
                 <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                <span class="sr-only">Previous</span>
+                <span class="visually-hidden">Previous</span>
               </a>
-              <a class="carousel-control-next" href="#carousel{{ $inmueble->id }}" role="button" data-slide="next">
+              <a class="carousel-control-next" href="#carousel{{ $inmueble->id }}" role="button" data-bs-target="#carousel{{ $inmueble->id }}" data-bs-slide="next">
                 <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                <span class="sr-only">Next</span>
+                <span class="visually-hidden">Next</span>
               </a>
             </div>
             <div class="card-body">
@@ -427,24 +419,11 @@
       <a href="{{ route('sumate') }}" class="btn btn-outline-light btn-lg">Soy inmobiliaria</a>
     </div>
   </section>
-<!--Start of Tawk.to Script-->
-<script type="text/javascript">
-var Tawk_API=Tawk_API||{}, Tawk_LoadStart=new Date();
-(function(){
-var s1=document.createElement("script"),s0=document.getElementsByTagName("script")[0];
-s1.async=true;
-s1.src='https://embed.tawk.to/67ca3d8b374e52190e33cf0a/1iln00qbg';
-s1.charset='UTF-8';
-s1.setAttribute('crossorigin','*');
-s0.parentNode.insertBefore(s1,s0);
-})();
-</script>
-<!--End of Tawk.to Script-->
   <!-- Footer -->
   <footer class="footer">
     <div class="container">
       <p>© {{ date('Y') }} Arumasoft | Todos los derechos reservados</p>
-      <p>Contacto: <a href="mailto:contacto@gertech-arumasoft.com" class="text-white">contacto@gertech-arumasoft.com</a></p>
+      <p>Contacto: <a href="mailto:{{ $mailContacto }}" class="text-white">{{ $mailContacto }}</a></p>
     </div>
   </footer>
 <!-- Mensaje de éxito -->
@@ -479,8 +458,8 @@ s0.parentNode.insertBefore(s1,s0);
 
           // Crear el indicador del carrusel
           const indicator = document.createElement('li');
-          indicator.setAttribute('data-target', '#carouselExampleIndicators');
-          indicator.setAttribute('data-slide-to', index);
+          indicator.setAttribute('data-bs-target', '#carouselExampleIndicators');
+          indicator.setAttribute('data-bs-slide-to', index);
           if (index === 0) {
             indicator.classList.add('active');
           }
