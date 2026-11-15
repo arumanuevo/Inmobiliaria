@@ -36,6 +36,9 @@ Route::get('/inmobiliaria/{slug}/propiedad/{inmueble}', [InmobiliariaController:
 Route::get('/propiedades-en-{operacion}-en-{ciudad}', [PropertySearchController::class, 'porZona'])->name('propiedades.zona');
 Route::get('/sitemap.xml', [PropertySearchController::class, 'sitemap'])->name('sitemap');
 Route::get('/sumate', [InmobiliariaController::class, 'sumate'])->name('sumate');
+Route::get('/aviso-legal', function () {
+    return view('legal');
+})->name('aviso-legal');
 Route::post('/inmuebles/{inmueble}/cerrar', [InmuebleController::class, 'cerrar'])->name('inmuebles.cerrar');
 
 // Perfil editable por la propia inmobiliaria (logueada)

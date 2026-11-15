@@ -146,6 +146,7 @@ Me interesa la propiedad con las siguientes características:
   <div class="container">
     <p>© {{ date('Y') }} Arumasoft | Todos los derechos reservados</p>
     <p>Contacto: <a href="mailto:{{ $mailContacto }}" class="text-white">{{ $mailContacto }}</a></p>
+    <p><a href="{{ route('aviso-legal') }}" class="text-white">Aviso legal y términos</a></p>
   </div>
 </footer>
 @stop

@@ -67,7 +67,7 @@
                         @csrf
                         <div class="form-group">
                             <select name="plan_id" class="form-control mb-2">
-                                @foreach(\App\Models\Plan::where('activo', 1)->orderBy('precio_mensual')->get() as $p)
+                                @foreach(\App\Models\Plan::where('activo', 1)->where('slug', '!=', 'particular')->orderBy('precio_mensual')->get() as $p)
                                     <option value="{{ $p->id }}" {{ $inmobiliaria->plan_id == $p->id ? 'selected' : '' }}>
                                         {{ $p->nombre }} - ${{ number_format($p->precio_mensual, 0) }}/mes
                                     </option>

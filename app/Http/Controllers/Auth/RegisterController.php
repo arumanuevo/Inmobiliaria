@@ -59,6 +59,7 @@ class RegisterController extends Controller
             'telefono' => ['nullable', 'string', 'max:30'],
             'whatsapp' => ['nullable', 'string', 'max:30'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
+            'acepto_terminos' => ['required', 'accepted'],
             'g-recaptcha-response' => ['nullable', new RecaptchaRule],
         ]);
     }
@@ -78,16 +79,19 @@ class RegisterController extends Controller
             'password' => Hash::make($data['password']),
         ]);
 
-        $planGratis = Plan::where('slug', 'gratis')->where('activo', 1)->first();
+        $tipo = $data['tipo_cuenta'] ?? 'inmobiliaria';
 
         // Particular: dueño que publica su propia vivienda. No pasa por aprobación:
-        // su perfil público nace activo con el plan Gratis.
-        if (($data['tipo_cuenta'] ?? 'inmobiliaria') === 'particular') {
+        // nace activo con el plan Particular (gratis y restrictivo: 1 publicación, sin destacadas).
+        if ($tipo === 'particular') {
             $user->syncRoles(['particular']);
+
+            $plan = Plan::where('slug', 'particular')->where('activo', 1)->first()
+                ?: Plan::where('slug', 'gratis')->where('activo', 1)->first();
 
             Inmobiliaria::create([
                 'usuario_id' => $user->id,
-                'plan_id' => $planGratis?->id,
+                'plan_id' => $plan?->id,
                 'nombre_comercial' => $data['name'],
                 'slug' => Inmobiliaria::generarSlug($data['name']),
                 'telefono' => $data['telefono'] ?? null,
@@ -100,6 +104,8 @@ class RegisterController extends Controller
         }
 
         $user->syncRoles(['inmobiliaria']);
+
+        $planGratis = Plan::where('slug', 'gratis')->where('activo', 1)->first();
 
         Inmobiliaria::create([
             'usuario_id' => $user->id,

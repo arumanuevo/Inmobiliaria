@@ -69,6 +69,8 @@ class InmuebleController extends Controller
             'propdni'             => 'nullable|string|max:20',
             'propemail'           => 'nullable|email|max:255',
             'proptel'             => 'nullable|string|max:20',
+            // Protección legal: el anunciante declara ser propietario o estar autorizado
+            'declaracion_propietario' => ['required', 'accepted'],
         ];
     }
 
@@ -85,6 +87,7 @@ class InmuebleController extends Controller
         $data['garaje']   = $request->has('garaje') ? 1 : 0;
         $data['ascensor'] = $request->has('ascensor') ? 1 : 0;
         $data['publicado'] = $request->has('publicado') ? 1 : 0;
+        $data['declaracion_propietario'] = $request->has('declaracion_propietario') ? 1 : 0;
         $data['moneda'] = $data['moneda'] ?? 'ARS';
         $data['cocheras'] = $data['cocheras'] ?? 0;
 
@@ -144,6 +147,7 @@ class InmuebleController extends Controller
         $data['garaje']   = $request->has('garaje') ? 1 : 0;
         $data['ascensor'] = $request->has('ascensor') ? 1 : 0;
         $data['publicado'] = $request->has('publicado') ? 1 : 0;
+        $data['declaracion_propietario'] = $request->has('declaracion_propietario') ? 1 : 0;
         $data['moneda'] = $data['moneda'] ?? 'ARS';
         $data['cocheras'] = $data['cocheras'] ?? 0;
 

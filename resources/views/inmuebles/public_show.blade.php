@@ -168,7 +168,12 @@
           @if($inmobiliaria->logo)
             <img src="{{ asset($inmobiliaria->logo) }}" alt="{{ $inmobiliaria->nombre_comercial }}" style="max-height: 60px;" class="mb-2">
           @endif
-          <h5 class="card-title mb-1">{{ $inmobiliaria->nombre_comercial }}</h5>
+          <h5 class="card-title mb-1">
+            {{ $inmobiliaria->nombre_comercial }}
+            @if($inmobiliaria->usuario?->hasRole('particular'))
+              <span class="badge bg-secondary">Particular</span>
+            @endif
+          </h5>
           <p class="text-muted small mb-3">{{ $inmobiliaria->ciudad }}{{ $inmobiliaria->provincia ? ', ' . $inmobiliaria->provincia : '' }}</p>
           <a href="{{ route('contacto', ['property' => $inmueble->id, 'inmobiliaria' => $inmobiliaria->id]) }}" class="btn btn-primary w-100 mb-2">Me interesa</a>
           @if($inmobiliaria->whatsapp)
@@ -178,8 +183,14 @@
             <a href="tel:{{ $inmobiliaria->telefono }}" class="btn btn-outline-secondary w-100"><i class="fas fa-phone"></i> {{ $inmobiliaria->telefono }}</a>
           @endif
           <hr>
-          <a href="{{ route('inmobiliarias.show', $inmobiliaria->slug) }}" class="small">Ver todas las propiedades de esta inmobiliaria</a>
+          <a href="{{ route('inmobiliarias.show', $inmobiliaria->slug) }}" class="small">Ver todas las propiedades de este anunciante</a>
         </div>
+      </div>
+
+      <div class="alert alert-light border small text-muted">
+        <i class="fas fa-info-circle"></i>
+        {{ config('app.name') }} es un portal de avisos: no interviene en la operación ni verifica los datos publicados; el anunciante declaró ser propietario o estar autorizado. Verificá todo antes de señar.
+        <a href="{{ route('aviso-legal') }}">Aviso legal</a>
       </div>
 
       @if($relacionados->count())

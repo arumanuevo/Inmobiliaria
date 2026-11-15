@@ -184,6 +184,7 @@ class AdminController extends Controller
         $data['garaje']   = $request->has('garaje') ? 1 : 0;
         $data['ascensor'] = $request->has('ascensor') ? 1 : 0;
         $data['publicado'] = $request->has('publicado') ? 1 : 0;
+        $data['declaracion_propietario'] = $request->has('declaracion_propietario') ? 1 : 0;
         $data['moneda'] = $data['moneda'] ?? 'ARS';
         $data['cocheras'] = $data['cocheras'] ?? 0;
         $data['inmobiliaria_id'] = $inmobiliaria->id;

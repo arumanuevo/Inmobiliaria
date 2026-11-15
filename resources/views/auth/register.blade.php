@@ -126,6 +126,13 @@
                 <div class="g-recaptcha" data-sitekey="{{ config('services.recaptcha.site_key') }}"></div>
               </div>
             @endif
+            <div class="form-group form-check mb-3">
+              <input class="form-check-input" type="checkbox" name="acepto_terminos" value="1" id="acepto_terminos" {{ old('acepto_terminos') ? 'checked' : '' }}>
+              <label class="form-check-label" for="acepto_terminos">
+                Acepto los <a href="{{ route('aviso-legal') }}" target="_blank">términos y condiciones y el aviso legal</a> del portal.
+              </label>
+              @error('acepto_terminos')<div class="text-danger small">{{ $message }}</div>@enderror
+            </div>
             <div class="text-center">
               <button type="submit" class="btn btn-primary">Registrarme</button>
             </div>
@@ -142,6 +149,7 @@
   <div class="container">
     <p>&copy; {{ date('Y') }} Arumasoft | Todos los derechos reservados</p>
     <p>Contacto: <a href="mailto:{{ $mailContacto }}" class="text-white">{{ $mailContacto }}</a></p>
+    <p><a href="{{ route('aviso-legal') }}" class="text-white">Aviso legal y términos</a></p>
   </div>
 </footer>
 @stop

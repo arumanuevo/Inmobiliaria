@@ -53,7 +53,7 @@ class InmobiliariaController extends Controller
     // Ficha pública individual de una propiedad (SEO) dentro del perfil de su inmobiliaria
     public function propiedad(string $slug, \App\Models\Inmueble $inmueble)
     {
-        $inmobiliaria = Inmobiliaria::activas()->where('slug', $slug)->with('plan')->firstOrFail();
+        $inmobiliaria = Inmobiliaria::activas()->where('slug', $slug)->with(['plan', 'usuario'])->firstOrFail();
 
         abort_if((int) $inmueble->inmobiliaria_id !== (int) $inmobiliaria->id, 404);
         abort_if(!$inmueble->publicado, 404);
@@ -96,7 +96,8 @@ class InmobiliariaController extends Controller
     // Landing B2B para captar inmobiliarias ("Soy inmobiliaria")
     public function sumate()
     {
-        $planes = \App\Models\Plan::where('activo', 1)->orderBy('precio_mensual')->get();
+        // El plan "Particular" es la opción gratuita individual: se muestra aparte, no en la grilla B2B
+        $planes = \App\Models\Plan::where('activo', 1)->where('slug', '!=', 'particular')->orderBy('precio_mensual')->get();
         $stats = [
             'inmobiliarias' => Inmobiliaria::activas()->count(),
             'propiedades' => \App\Models\Inmueble::publicados()->whereHas('inmobiliaria', fn ($q) => $q->where('estado', 'activa'))->count(),

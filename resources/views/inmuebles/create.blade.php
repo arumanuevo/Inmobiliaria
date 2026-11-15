@@ -222,6 +222,15 @@
                     <label class="form-check-label" for="publicado">Publicado (visible en el portal público)</label>
                 </div>
 
+                <!-- Declaración legal obligatoria -->
+                <div class="form-group form-check">
+                    <input class="form-check-input" type="checkbox" name="declaracion_propietario" value="1" id="declaracion_propietario" {{ old('declaracion_propietario') ? 'checked' : '' }}>
+                    <label class="form-check-label" for="declaracion_propietario">
+                        Declaro que soy propietario/a de esta propiedad o que cuento con autorización del propietario para publicarla, y que los datos cargados son veraces. Ver <a href="{{ route('aviso-legal') }}" target="_blank">aviso legal</a>.
+                    </label>
+                    @error('declaracion_propietario')<div class="text-danger small">{{ $message }}</div>@enderror
+                </div>
+
                 <hr>
                 <!-- Contenedor para los botones -->
                 <div class="d-flex justify-content-center">

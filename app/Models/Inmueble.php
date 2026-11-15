@@ -15,7 +15,7 @@ class Inmueble extends Model
         'piscina', 'jardin', 'garaje', 'ascensor', 'fotos', 'destacado', 'publicado', 'visitas',
         'cerrada', 'tipo_cierre', 'cerrada_at',
         'comision_porcentaje', 'comision_monto', 'comision_estado', 'comision_cobrada_at',
-        'carga_asistida',
+        'carga_asistida', 'declaracion_propietario',
         'propdom', 'propnombre', 'propdni', 'propemail', 'proptel'
     ];
 
@@ -29,6 +29,7 @@ class Inmueble extends Model
         'comision_monto' => 'decimal:2',
         'comision_cobrada_at' => 'datetime',
         'carga_asistida' => 'boolean',
+        'declaracion_propietario' => 'boolean',
     ];
 
     public static function tiposPropiedad(): array
