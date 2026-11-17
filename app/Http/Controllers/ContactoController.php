@@ -20,10 +20,19 @@ class ContactoController extends Controller
             'mensaje' => 'required|string',
             'inmobiliaria_id' => 'nullable|integer',
             'inmueble_id' => 'nullable|integer',
+            'motivo' => 'nullable|string|max:60',
             'g-recaptcha-response' => ['nullable', new RecaptchaRule],
         ]);
 
+        // El motivo solo viaja en el email, no se guarda en la tabla contactos
+        $motivo = $data['motivo'] ?? null;
+        unset($data['motivo']);
+
         Contacto::create($data);
+
+        if ($motivo) {
+            $data['motivo'] = $motivo;
+        }
 
         $inmobiliaria = !empty($data['inmobiliaria_id'])
             ? Inmobiliaria::find($data['inmobiliaria_id'])

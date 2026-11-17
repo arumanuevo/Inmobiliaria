@@ -22,8 +22,10 @@ class ContactoMail extends Mailable
 
     public function build()
     {
+        $motivo = !empty($this->data['motivo']) ? ' (' . $this->data['motivo'] . ')' : '';
+
         return $this->view('emails.contacto')
-                    ->subject('Nuevo Mensaje de Contacto')
+                    ->subject('Nuevo contacto' . $motivo . ' - ' . config('app.name'))
                     ->with(['data' => $this->data]);
     }
 }
