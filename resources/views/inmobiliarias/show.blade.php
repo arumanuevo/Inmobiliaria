@@ -4,6 +4,7 @@
 
 @section('css')
 <link rel="stylesheet" href="{{ asset('css/landing.css') }}">
+<link rel="stylesheet" href="{{ asset('css/navbar.css') }}">
 <style>
   body { padding-top: 56px; }
   .perfil-header {
@@ -37,7 +38,7 @@
 @stop
 
 @section('content')
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+<nav class="navbar navbar-expand-lg navbar-dark portal-navbar fixed-top">
   <div class="container">
     <a class="navbar-brand" href="{{ route('inmobiliarias.show', $inmobiliaria->slug) }}">
       @if($inmobiliaria->logo)
@@ -58,8 +59,8 @@
         <li class="nav-item"><a class="nav-link" href="{{ route('propiedades.index') }}">Propiedades</a>
         <li class="nav-item"><a class="nav-link" href="{{ route('propiedades.mapa') }}">Mapa</a></li></li>
         <li class="nav-item"><a class="nav-link" href="{{ route('contacto') }}">Contacto</a></li>
-        <li class="nav-item"><a class="nav-link" href="{{ route('sumate') }}">Soy inmobiliaria</a></li>
-        <li class="nav-item"><a class="nav-link" href="{{ route('login') }}">Acceso</a></li>
+        <li class="nav-item"><a class="nav-link nav-cta" href="{{ route('sumate') }}">Soy inmobiliaria</a></li>
+        <li class="nav-item"><a class="nav-link nav-login" href="{{ route('login') }}">Acceso</a></li>
       </ul>
     </div>
   </div>

@@ -7,6 +7,7 @@
 
 @section('css')
 <link rel="stylesheet" href="{{ asset('css/landing.css') }}">
+<link rel="stylesheet" href="{{ asset('css/navbar.css') }}">
 <style>
   body { padding-top: 56px; }
   .legal h2 { font-size: 1.3rem; font-weight: 700; margin-top: 1.5rem; }
@@ -17,7 +18,7 @@
 @stop
 
 @section('content')
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+<nav class="navbar navbar-expand-lg navbar-dark portal-navbar fixed-top">
   <div class="container">
     <a class="navbar-brand" href="{{ route('inicio') }}">
       <img src="{{ asset('images/logoinmo.svg') }}" alt="Logo {{ config('app.name') }}" width="30" height="30" class="d-inline-block align-text-top">

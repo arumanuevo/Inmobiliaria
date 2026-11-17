@@ -39,6 +39,7 @@
 
 @section('css')
 <link rel="stylesheet" href="{{ asset('css/landing.css') }}">
+<link rel="stylesheet" href="{{ asset('css/navbar.css') }}">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <style>
   body { padding-top: 56px; }
@@ -52,7 +53,7 @@
 @stop
 
 @section('content')
-<nav class="navbar navbar-expand-lg navbar-dark fixed-top" style="background: {{ $inmobiliaria->color_tema ?: '#0d6efd' }};">
+<nav class="navbar navbar-expand-lg navbar-dark navbar-links-modern fixed-top" style="background: {{ $inmobiliaria->color_tema ?: '#0d6efd' }};">
   <div class="container">
     <a class="navbar-brand" href="{{ route('inmobiliarias.show', $inmobiliaria->slug) }}">
       @if($inmobiliaria->logo)
