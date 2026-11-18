@@ -3,7 +3,9 @@
 @php
   $preview = $preview ?? false;
   $tema = $inmobiliaria->tema ?: 'moderno';
-  $radius = ['moderno' => '14px', 'elegante' => '6px', 'minimal' => '999px', 'corporativo' => '8px'][$tema] ?? '14px';
+  // Píldora solo para botones/badges; las tarjetas nunca van en píldora (el contenido queda mal)
+  $radius = ['moderno' => '10px', 'elegante' => '6px', 'minimal' => '999px', 'corporativo' => '8px'][$tema] ?? '10px';
+  $radiusCard = ['moderno' => '14px', 'elegante' => '6px', 'minimal' => '18px', 'corporativo' => '8px'][$tema] ?? '14px';
   $fuenteTitulos = $tema === 'elegante' ? 'Georgia, "Times New Roman", serif' : null;
   $fuenteBody = $tema === 'corporativo' ? 'Arial, Helvetica, sans-serif' : null;
 @endphp
@@ -17,11 +19,11 @@
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 @endif
 <style>
-  :root { --tema-radius: {{ $radius }}; }
+  :root { --tema-radius: {{ $radius }}; --tema-radius-card: {{ $radiusCard }}; }
   @if($fuenteBody) body { font-family: {{ $fuenteBody }}; } @endif
   @if($fuenteTitulos) h1, h2, h3, h5, .card-title { font-family: {{ $fuenteTitulos }}; } @endif
-  .card, .property-card .card { border-radius: var(--tema-radius); }
-  .btn { border-radius: var(--tema-radius); }
+  .card, .property-card .card { border-radius: var(--tema-radius-card); overflow: hidden; }
+  .btn, .badge { border-radius: var(--tema-radius); }
   body { padding-top: 56px; }
   .perfil-header {
     background: {{ $inmobiliaria->color_tema ?: '#0d6efd' }};
