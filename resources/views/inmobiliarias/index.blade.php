@@ -33,8 +33,15 @@
     white-space: nowrap; transition: filter .18s ease;
   }
   .dir-search .btn-buscar:hover { filter: brightness(1.12); color: #fff; }
-  .dir-card {
+  .dir-panel {
     border: none;
+    border-radius: 20px;
+    background: #fff;
+    box-shadow: 0 24px 60px rgba(16, 24, 40, .14);
+    padding: 24px;
+  }
+  .dir-card {
+    border: 1px solid #eef0f6;
     border-radius: 18px;
     overflow: hidden;
     transition: transform .2s ease, box-shadow .2s ease;
@@ -106,6 +113,7 @@
 </div>
 
 <div class="container pb-5" style="margin-top: -52px; position: relative; z-index: 2;">
+  <div class="card dir-panel">
   <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
     <h2 class="h5 fw-bold mb-0 text-dark">
       {{ $inmobiliarias->total() }} {{ Str::plural('inmobiliaria', $inmobiliarias->total()) }} encontrada(s)
@@ -175,6 +183,7 @@
 
   <div class="d-flex justify-content-center">
     {{ $inmobiliarias->links() }}
+  </div>
   </div>
 </div>
 
