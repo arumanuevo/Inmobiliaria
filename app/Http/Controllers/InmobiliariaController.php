@@ -16,7 +16,7 @@ class InmobiliariaController extends Controller
             ->whereDoesntHave('usuario.roles', function ($q) {
                 $q->where('name', 'particular');
             })
-            ->withCount('inmueblesPublicados')
+            ->withCount(['inmueblesPublicados', 'operaciones'])
             ->with('usuario');
 
         if ($q !== '') {
