@@ -178,6 +178,40 @@
                             <textarea name="descripcion" id="descripcion" class="form-control" rows="3">{{ old('descripcion', $inmobiliaria->descripcion) }}</textarea>
                         </div>
 
+                        <h6 class="section-title"><i class="fas fa-palette"></i> Personalización (opcional)</h6>
+                        <div class="row">
+                            <div class="col-md-6 form-group">
+                                <label for="tema">Estilo de tu perfil público</label>
+                                <select name="tema" id="tema" class="form-select">
+                                    @foreach(\App\Models\Inmobiliaria::temas() as $val => $lbl)
+                                        <option value="{{ $val }}" {{ old('tema', $inmobiliaria->tema ?: 'moderno') === $val ? 'selected' : '' }}>{{ $lbl }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="col-md-6 form-group">
+                                <label for="mensaje_destacado">Mensaje destacado</label>
+                                <input type="text" name="mensaje_destacado" id="mensaje_destacado" class="form-control" maxlength="255"
+                                       value="{{ old('mensaje_destacado', $inmobiliaria->mensaje_destacado) }}"
+                                       placeholder="Ej: ¡Ahora con financiación en 12 cuotas!">
+                                <small class="text-muted">Se muestra como aviso en tu perfil. Vacío = no se muestra.</small>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Secciones visibles en tu perfil público</label>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="mostrar_operaciones" id="mostrar_operaciones" value="1" {{ old('mostrar_operaciones', $inmobiliaria->mostrar_operaciones ?? true) ? 'checked' : '' }}>
+                                <label class="form-check-label" for="mostrar_operaciones">Contador de operaciones concretadas (ej: "12 operaciones")</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="mostrar_mapa" id="mostrar_mapa" value="1" {{ old('mostrar_mapa', $inmobiliaria->mostrar_mapa ?? true) ? 'checked' : '' }}>
+                                <label class="form-check-label" for="mostrar_mapa">Mapa de la oficina (si cargaste la ubicación)</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="mostrar_redes" id="mostrar_redes" value="1" {{ old('mostrar_redes', $inmobiliaria->mostrar_redes ?? true) ? 'checked' : '' }}>
+                                <label class="form-check-label" for="mostrar_redes">Redes sociales y sitio web</label>
+                            </div>
+                        </div>
+
                         <h6 class="section-title"><i class="fas fa-map-marker-alt"></i> Ubicación y contacto</h6>
                         <div class="row">
                             <div class="col-md-8 form-group">

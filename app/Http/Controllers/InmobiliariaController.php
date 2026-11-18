@@ -162,7 +162,18 @@ class InmobiliariaController extends Controller
             'instagram' => 'nullable|string|max:255',
             'color_tema' => 'nullable|string|max:7',
             'logo' => 'nullable|image|mimes:png,jpg,jpeg,svg,webp|max:2048',
+            // Personalización optativa del perfil público
+            'tema' => 'nullable|in:moderno,elegante,minimal,corporativo',
+            'mensaje_destacado' => 'nullable|string|max:255',
+            'mostrar_operaciones' => 'nullable|boolean',
+            'mostrar_mapa' => 'nullable|boolean',
+            'mostrar_redes' => 'nullable|boolean',
         ]);
+
+        $data['tema'] = $data['tema'] ?? 'moderno';
+        $data['mostrar_operaciones'] = $request->has('mostrar_operaciones') ? 1 : 0;
+        $data['mostrar_mapa'] = $request->has('mostrar_mapa') ? 1 : 0;
+        $data['mostrar_redes'] = $request->has('mostrar_redes') ? 1 : 0;
 
         $dir = public_path('images/inmobiliarias');
         if (!is_dir($dir)) {

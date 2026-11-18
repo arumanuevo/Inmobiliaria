@@ -13,6 +13,7 @@ class Inmobiliaria extends Model
         'descripcion', 'direccion', 'ciudad', 'provincia', 'codigo_postal', 'zonas_cobertura', 'lat', 'lng',
         'telefono', 'whatsapp', 'email', 'sitio_web',
         'facebook', 'instagram', 'color_tema', 'estado', 'plan_vence_at',
+        'tema', 'mensaje_destacado', 'mostrar_operaciones', 'mostrar_mapa', 'mostrar_redes',
     ];
 
     protected $casts = [
@@ -20,7 +21,21 @@ class Inmobiliaria extends Model
         'galeria' => 'array',
         'lat' => 'float',
         'lng' => 'float',
+        'mostrar_operaciones' => 'boolean',
+        'mostrar_mapa' => 'boolean',
+        'mostrar_redes' => 'boolean',
     ];
+
+    // Presets de look del perfil público (optativos)
+    public static function temas(): array
+    {
+        return [
+            'moderno' => 'Moderno (sans, esquinas redondeadas)',
+            'elegante' => 'Elegante (títulos serif, sobrio)',
+            'minimal' => 'Minimal (pills, ultra liviano)',
+            'corporativo' => 'Corporativo (clásico, confianza)',
+        ];
+    }
 
     public function usuario()
     {
