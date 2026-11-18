@@ -8,91 +8,56 @@
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
 <style>
-  body {
-    padding-top: 56px; /* Ajusta este valor según el alto de tu navbar */
+  body { padding-top: 56px; background: linear-gradient(180deg, #f6f7fb 0%, #eceff7 100%); min-height: 100vh; }
+  .search-hero { background: linear-gradient(135deg, #101828 0%, #1d2939 55%, #312e81 100%); color: #fff; padding: 44px 0 100px; }
+  .search-hero h1 { font-weight: 800; }
+  .search-hero .lead { color: #c7d0e0; }
+  .search-card { border: none; border-radius: 20px; box-shadow: 0 24px 60px rgba(16,24,40,.14); }
+  .search-card .card-body { padding: 24px; }
+  .search-card .form-label { font-weight: 600; font-size: .85rem; color: #344054; margin-bottom: .35rem; }
+  .search-card .form-control, .search-card .form-select {
+    border-radius: 12px; padding: .6rem .95rem; border: 1.5px solid #e2e8f0; background: #f8fafc; font-size: .92rem;
   }
-
-  .navbar {
-    height: 56px; /* Ajusta este valor según el alto de tu navbar */
+  .search-card .form-control:focus, .search-card .form-select:focus {
+    border-color: #8b5cf6; background: #fff; box-shadow: 0 0 0 4px rgba(139,92,246,.15);
   }
-
-  .filter-container {
-    margin-bottom: 20px;
+  .geo-card { background: #eef2ff; border: 1px solid #c7d2fe !important; border-radius: 16px; }
+  .geo-card .input-group-text { background: #fff; border: 1.5px solid #c7d2fe; border-right: none; border-radius: 12px 0 0 12px; color: #6366f1; }
+  .geo-card .form-control { border-left: none; border-radius: 0 12px 12px 0; background: #fff; }
+  .geo-card .form-select, .geo-card .btn { border-radius: 12px; }
+  .btn-chip-ciudad { border-radius: 999px !important; }
+  .btn-buscar {
+    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 60%, #d946ef 100%);
+    border: none; color: #fff; font-weight: 700; border-radius: 999px; padding: .65rem 2.2rem;
+    box-shadow: 0 10px 24px rgba(124,92,246,.4); transition: filter .18s ease, transform .18s ease;
   }
-
-  .filter-container .form-group {
-    margin-bottom: 15px;
-  }
-
-  .filter-container label {
-    font-weight: bold;
-  }
-
-  .property-card {
-    margin-bottom: 20px;
-  }
-
-  .property-card img {
-    height: 200px;
-    object-fit: cover;
-  }
-
-  .results-container {
-    margin-top: 10px;
-  }
-
-  /* Estilos Split-View Sticky Map */
+  .btn-buscar:hover { filter: brightness(1.12); transform: translateY(-1px); color: #fff; }
+  .btn-limpiar { border-radius: 999px; font-weight: 600; }
+  .button-container { display: flex; justify-content: center; gap: .6rem; margin-top: 20px; }
+  .alert-card { border: 1px solid #c7d2fe !important; border-radius: 16px; background: #eef2ff; }
+  .alert-card .btn { border-radius: 999px; font-weight: 600; border-color: #6366f1; color: #4f46e5; }
+  .alert-card .btn:hover { background: #6366f1; border-color: #6366f1; color: #fff; }
+  .view-toggle .btn { font-weight: 600; }
+  .view-toggle .btn:first-child { border-radius: 999px 0 0 999px; }
+  .view-toggle .btn:last-child { border-radius: 0 999px 999px 0; }
+  .view-toggle .btn.active { background: linear-gradient(135deg, #6366f1, #8b5cf6); border-color: #6366f1; color: #fff; }
+  .property-card { margin-bottom: 20px; }
+  .property-card .card { border-radius: 18px; overflow: hidden; transition: transform .2s ease, box-shadow .2s ease; }
+  .property-card .card:hover { transform: translateY(-4px); box-shadow: 0 18px 40px rgba(16,24,40,.16) !important; }
+  .property-card img { height: 210px; object-fit: cover; }
   @media (min-width: 992px) {
-    .mapa-sticky-wrapper {
-      position: sticky;
-      top: 72px;
-      height: calc(100vh - 90px);
-      min-height: 520px;
-    }
-    #mapa-search {
-      height: 100% !important;
-      min-height: 520px;
-    }
+    .mapa-sticky-wrapper { position: sticky; top: 72px; height: calc(100vh - 90px); min-height: 520px; }
+    #mapa-search { height: 100% !important; min-height: 520px; }
   }
-
   @media (max-width: 991.98px) {
-    .mapa-sticky-wrapper {
-      height: 420px;
-      margin-bottom: 20px;
-    }
-    #mapa-search {
-      height: 420px !important;
-    }
+    .mapa-sticky-wrapper { height: 420px; margin-bottom: 20px; }
+    #mapa-search { height: 420px !important; }
   }
-
-  .property-card .card {
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-    border-radius: 10px;
-    overflow: hidden;
-  }
-
-  .property-card .card:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 8px 24px rgba(0,0,0,0.12) !important;
-  }
-
-  .button-container {
-    display: flex;
-    justify-content: center;
-    margin-top: 20px;
-  }
-  .footer {
-    background-color: #343a40;
-    color: white;
-    text-align: center;
-    padding: 10px 0; /* Reduce el padding para disminuir la altura */
-    font-size: 10px; /* Opcional: reduce el tamaño del texto */
-  }
-
-  .footer p {
-    margin: 0; /* Elimina márgenes extra */
-  }
-
+  .pagination { justify-content: center; }
+  .pagination .page-link { border-radius: 10px; margin: 0 2px; border-color: #e2e8f0; color: #4f46e5; }
+  .pagination .page-item.active .page-link { background: linear-gradient(135deg, #6366f1, #8b5cf6); border-color: transparent; }
+  .footer { background-color: #343a40; color: white; text-align: center; padding: 10px 0; font-size: 10px; margin-top: 40px; }
+  .footer p { margin: 0; }
 </style>
 @stop
 
@@ -122,16 +87,22 @@
   </div>
 </nav>
 
-<div class="container mt-5">
-  <h1 class="mb-4">Buscar Propiedades</h1>
+<div class="search-hero">
+  <div class="container">
+    <h1 class="h2 mb-2 text-white">Buscar propiedades</h1>
+    <p class="lead mb-0">Filtrá por zona, precio, ambientes y más. Hay de inmobiliarias verificadas y dueños directos.</p>
+  </div>
+</div>
 
-  <div class="filter-container">
+<div class="container pb-5" style="margin-top: -68px; position: relative; z-index: 2;">
+  <div class="card search-card mb-4">
+    <div class="card-body">
     <form id="search-form">
       <input type="hidden" name="geo_lat" id="geo_lat" value="">
       <input type="hidden" name="geo_lng" id="geo_lng" value="">
 
       <!-- Búsqueda Geográfica GIS con Geocoder y radio -->
-      <div class="card mb-3 border-primary shadow-sm bg-light">
+      <div class="card geo-card mb-3">
         <div class="card-body py-3">
           <label class="form-label fw-bold text-primary mb-1">
             <i class="fas fa-map-marked-alt me-1"></i> Búsqueda Geográfica (Ciudad, pueblo, barrio o dirección)
@@ -184,9 +155,9 @@
 
       <div class="row">
         <div class="col-md-3">
-          <div class="form-group">
-            <label for="tipo_operacion">Tipo de Operación</label>
-            <select class="form-control" id="tipo_operacion" name="tipo_operacion">
+          <div class="mb-3">
+            <label class="form-label" for="tipo_operacion">Tipo de Operación</label>
+            <select class="form-select" id="tipo_operacion" name="tipo_operacion">
               <option value="">Todos</option>
               <option value="venta">Venta</option>
               <option value="alquiler">Alquiler</option>
@@ -194,9 +165,9 @@
           </div>
         </div>
         <div class="col-md-3">
-          <div class="form-group">
-            <label for="tipo_anunciante">Tipo de Anunciante</label>
-            <select class="form-control" id="tipo_anunciante" name="tipo_anunciante">
+          <div class="mb-3">
+            <label class="form-label" for="tipo_anunciante">Tipo de Anunciante</label>
+            <select class="form-select" id="tipo_anunciante" name="tipo_anunciante">
               <option value="">Todos (Inmobiliarias y Dueños)</option>
               <option value="inmobiliaria">Solo Inmobiliarias</option>
               <option value="particular">Solo Dueño Directo (Particular)</option>
@@ -204,9 +175,9 @@
           </div>
         </div>
         <div class="col-md-3">
-          <div class="form-group">
-            <label for="tipo_propiedad">Tipo de propiedad</label>
-            <select class="form-control" id="tipo_propiedad" name="tipo_propiedad">
+          <div class="mb-3">
+            <label class="form-label" for="tipo_propiedad">Tipo de propiedad</label>
+            <select class="form-select" id="tipo_propiedad" name="tipo_propiedad">
               <option value="">Todos los tipos</option>
               @foreach($tipos as $val => $lbl)
                 <option value="{{ $val }}">{{ $lbl }}</option>
@@ -215,9 +186,9 @@
           </div>
         </div>
         <div class="col-md-3">
-          <div class="form-group">
-            <label for="inmobiliaria">Anunciante específico</label>
-            <select class="form-control" id="inmobiliaria" name="inmobiliaria">
+          <div class="mb-3">
+            <label class="form-label" for="inmobiliaria">Anunciante específico</label>
+            <select class="form-select" id="inmobiliaria" name="inmobiliaria">
               <option value="">Todos</option>
               @foreach($inmobiliarias as $inmobiliaria)
                 <option value="{{ $inmobiliaria->slug }}">{{ $inmobiliaria->nombre_comercial }}{{ $inmobiliaria->usuario?->hasRole('particular') ? ' (Dueño directo)' : '' }}</option>
@@ -228,9 +199,9 @@
       </div>
       <div class="row">
         <div class="col-md-3">
-          <div class="form-group">
-            <label for="moneda">Moneda</label>
-            <select class="form-control" id="moneda" name="moneda">
+          <div class="mb-3">
+            <label class="form-label" for="moneda">Moneda</label>
+            <select class="form-select" id="moneda" name="moneda">
               <option value="">ARS y USD</option>
               <option value="ARS">Pesos (ARS)</option>
               <option value="USD">Dólares (USD)</option>
@@ -238,29 +209,29 @@
           </div>
         </div>
         <div class="col-md-3">
-          <div class="form-group">
-            <label for="precio_min">Precio Mínimo</label>
+          <div class="mb-3">
+            <label class="form-label" for="precio_min">Precio Mínimo</label>
             <input type="number" class="form-control" id="precio_min" name="precio_min" placeholder="Precio mínimo">
           </div>
         </div>
         <div class="col-md-3">
-          <div class="form-group">
-            <label for="precio_max">Precio Máximo</label>
+          <div class="mb-3">
+            <label class="form-label" for="precio_max">Precio Máximo</label>
             <input type="number" class="form-control" id="precio_max" name="precio_max" placeholder="Precio máximo">
           </div>
         </div>
         <div class="col-md-3">
-          <div class="form-group">
-            <label for="ciudad">Ciudad</label>
+          <div class="mb-3">
+            <label class="form-label" for="ciudad">Ciudad</label>
             <input type="text" class="form-control" id="ciudad" name="ciudad" placeholder="Ciudad">
           </div>
         </div>
       </div>
       <div class="row">
         <div class="col-md-3">
-          <div class="form-group">
-            <label for="habitaciones">Habitaciones</label>
-            <select class="form-control" id="habitaciones" name="habitaciones">
+          <div class="mb-3">
+            <label class="form-label" for="habitaciones">Habitaciones</label>
+            <select class="form-select" id="habitaciones" name="habitaciones">
               <option value="">Cualquiera</option>
               <option value="1">1</option>
               <option value="2">2</option>
@@ -271,9 +242,9 @@
           </div>
         </div>
         <div class="col-md-3">
-          <div class="form-group">
-            <label for="banos">Baños</label>
-            <select class="form-control" id="banos" name="banos">
+          <div class="mb-3">
+            <label class="form-label" for="banos">Baños</label>
+            <select class="form-select" id="banos" name="banos">
               <option value="">Cualquiera</option>
               <option value="1">1</option>
               <option value="2">2</option>
@@ -284,42 +255,44 @@
           </div>
         </div>
         <div class="col-md-3">
-          <div class="form-group">
-            <label for="ambientes_min">Ambientes mín.</label>
+          <div class="mb-3">
+            <label class="form-label" for="ambientes_min">Ambientes mín.</label>
             <input type="number" class="form-control" id="ambientes_min" name="ambientes_min" min="0" placeholder="Ej: 3">
           </div>
         </div>
         <div class="col-md-3">
-          <div class="form-group">
-            <label for="cocheras_min">Cocheras mín.</label>
+          <div class="mb-3">
+            <label class="form-label" for="cocheras_min">Cocheras mín.</label>
             <input type="number" class="form-control" id="cocheras_min" name="cocheras_min" min="0" placeholder="Ej: 1">
           </div>
         </div>
       </div>
       <div class="row">
         <div class="col-md-3">
-          <div class="form-group">
-            <label for="superficie_min">Superficie Mínima (m²)</label>
+          <div class="mb-3">
+            <label class="form-label" for="superficie_min">Superficie Mínima (m²)</label>
             <input type="number" class="form-control" id="superficie_min" name="superficie_min" placeholder="Superficie mínima">
           </div>
         </div>
         <div class="col-md-3">
-          <div class="form-group">
-            <label for="superficie_max">Superficie Máxima (m²)</label>
+          <div class="mb-3">
+            <label class="form-label" for="superficie_max">Superficie Máxima (m²)</label>
             <input type="number" class="form-control" id="superficie_max" name="superficie_max" placeholder="Superficie máxima">
           </div>
         </div>
       </div>
       <div class="button-container">
-        <button type="button" class="btn btn-primary" id="search-button">Buscar</button>
+        <button type="button" class="btn btn-buscar" id="search-button"><i class="fas fa-search me-1"></i> Buscar</button>
+        <button type="button" class="btn btn-outline-secondary btn-limpiar" id="btn-limpiar-filtros"><i class="fas fa-undo me-1"></i> Limpiar</button>
       </div>
       <hr>
     </form>
+    </div>
   </div>
 
-  <div class="card mb-4">
+  <div class="card alert-card mb-4">
     <div class="card-body">
-      <h5 class="card-title mb-1"><i class="fas fa-bell text-primary"></i> Avisame cuando aparezca algo así</h5>
+      <h5 class="card-title mb-1 fw-bold" style="color:#3730a3;"><i class="fas fa-bell me-1" style="color:#6366f1;"></i> Avisame cuando aparezca algo así</h5>
       <p class="text-muted small mb-3">Guardamos esta búsqueda con los filtros actuales y te enviamos un email cuando publiquen una propiedad que coincida.</p>
       <form id="alert-form" method="POST" action="{{ route('busquedas.guardar') }}">
         @csrf
@@ -348,7 +321,7 @@
       <h4 class="mb-0 d-inline me-2 fw-bold text-dark">Propiedades</h4>
       <span class="text-muted small" id="contador-resultados-texto">Cargando...</span>
     </div>
-    <div class="btn-group shadow-sm" role="group" aria-label="Modo de visualización">
+    <div class="btn-group view-toggle shadow-sm" role="group" aria-label="Modo de visualización">
       <button type="button" class="btn btn-outline-primary active btn-sm" id="btn-vista-split" title="Lista y Mapa lateral simultáneo">
         <i class="fas fa-columns me-1"></i> Lista + Mapa
       </button>
@@ -426,6 +399,7 @@
       }).addTo(mapInstancia);
       var satelite = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
         maxZoom: 19,
+        maxNativeZoom: 18,
         attribution: 'Tiles &copy; Esri'
       });
       L.control.layers({ 'Callejera (OSM)': osm, 'Satelital (Esri)': satelite }, null, { position: 'topright' }).addTo(mapInstancia);
@@ -663,6 +637,15 @@
       // Mostramos visualmente que se filtró por esa ciudad
       $('#geo_input').attr('placeholder', 'Filtrando por ciudad: ' + ciudad);
       loadProperties();
+    });
+
+    // Botón Limpiar filtros
+    $('#btn-limpiar-filtros').on('click', function () {
+      $('#search-form')[0].reset();
+      limpiarUbicacionGeo();
+      $('#geo_input').attr('placeholder', 'Escribí una ciudad, pueblo, barrio o dirección...');
+      loadProperties();
+      if (vistaActual === 'split' || vistaActual === 'mapa') { cargarMapaProperties(); }
     });
 
     // Al enviar el formulario de alerta, serializar los filtros actuales de la búsqueda
