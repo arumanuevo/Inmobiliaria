@@ -32,6 +32,11 @@
                 <a href="{{ route('inmobiliaria.perfil') }}" class="{{ request()->is('mi-inmobiliaria') ? 'active' : '' }}">
                     <i class="fas fa-store"></i><span>{{ auth()->user()->hasRole('particular') ? 'Mi perfil público' : 'Mi Inmobiliaria' }}</span>
                 </a>
+                @if(auth()->user()->inmobiliaria)
+                <a href="{{ route('inmobiliaria.preview') }}" target="_blank" class="{{ request()->is('mi-inmobiliaria/preview') ? 'active' : '' }}">
+                    <i class="fas fa-eye"></i><span>Vista previa</span>
+                </a>
+                @endif
                 <a href="{{ route('boletos.mios') }}" class="{{ request()->is('mis-boletos') || request()->is('boletos/*') ? 'active' : '' }}">
                     <i class="fas fa-receipt"></i><span>Mis Boletos</span>
                 </a>

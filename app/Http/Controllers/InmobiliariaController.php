@@ -110,6 +110,20 @@ class InmobiliariaController extends Controller
         return view('sumate', compact('planes', 'stats'));
     }
 
+    // Vista previa del perfil público (solo el dueño): incluye borradores, con banner de preview
+    public function preview()
+    {
+        $inmobiliaria = auth()->user()->inmobiliaria;
+
+        abort_if(!$inmobiliaria, 403, 'Aún no tenés un perfil de inmobiliaria.');
+
+        $destacados = $inmobiliaria->inmuebles()->where('destacado', 1)->latest()->get();
+        $inmuebles = $inmobiliaria->inmuebles()->latest()->paginate(9);
+        $preview = true;
+
+        return view('inmobiliarias.show', compact('inmobiliaria', 'destacados', 'inmuebles', 'preview'));
+    }
+
     // Formulario del perfil editable por la propia inmobiliaria
     public function perfil()
     {

@@ -44,6 +44,7 @@ Route::post('/inmuebles/{inmueble}/cerrar', [InmuebleController::class, 'cerrar'
 // Perfil editable por la propia inmobiliaria (logueada)
 Route::middleware('auth')->group(function () {
     Route::get('/mi-inmobiliaria', [InmobiliariaController::class, 'perfil'])->name('inmobiliaria.perfil');
+    Route::get('/mi-inmobiliaria/preview', [InmobiliariaController::class, 'preview'])->name('inmobiliaria.preview');
     Route::put('/mi-inmobiliaria', [InmobiliariaController::class, 'actualizarPerfil'])->name('inmobiliaria.update');
     Route::get('/mis-boletos', [App\Http\Controllers\BoletoController::class, 'mios'])->name('boletos.mios');
     Route::post('/boletos/{boleto}/pagar', [App\Http\Controllers\BoletoController::class, 'pagar'])->name('boletos.pagar');

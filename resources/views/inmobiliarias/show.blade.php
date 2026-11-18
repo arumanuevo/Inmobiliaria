@@ -1,6 +1,8 @@
 @extends('layouts.landing')
 
-@section('title', $inmobiliaria->nombre_comercial)
+@php $preview = $preview ?? false; @endphp
+
+@section('title', $inmobiliaria->nombre_comercial . ($preview ? ' (vista previa)' : ''))
 
 @section('css')
 <link rel="stylesheet" href="{{ asset('css/landing.css') }}">
@@ -56,8 +58,8 @@
       <ul class="navbar-nav ms-auto">
         <li class="nav-item"><a class="nav-link active" href="{{ route('inmobiliarias.show', $inmobiliaria->slug) }}">Inicio</a></li>
         <li class="nav-item"><a class="nav-link" href="{{ route('inmobiliarias.index') }}">Otras inmobiliarias</a></li>
-        <li class="nav-item"><a class="nav-link" href="{{ route('propiedades.index') }}">Propiedades</a>
-        <li class="nav-item"><a class="nav-link" href="{{ route('propiedades.mapa') }}">Mapa</a></li></li>
+        <li class="nav-item"><a class="nav-link" href="{{ route('propiedades.index') }}">Propiedades</a></li>
+        <li class="nav-item"><a class="nav-link" href="{{ route('propiedades.mapa') }}">Mapa</a></li>
         <li class="nav-item"><a class="nav-link" href="{{ route('contacto') }}">Contacto</a></li>
         <li class="nav-item"><a class="nav-link nav-cta" href="{{ route('sumate') }}">Soy inmobiliaria</a></li>
         <li class="nav-item"><a class="nav-link nav-login" href="{{ route('login') }}">Acceso</a></li>
@@ -65,6 +67,13 @@
     </div>
   </div>
 </nav>
+
+@if($preview)
+<div class="alert alert-warning mb-0 rounded-0 text-center small fw-semibold py-2">
+  <i class="fas fa-eye me-1"></i> MODO VISTA PREVIA: estás viendo tu perfil como lo ve un visitante, incluyendo los borradores (marcados en amarillo).
+  <a href="{{ route('inmobiliaria.perfil') }}" class="alert-link ms-1">Volver a editar</a>
+</div>
+@endif
 
 @if(!empty($inmobiliaria->galeria) && count($inmobiliaria->galeria) > 1)
 <div id="jumbotronGaleria" class="carousel slide" data-bs-ride="carousel">
@@ -151,7 +160,16 @@
               </div>
             @endif
             <div class="card-body">
-              <h5 class="card-title"><a href="{{ route('propiedad.show', [$inmobiliaria->slug, $inmueble->id]) }}" class="text-decoration-none text-dark">{{ $inmueble->titulo }}</a></h5>
+              @if($preview && !$inmueble->publicado)
+                <span class="badge bg-warning text-dark mb-1">Borrador (no público)</span>
+              @endif
+              <h5 class="card-title">
+                @if($preview && !$inmueble->publicado)
+                  <a href="{{ route('inmuebles.edit', $inmueble) }}" class="text-decoration-none text-dark">{{ $inmueble->titulo }}</a>
+                @else
+                  <a href="{{ route('propiedad.show', [$inmobiliaria->slug, $inmueble->id]) }}" class="text-decoration-none text-dark">{{ $inmueble->titulo }}</a>
+                @endif
+              </h5>
               <p class="card-text">{{ $inmueble->precio_formateado }} &bull; {{ $inmueble->habitaciones }} Hab. &bull; {{ $inmueble->banos }} Baños &bull; {{ $inmueble->superficie_cubierta }} m²</p>
               <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#propertyModal{{ $inmueble->id }}">Ver Detalles</button>
             </div>
@@ -186,7 +204,16 @@
             </div>
           @endif
           <div class="card-body">
-            <h5 class="card-title"><a href="{{ route('propiedad.show', [$inmobiliaria->slug, $inmueble->id]) }}" class="text-decoration-none text-dark">{{ $inmueble->titulo }}</a></h5>
+            @if($preview && !$inmueble->publicado)
+              <span class="badge bg-warning text-dark mb-1">Borrador (no público)</span>
+            @endif
+            <h5 class="card-title">
+              @if($preview && !$inmueble->publicado)
+                <a href="{{ route('inmuebles.edit', $inmueble) }}" class="text-decoration-none text-dark">{{ $inmueble->titulo }}</a>
+              @else
+                <a href="{{ route('propiedad.show', [$inmobiliaria->slug, $inmueble->id]) }}" class="text-decoration-none text-dark">{{ $inmueble->titulo }}</a>
+              @endif
+            </h5>
             <p class="card-text">{{ ucfirst($inmueble->tipo_operacion) }} &bull; {{ $inmueble->precio_formateado }} &bull; {{ $inmueble->habitaciones }} Hab. &bull; {{ $inmueble->banos }} Baños &bull; {{ $inmueble->superficie_cubierta }} m²</p>
             <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#propertyModal{{ $inmueble->id }}">Ver Detalles</button>
           </div>

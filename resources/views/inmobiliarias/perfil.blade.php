@@ -94,6 +94,9 @@
                         <a href="{{ route('inmobiliarias.show', $inmobiliaria->slug) }}" target="_blank" class="url-chip">
                             <i class="fas fa-external-link-alt me-1"></i>/inmobiliaria/{{ $inmobiliaria->slug }}
                         </a>
+                        <a href="{{ route('inmobiliaria.preview') }}" target="_blank" class="btn btn-outline-primary btn-sm rounded-pill px-3 fw-semibold ms-1" title="Ver tu perfil como visitante, incluyendo borradores">
+                            <i class="fas fa-eye me-1"></i> Vista previa
+                        </a>
                     </div>
                     <div class="mb-3">
                         <a href="{{ route('boletos.mios') }}" class="btn btn-outline-primary btn-sm rounded-pill px-3 fw-semibold"><i class="fas fa-receipt me-1"></i> Mis boletos</a>
