@@ -187,6 +187,12 @@
           @endif
           <hr>
           <a href="{{ route('inmobiliarias.show', $inmobiliaria->slug) }}" class="small">Ver todas las propiedades de este anunciante</a>
+          <div class="mt-3 pt-2 border-top text-start">
+            @include('partials.share', [
+              'shareUrl' => route('propiedad.show', [$inmobiliaria->slug, $inmueble->id]),
+              'shareTitulo' => $inmueble->titulo . ' · ' . $inmueble->precio_formateado . ' · ' . $inmobiliaria->nombre_comercial,
+            ])
+          </div>
         </div>
       </div>
 

@@ -18,7 +18,7 @@
 </style>
 
 <div class="row">
-  @foreach($properties as $property)
+  @forelse($properties as $property)
     <div class="col-md-6 col-xl-4 prop-item property-card mb-4">
       <div class="card border-0 shadow-sm h-100">
         <div id="carousel{{ $property->id }}" class="carousel slide" data-bs-ride="carousel">
@@ -124,7 +124,13 @@
         </div>
       </div>
     </div>
-  @endforeach
+  @empty
+    <div class="col-12 text-center py-5">
+      <i class="fas fa-search fa-2x text-muted mb-3"></i>
+      <p class="text-muted mb-1 fw-semibold">Todavía no hay propiedades con esos filtros.</p>
+      <p class="text-muted small mb-0">Probá ampliar el rango de precio o la zona, o <a href="{{ route('propiedades.mapa') }}">mirá en el mapa</a>.</p>
+    </div>
+  @endforelse
 </div>
 
 <div class="d-flex justify-content-center mt-4">

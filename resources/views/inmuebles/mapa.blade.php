@@ -171,6 +171,9 @@ document.addEventListener('DOMContentLoaded', function () {
                 var lista = document.getElementById('lista-mapa');
                 lista.innerHTML = '';
                 document.getElementById('contador-mapa').textContent = items.length + ' resultado(s) en el área visible';
+                if (!items.length) {
+                    lista.innerHTML = '<div class="p-3 text-muted small">No hay propiedades en esta área. Arrastrá el mapa o quitá filtros.</div>';
+                }
                 items.forEach(function (it) {
                     if (it.lat === null || it.lng === null) { return; }
                     var foto = it.foto ? '<img src="' + it.foto + '" alt="">' : '';

@@ -153,6 +153,13 @@
           @endif
           <a href="{{ route('contacto', ['inmobiliaria' => $inmobiliaria->id]) }}" class="btn btn-light btn-sm">Enviar consulta</a>
         </div>
+        <div class="mt-3">
+          @include('partials.share', [
+            'shareUrl' => route('inmobiliarias.show', $inmobiliaria->slug),
+            'shareTitulo' => $inmobiliaria->nombre_comercial . ' en ' . config('app.name'),
+            'dark' => true,
+          ])
+        </div>
       </div>
     </div>
   </div>

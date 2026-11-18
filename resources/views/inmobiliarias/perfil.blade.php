@@ -97,6 +97,9 @@
                         <a href="{{ route('inmobiliaria.preview') }}" target="_blank" class="btn btn-outline-primary btn-sm rounded-pill px-3 fw-semibold ms-1" title="Ver tu perfil como visitante, incluyendo borradores">
                             <i class="fas fa-eye me-1"></i> Vista previa
                         </a>
+                        <button type="button" id="btn-copy-perfil" data-url="{{ route('inmobiliarias.show', $inmobiliaria->slug) }}" class="btn btn-outline-secondary btn-sm rounded-pill px-3" title="Copiar el enlace de tu perfil para compartirlo">
+                            <i class="fas fa-link me-1"></i> Copiar enlace
+                        </button>
                     </div>
                     <div class="mb-3">
                         <a href="{{ route('boletos.mios') }}" class="btn btn-outline-primary btn-sm rounded-pill px-3 fw-semibold"><i class="fas fa-receipt me-1"></i> Mis boletos</a>
@@ -411,6 +414,26 @@ document.addEventListener('DOMContentLoaded', function () {
             resultados.style.display = 'none';
         }
     });
+
+    // Copiar enlace del perfil público para compartir
+    var btnCopy = document.getElementById('btn-copy-perfil');
+    if (btnCopy) {
+        btnCopy.addEventListener('click', function () {
+            var url = btnCopy.getAttribute('data-url');
+            function ok() {
+                btnCopy.innerHTML = '<i class="fas fa-check me-1"></i> ¡Copiado!';
+                setTimeout(function () { btnCopy.innerHTML = '<i class="fas fa-link me-1"></i> Copiar enlace'; }, 2000);
+            }
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(url).then(ok).catch(ok);
+            } else {
+                var ta = document.createElement('textarea');
+                ta.value = url; document.body.appendChild(ta); ta.select();
+                try { document.execCommand('copy'); } catch (err) {}
+                document.body.removeChild(ta); ok();
+            }
+        });
+    }
 });
 </script>
 @stop
