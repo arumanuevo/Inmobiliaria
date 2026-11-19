@@ -6,7 +6,6 @@
 <link rel="stylesheet" href="{{ asset('css/landing.css') }}">
 <link rel="stylesheet" href="{{ asset('css/navbar.css') }}">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
-<link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
 <style>
   body { padding-top: 56px; background: linear-gradient(180deg, #f6f7fb 0%, #eceff7 100%); min-height: 100vh; }
   .search-hero { background: linear-gradient(135deg, #101828 0%, #1d2939 55%, #312e81 100%); color: #fff; padding: 44px 0 100px; }
@@ -376,14 +375,10 @@
 @stop
 
 @section('js')
-<!-- Incluir jQuery -->
+<!-- jQuery (necesario para el JS de esta página). Bootstrap ya viene del layout (5.3.0) -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<!-- Incluir Bootstrap JS -->
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/5.1.3/js/bootstrap.bundle.min.js"></script>
 <!-- Incluir Leaflet JS -->
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<!-- Incluir DataTables -->
-<script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
 <script>
   $(document).ready(function() {
     var vistaActual = 'lista';
@@ -449,6 +444,24 @@
       });
     }
 
+    // Cierra modales abiertos y limpia backdrops huérfanos antes de reemplazar el HTML
+    // (si el modal estaba abierto cuando se recargan los resultados, el backdrop puede
+    // quedar pegado y bloquear toda la página)
+    function cerrarModalesHuerfanos() {
+      document.querySelectorAll('.modal.show').forEach(function(el) {
+        if (window.bootstrap && bootstrap.Modal.getInstance(el)) {
+          bootstrap.Modal.getInstance(el).hide();
+        }
+        el.classList.remove('show');
+        el.style.display = 'none';
+        el.setAttribute('aria-hidden', 'true');
+      });
+      document.querySelectorAll('.modal-backdrop').forEach(function(b) { b.remove(); });
+      document.body.classList.remove('modal-open');
+      document.body.style.removeProperty('padding-right');
+      document.body.style.removeProperty('overflow');
+    }
+
     function loadProperties(page = 1) {
       var formData = $('#search-form').serialize();
       $.ajax({
@@ -456,6 +469,7 @@
         method: 'GET',
         data: formData,
         success: function(data) {
+          cerrarModalesHuerfanos();
           $('#property-results').html(data);
         },
         error: function(xhr) {
