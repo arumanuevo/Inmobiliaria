@@ -1,0 +1,15 @@
+/* landing.css — estilos compartidos de las páginas públicas (layout landing) */
+
+/* Contenedor de resultados de /propiedades (se reemplaza por AJAX) */
+.results-container { width: 100%; }
+
+/* Icono dentro de inputs/botones del buscador */
+.icono { margin-right: .35rem; }
+
+/* Tarjeta de resultado (la vista de búsqueda también la define inline; esta es la base compartida) */
+.property-card { width: 100%; }
+
+/* Pie de página genérico de páginas públicas */
+.footer { background-color: #101828; color: #fff; text-align: center; padding: 18px 0; font-size: .85rem; margin-top: 40px; }
+.footer p { margin: 0; }
+.footer a { color: #c7d2fe; }
