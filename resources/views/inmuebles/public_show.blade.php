@@ -9,7 +9,7 @@
 <meta property="og:type" content="website">
 <meta property="og:url" content="{{ route('propiedad.show', [$inmobiliaria->slug, $inmueble->id]) }}">
 @if(!empty($inmueble->fotos))
-<meta property="og:image" content="{{ asset('images/fotosinmuebles/' . $inmueble->fotos[0]) }}">
+<meta property="og:image" content="{{ !empty($inmueble->fotos) ? asset('images/fotosinmuebles/' . $inmueble->fotos[0]) : asset('images/logoinmo.svg') }}">
 @endif
 <script type="application/ld+json">
 {
