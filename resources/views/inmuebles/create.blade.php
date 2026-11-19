@@ -48,6 +48,13 @@
             </div>
         </div>
     @endif
+    @if(isset($solicitud) && $solicitud)
+        <input type="hidden" name="solicitud_id" value="{{ $solicitud->id }}">
+        <div class="alert alert-warning shadow-sm border-0 mb-4">
+            <i class="fas fa-clipboard-list me-2"></i> Atendiendo <strong>solicitud #{{ $solicitud->id }}</strong>:
+            “{{ $solicitud->titulo ?: 'sin título' }}” — {{ \Illuminate\Support\Str::limit($solicitud->detalle, 120) }}
+        </div>
+    @endif
 
     {{-- Errores de validación --}}
     @if($errors->any())

@@ -121,7 +121,7 @@
       <div class="beneficio">
         <i class="fas fa-hands-helping"></i>
         <h5>Te ayudamos a arrancar</h5>
-        <p>Si querés, cargamos por vos tus primeras propiedades para que tu vidriera no arranque vacía. Tu portal, tu marca, desde el día uno.</p>
+        <p>Si querés, cargamos por vos tus primeras propiedades (solicitalo desde tu panel) para que tu vidriera no arranque vacía. Tu portal, tu marca, desde el día uno.</p>
       </div>
     </div>
   </div>

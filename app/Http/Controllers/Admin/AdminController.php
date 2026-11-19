@@ -8,6 +8,10 @@ use App\Models\BusquedaGuardada;
 use App\Models\Inmueble;
 use App\Models\Inmobiliaria;
 use App\Models\Plan;
+use App\Models\SolicitudCarga;
+use App\Mail\CargaAsistidaListaMail;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 
 class AdminController extends Controller
 {
@@ -166,11 +170,39 @@ class AdminController extends Controller
 
     // ===== Carga asistida: el admin carga propiedades a nombre de una inmobiliaria =====
 
+    // Cola de solicitudes de carga asistida hechas por los clientes
+    public function solicitudes(Request $request)
+    {
+        $estado = $request->input('estado');
+        $query = SolicitudCarga::with(['inmobiliaria.usuario', 'inmueble'])->latest();
+        if (in_array($estado, ['pendiente', 'en_carga', 'cargada', 'cancelada'], true)) {
+            $query->where('estado', $estado);
+        }
+        $solicitudes = $query->paginate(20)->withQueryString();
+        $pendientes = SolicitudCarga::where('estado', 'pendiente')->count();
+
+        return view('admin.solicitudes', compact('solicitudes', 'estado', 'pendientes'));
+    }
+
+    public function cambiarEstadoSolicitud(Request $request, $id)
+    {
+        $request->validate([
+            'estado' => 'required|in:pendiente,en_carga,cancelada',
+        ]);
+
+        $sol = SolicitudCarga::findOrFail($id);
+        $sol->estado = $request->input('estado');
+        $sol->save();
+
+        return back()->with('success', 'Solicitud #' . $sol->id . ' actualizada a "' . $sol->estado . '".');
+    }
+
     public function formCargaAsistida($id)
     {
         $inmobiliariaAsistida = Inmobiliaria::findOrFail($id);
+        $solicitud = request('solicitud') ? SolicitudCarga::find((int) request('solicitud')) : null;
 
-        return view('inmuebles.create', compact('inmobiliariaAsistida'));
+        return view('inmuebles.create', compact('inmobiliariaAsistida', 'solicitud'));
     }
 
     public function cargarInmueble(Request $request, $id)
@@ -214,8 +246,29 @@ class AdminController extends Controller
             BusquedaGuardada::notificarNuevaPropiedad($inmueble);
         }
 
-        return redirect()->route('admin.inmobiliarias')
-            ->with('success', 'Propiedad cargada para ' . $inmobiliaria->nombre_comercial . ' (carga asistida).');
+        // Si venía de una solicitud del cliente, marcarla cargada y avisarle por email
+        $solicitudId = (int) $request->input('solicitud_id');
+        if ($solicitudId) {
+            $sol = SolicitudCarga::find($solicitudId);
+            if ($sol) {
+                $sol->estado = 'cargada';
+                $sol->inmueble_id = $inmueble->id;
+                $sol->atendida_at = now();
+                $sol->save();
+
+                try {
+                    $dest = $inmobiliaria->email ?: ($inmobiliaria->usuario->email ?? null);
+                    if ($dest) {
+                        Mail::to($dest)->send(new CargaAsistidaListaMail($inmueble, $inmobiliaria));
+                    }
+                } catch (\Throwable $e) {
+                    Log::warning('Mail de carga asistida no enviado: ' . $e->getMessage());
+                }
+            }
+        }
+
+        return redirect()->route('admin.solicitudes')
+            ->with('success', 'Propiedad cargada para ' . $inmobiliaria->nombre_comercial . ' (carga asistida)' . ($solicitudId ? '. Solicitud #' . $solicitudId . ' marcada como cargada y avisada por email.' : '.'));
     }
 
     // Panel de boletos de suscripción

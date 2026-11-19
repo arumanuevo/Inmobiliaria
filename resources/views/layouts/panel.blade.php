@@ -43,6 +43,9 @@
                 <a href="{{ route('busquedas.mias') }}" class="{{ request()->is('mis-busquedas*') ? 'active' : '' }}">
                     <i class="fas fa-bell"></i><span>Mis búsquedas</span>
                 </a>
+                <a href="{{ route('solicitudes.mias') }}" class="{{ request()->is('mis-solicitudes*') ? 'active' : '' }}">
+                    <i class="fas fa-hands-helping"></i><span>Carga asistida</span>
+                </a>
             @endif
             @if(auth()->user()->hasRole('admin'))
                 <div class="menu-section">Administración</div>
@@ -54,6 +57,11 @@
                 </a>
                 <a href="{{ route('admin.operaciones') }}" class="{{ request()->is('admin/operaciones*') ? 'active' : '' }}">
                     <i class="fas fa-handshake"></i><span>Operaciones</span>
+                </a>
+                <a href="{{ route('admin.solicitudes') }}" class="{{ request()->is('admin/solicitudes*') ? 'active' : '' }}">
+                    <i class="fas fa-clipboard-list"></i><span>Solicitudes</span>
+                    @php $pendSoli = \App\Models\SolicitudCarga::where('estado', 'pendiente')->count(); @endphp
+                    @if($pendSoli > 0)<span class="badge-super">{{ $pendSoli }}</span>@endif
                 </a>
                 @if(auth()->user()->esSuperAdmin())
                 <a href="{{ route('admin.planes') }}" class="{{ request()->is('admin/planes*') ? 'active' : '' }}">

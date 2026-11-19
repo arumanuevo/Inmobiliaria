@@ -50,6 +50,8 @@ Route::middleware('auth')->group(function () {
     Route::post('/boletos/{boleto}/pagar', [App\Http\Controllers\BoletoController::class, 'pagar'])->name('boletos.pagar');
     Route::get('/mis-busquedas', [BusquedaGuardadaController::class, 'misBusquedas'])->name('busquedas.mias');
     Route::delete('/mis-busquedas/{busqueda}', [BusquedaGuardadaController::class, 'destroy'])->name('busquedas.destroy');
+    Route::get('/mis-solicitudes', [App\Http\Controllers\SolicitudCargaController::class, 'mis'])->name('solicitudes.mias');
+    Route::post('/mis-solicitudes', [App\Http\Controllers\SolicitudCargaController::class, 'store'])->name('solicitudes.store');
 });
 
 // Búsquedas guardadas (público: cualquiera puede recibir alertas por email de nuevas propiedades)
@@ -76,6 +78,8 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::post('/operaciones/{id}/comision', [App\Http\Controllers\Admin\AdminController::class, 'cobrarOperacion'])->name('operaciones.comision');
     Route::get('/inmobiliarias/{id}/cargar-inmueble', [App\Http\Controllers\Admin\AdminController::class, 'formCargaAsistida'])->name('carga.form');
     Route::post('/inmobiliarias/{id}/cargar-inmueble', [App\Http\Controllers\Admin\AdminController::class, 'cargarInmueble'])->name('carga.store');
+    Route::get('/solicitudes', [App\Http\Controllers\Admin\AdminController::class, 'solicitudes'])->name('solicitudes');
+    Route::post('/solicitudes/{id}/estado', [App\Http\Controllers\Admin\AdminController::class, 'cambiarEstadoSolicitud'])->name('solicitudes.estado');
 });
 
 // Rutas para el CRUD de Inmuebles (admin e inmobiliarias; cada una solo gestiona lo suyo)
