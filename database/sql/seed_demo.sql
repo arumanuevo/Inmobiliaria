@@ -13,6 +13,79 @@
 -- ============================================================
 
 -- ============================================================
+-- 0) PRERREQUISITOS MÍNIMOS (idempotente): asegura las columnas
+--    que usa este seeder, por si todavía no corriste los saas_*.sql.
+--    Si ya existen, no hace nada.
+-- ============================================================
+SET @c := (SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME='users' AND COLUMN_NAME='telefono');
+SET @ddl := IF(@c=0, 'ALTER TABLE `users` ADD COLUMN `telefono` VARCHAR(30) NULL DEFAULT NULL', 'SELECT ''ok'' AS msg');
+PREPARE s FROM @ddl; EXECUTE s; DEALLOCATE PREPARE s;
+
+SET @c := (SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME='inmuebles' AND COLUMN_NAME='inmobiliaria_id');
+SET @ddl := IF(@c=0, 'ALTER TABLE `inmuebles` ADD COLUMN `inmobiliaria_id` BIGINT UNSIGNED NULL DEFAULT NULL', 'SELECT ''ok'' AS msg');
+PREPARE s FROM @ddl; EXECUTE s; DEALLOCATE PREPARE s;
+
+SET @c := (SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME='inmuebles' AND COLUMN_NAME='tipo_propiedad');
+SET @ddl := IF(@c=0, 'ALTER TABLE `inmuebles` ADD COLUMN `tipo_propiedad` VARCHAR(30) NULL DEFAULT NULL', 'SELECT ''ok'' AS msg');
+PREPARE s FROM @ddl; EXECUTE s; DEALLOCATE PREPARE s;
+
+SET @c := (SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME='inmuebles' AND COLUMN_NAME='moneda');
+SET @ddl := IF(@c=0, 'ALTER TABLE `inmuebles` ADD COLUMN `moneda` VARCHAR(3) NULL DEFAULT 'ARS'', 'SELECT ''ok'' AS msg');
+PREPARE s FROM @ddl; EXECUTE s; DEALLOCATE PREPARE s;
+
+SET @c := (SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME='inmuebles' AND COLUMN_NAME='ambientes');
+SET @ddl := IF(@c=0, 'ALTER TABLE `inmuebles` ADD COLUMN `ambientes` INT NULL DEFAULT NULL', 'SELECT ''ok'' AS msg');
+PREPARE s FROM @ddl; EXECUTE s; DEALLOCATE PREPARE s;
+
+SET @c := (SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME='inmuebles' AND COLUMN_NAME='cocheras');
+SET @ddl := IF(@c=0, 'ALTER TABLE `inmuebles` ADD COLUMN `cocheras` INT NOT NULL DEFAULT 0', 'SELECT ''ok'' AS msg');
+PREPARE s FROM @ddl; EXECUTE s; DEALLOCATE PREPARE s;
+
+SET @c := (SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME='inmuebles' AND COLUMN_NAME='expensas');
+SET @ddl := IF(@c=0, 'ALTER TABLE `inmuebles` ADD COLUMN `expensas` DECIMAL(10,2) NULL DEFAULT NULL', 'SELECT ''ok'' AS msg');
+PREPARE s FROM @ddl; EXECUTE s; DEALLOCATE PREPARE s;
+
+SET @c := (SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME='inmuebles' AND COLUMN_NAME='orientacion');
+SET @ddl := IF(@c=0, 'ALTER TABLE `inmuebles` ADD COLUMN `orientacion` VARCHAR(20) NULL DEFAULT NULL', 'SELECT ''ok'' AS msg');
+PREPARE s FROM @ddl; EXECUTE s; DEALLOCATE PREPARE s;
+
+SET @c := (SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME='inmuebles' AND COLUMN_NAME='estado_propiedad');
+SET @ddl := IF(@c=0, 'ALTER TABLE `inmuebles` ADD COLUMN `estado_propiedad` VARCHAR(30) NULL DEFAULT NULL', 'SELECT ''ok'' AS msg');
+PREPARE s FROM @ddl; EXECUTE s; DEALLOCATE PREPARE s;
+
+SET @c := (SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME='inmuebles' AND COLUMN_NAME='publicado');
+SET @ddl := IF(@c=0, 'ALTER TABLE `inmuebles` ADD COLUMN `publicado` TINYINT(1) NOT NULL DEFAULT 1', 'SELECT ''ok'' AS msg');
+PREPARE s FROM @ddl; EXECUTE s; DEALLOCATE PREPARE s;
+
+SET @c := (SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME='inmuebles' AND COLUMN_NAME='visitas');
+SET @ddl := IF(@c=0, 'ALTER TABLE `inmuebles` ADD COLUMN `visitas` INT UNSIGNED NOT NULL DEFAULT 0', 'SELECT ''ok'' AS msg');
+PREPARE s FROM @ddl; EXECUTE s; DEALLOCATE PREPARE s;
+
+SET @c := (SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME='inmuebles' AND COLUMN_NAME='declaracion_propietario');
+SET @ddl := IF(@c=0, 'ALTER TABLE `inmuebles` ADD COLUMN `declaracion_propietario` TINYINT(1) NOT NULL DEFAULT 0', 'SELECT ''ok'' AS msg');
+PREPARE s FROM @ddl; EXECUTE s; DEALLOCATE PREPARE s;
+
+SET @c := (SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME='inmobiliarias' AND COLUMN_NAME='zonas_cobertura');
+SET @ddl := IF(@c=0, 'ALTER TABLE `inmobiliarias` ADD COLUMN `zonas_cobertura` VARCHAR(255) NULL DEFAULT NULL', 'SELECT ''ok'' AS msg');
+PREPARE s FROM @ddl; EXECUTE s; DEALLOCATE PREPARE s;
+
+SET @c := (SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME='inmobiliarias' AND COLUMN_NAME='lat');
+SET @ddl := IF(@c=0, 'ALTER TABLE `inmobiliarias` ADD COLUMN `lat` DECIMAL(10,8) NULL DEFAULT NULL', 'SELECT ''ok'' AS msg');
+PREPARE s FROM @ddl; EXECUTE s; DEALLOCATE PREPARE s;
+
+SET @c := (SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME='inmobiliarias' AND COLUMN_NAME='lng');
+SET @ddl := IF(@c=0, 'ALTER TABLE `inmobiliarias` ADD COLUMN `lng` DECIMAL(10,8) NULL DEFAULT NULL', 'SELECT ''ok'' AS msg');
+PREPARE s FROM @ddl; EXECUTE s; DEALLOCATE PREPARE s;
+
+SET @c := (SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME='inmobiliarias' AND COLUMN_NAME='imagen_portada');
+SET @ddl := IF(@c=0, 'ALTER TABLE `inmobiliarias` ADD COLUMN `imagen_portada` VARCHAR(255) NULL DEFAULT NULL', 'SELECT ''ok'' AS msg');
+PREPARE s FROM @ddl; EXECUTE s; DEALLOCATE PREPARE s;
+
+SET @c := (SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME='inmobiliarias' AND COLUMN_NAME='galeria');
+SET @ddl := IF(@c=0, 'ALTER TABLE `inmobiliarias` ADD COLUMN `galeria` TEXT NULL DEFAULT NULL', 'SELECT ''ok'' AS msg');
+PREPARE s FROM @ddl; EXECUTE s; DEALLOCATE PREPARE s;
+
+-- ============================================================
 -- 1) USUARIOS DEMO (password hasheada = demo1234)
 -- ============================================================
 INSERT INTO `users` (`name`,`email`,`email_verified_at`,`password`,`telefono`,`created_at`,`updated_at`)
