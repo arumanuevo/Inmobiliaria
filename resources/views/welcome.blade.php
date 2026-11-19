@@ -301,7 +301,7 @@
           <div class="card shadow-sm">
             <div id="carousel{{ $inmueble->id }}" class="carousel carousel-destacado slide" data-bs-ride="carousel">
               <div class="carousel-inner">
-                @foreach($inmueble->fotos as $index => $foto)
+                @foreach(($inmueble->fotos ?? []) as $index => $foto)
                   <div class="carousel-item {{ $index === 0 ? 'active' : '' }}">
                     <img src="{{ asset('images/fotosinmuebles/' . $foto) }}" class="d-block w-100" alt="{{ $inmueble->titulo }}">
                   </div>
@@ -346,7 +346,7 @@
               <div class="modal-body">
                 <div id="modalCarousel{{ $inmueble->id }}" class="carousel slide" data-bs-ride="carousel">
                   <div class="carousel-inner">
-                    @foreach($inmueble->fotos as $index => $foto)
+                    @foreach(($inmueble->fotos ?? []) as $index => $foto)
                       <div class="carousel-item {{ $index === 0 ? 'active' : '' }}">
                         <img src="{{ asset('images/fotosinmuebles/' . $foto) }}" class="d-block w-100" alt="{{ $inmueble->titulo }}">
                       </div>

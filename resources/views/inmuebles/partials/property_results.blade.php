@@ -23,13 +23,13 @@
       <div class="card border-0 shadow-sm h-100">
         <div id="carousel{{ $property->id }}" class="carousel slide" data-bs-ride="carousel">
           <div class="carousel-inner">
-            @foreach($property->fotos as $index => $foto)
+            @foreach(($property->fotos ?? []) as $index => $foto)
               <div class="carousel-item {{ $index === 0 ? 'active' : '' }}">
                 <img src="{{ asset('images/fotosinmuebles/' . $foto) }}" class="d-block w-100" alt="{{ $property->titulo }}">
               </div>
             @endforeach
           </div>
-          @if(count($property->fotos) > 1)
+          @if(count($property->fotos ?? []) > 1)
           <button class="carousel-control-prev" type="button" data-bs-target="#carousel{{ $property->id }}" data-bs-slide="prev">
             <span class="carousel-control-prev-icon" aria-hidden="true"></span>
             <span class="visually-hidden">Anterior</span>
@@ -80,13 +80,13 @@
           <div class="modal-body">
             <div id="modalCarousel{{ $property->id }}" class="carousel slide" data-bs-ride="carousel">
               <div class="carousel-inner">
-                @foreach($property->fotos as $index => $foto)
+                @foreach(($property->fotos ?? []) as $index => $foto)
                   <div class="carousel-item {{ $index === 0 ? 'active' : '' }}">
                     <img src="{{ asset('images/fotosinmuebles/' . $foto) }}" class="d-block w-100 modal-img" alt="{{ $property->titulo }}">
                   </div>
                 @endforeach
               </div>
-              @if(count($property->fotos) > 1)
+              @if(count($property->fotos ?? []) > 1)
               <button class="carousel-control-prev" type="button" data-bs-target="#modalCarousel{{ $property->id }}" data-bs-slide="prev">
                 <span class="carousel-control-prev-icon" aria-hidden="true"></span>
                 <span class="visually-hidden">Anterior</span>

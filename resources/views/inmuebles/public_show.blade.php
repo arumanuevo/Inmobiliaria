@@ -87,13 +87,13 @@
       @if(!empty($inmueble->fotos))
         <div id="galeriaFicha" class="carousel slide mb-3" data-bs-ride="carousel">
           <div class="carousel-inner" style="border-radius: 12px; overflow: hidden;">
-            @foreach($inmueble->fotos as $i => $foto)
+            @foreach(($inmueble->fotos ?? []) as $i => $foto)
               <div class="carousel-item {{ $i === 0 ? 'active' : '' }}">
                 <img src="{{ asset('images/fotosinmuebles/' . $foto) }}" class="ficha-foto" alt="{{ $inmueble->titulo }}">
               </div>
             @endforeach
           </div>
-          @if(count($inmueble->fotos) > 1)
+          @if(count($inmueble->fotos ?? []) > 1)
             <button class="carousel-control-prev" type="button" data-bs-target="#galeriaFicha" data-bs-slide="prev">
               <span class="carousel-control-prev-icon"></span><span class="visually-hidden">Anterior</span>
             </button>

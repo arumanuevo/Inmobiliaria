@@ -60,7 +60,7 @@
                 @if($inmueble->fotos)
                     <div class="image-preview-container">
                         <div id="imagePreview" class="image-preview">
-                            @foreach($inmueble->fotos as $foto)
+                            @foreach(($inmueble->fotos ?? []) as $foto)
                                 <div class="image-item">
                                     <img src="{{ asset('images/fotosinmuebles/' . $foto) }}" alt="{{ $foto }}">
                                     <form action="{{ route('inmuebles.destroyPhoto', $inmueble) }}" method="POST">

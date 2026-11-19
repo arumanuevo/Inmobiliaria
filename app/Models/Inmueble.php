@@ -1,7 +1,6 @@
 <?php
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 
 class Inmueble extends Model
@@ -21,6 +20,7 @@ class Inmueble extends Model
     ];
 
     protected $casts = [
+        'fotos' => 'array',
         'destacado' => 'boolean',
         'publicado' => 'boolean',
         'cerrada' => 'boolean',
@@ -31,15 +31,6 @@ class Inmueble extends Model
         'carga_asistida' => 'boolean',
         'declaracion_propietario' => 'boolean',
     ];
-
-    // fotos siempre se lee como array (nunca null) para evitar count(null) y foreach(null)
-    protected function fotos(): Attribute
-    {
-        return Attribute::make(
-            get: fn ($value) => is_array($value) ? $value : (json_decode((string) $value, true) ?: []),
-            set: fn ($value) => is_array($value) ? json_encode($value) : $value,
-        );
-    }
 
     public static function tiposPropiedad(): array
     {
