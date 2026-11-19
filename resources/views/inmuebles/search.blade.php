@@ -460,6 +460,7 @@
         },
         error: function(xhr) {
           console.error(xhr.responseText);
+          $('#property-results').html('<div class="alert alert-warning m-3">No se pudieron cargar los resultados. Probá de nuevo (o tocá Buscar).</div>');
         }
       });
     }
@@ -469,20 +470,30 @@
       $('#btn-vista-split, #btn-vista-lista, #btn-vista-mapa').removeClass('active');
       $('#btn-vista-' + modo).addClass('active');
 
+      var $lista = $('#columna-lista');
+      var $mapa = $('#columna-mapa');
+
+      // limpiar SIEMPRE todas las clases de layout (idempotente, sin importar la vista anterior)
+      var todas = 'col-12 col-lg-5 col-lg-7 col-xl-5 col-xl-7 d-none';
+      $lista.removeClass(todas);
+      $mapa.removeClass(todas);
+
       if (modo === 'split') {
-        $('#columna-lista').removeClass('col-12 d-none').addClass('col-lg-7 col-xl-7').show();
-        $('#columna-mapa').removeClass('col-12 d-none').addClass('col-lg-5 col-xl-5').show();
+        $lista.addClass('col-lg-7 col-xl-7').show();
+        $mapa.addClass('col-lg-5 col-xl-5').show();
         loadProperties();
         cargarMapaProperties();
       } else if (modo === 'lista') {
-        $('#columna-lista').removeClass('col-lg-7 col-xl-7 d-none').addClass('col-12').show();
-        $('#columna-mapa').addClass('d-none').hide();
+        $lista.addClass('col-12').show();
+        $mapa.addClass('d-none').hide();
         loadProperties();
-      } else if (modo === 'mapa') {
-        $('#columna-lista').addClass('d-none').hide();
-        $('#columna-mapa').removeClass('col-lg-5 col-xl-5 d-none').addClass('col-12').show();
+      } else { // mapa
+        $lista.addClass('d-none').hide();
+        $mapa.addClass('col-12').show();
         cargarMapaProperties();
       }
+      // por si el mapa quedó chico al cambiar de columna
+      setTimeout(function () { if (mapInstancia) { mapInstancia.invalidateSize(); } }, 250);
     }
 
     $('#btn-vista-split').on('click', function() { aplicarVista('split'); });
