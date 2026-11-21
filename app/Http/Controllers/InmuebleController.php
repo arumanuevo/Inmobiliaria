@@ -112,6 +112,21 @@ class InmuebleController extends Controller
             : 'No se pudo calcular ahora (servicio de mapas no disponible). Probá de nuevo en un rato.');
     }
 
+    // Mensajes de validación en español claro (el default de Laravel traduce mal los snake_case)
+    public static function mensajesValidacion(): array
+    {
+        return [
+            'declaracion_propietario.required' => 'Debés marcar la declaración jurada: confirmás que sos propietario/a de la propiedad o que tenés autorización formal para publicarla.',
+            'declaracion_propietario.accepted' => 'Tenés que aceptar la declaración jurada de propietario/autorización para poder publicar.',
+            'titulo.required' => 'El título de la publicación es obligatorio.',
+            'descripcion.required' => 'La descripción es obligatoria.',
+            'precio.required' => 'El precio es obligatorio.',
+            'superficie_cubierta.required' => 'La superficie cubierta es obligatoria.',
+            'habitaciones.required' => 'Indicá la cantidad de dormitorios (0 si no aplica).',
+            'banos.required' => 'Indicá la cantidad de baños (0 si no aplica).',
+        ];
+    }
+
     // Normaliza el JSON de proximidades enviado por el formulario: [{nombre, metros}], máx 12, saneado
     public static function normalizarProximidades(?string $json): array
     {
@@ -134,7 +149,7 @@ class InmuebleController extends Controller
         // Log de todas las variables del request
         Log::info('Request Data:', $request->all());
 
-        $data = $request->validate(static::reglasValidacion());
+        $data = $request->validate(static::reglasValidacion(), static::mensajesValidacion());
 
         // Asigna 1 si se marca la opción, de lo contrario 0
         $data['piscina']  = $request->has('piscina') ? 1 : 0;
@@ -218,7 +233,7 @@ class InmuebleController extends Controller
     {
         $yaPublicado = (bool) $inmueble->publicado;
 
-        $data = $request->validate(static::reglasValidacion());
+        $data = $request->validate(static::reglasValidacion(), static::mensajesValidacion());
 
         // Gestionar prestaciones: asignar 1 si se marca, 0 si no se envía
         $data['piscina']  = $request->has('piscina') ? 1 : 0;

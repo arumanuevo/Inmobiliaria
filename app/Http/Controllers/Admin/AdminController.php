@@ -209,7 +209,7 @@ class AdminController extends Controller
     {
         $inmobiliaria = Inmobiliaria::findOrFail($id);
 
-        $data = $request->validate(InmuebleController::reglasValidacion());
+        $data = $request->validate(InmuebleController::reglasValidacion(), InmuebleController::mensajesValidacion());
 
         $data['piscina']  = $request->has('piscina') ? 1 : 0;
         $data['jardin']   = $request->has('jardin') ? 1 : 0;
