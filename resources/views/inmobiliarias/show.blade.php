@@ -398,6 +398,7 @@
                   @endif
                 </ul>
                 @include('inmuebles.partials.proximidades', ['inmueble' => $inmueble])
+                @include('inmuebles.partials.entorno', ['inmueble' => $inmueble])
                 @if($inmueble->piscina || $inmueble->jardin || $inmueble->garaje || $inmueble->ascensor)
                   <div class="mb-3">
                     @if($inmueble->piscina)<span class="badge text-bg-light border me-1"><i class="fas fa-swimmer me-1"></i>Piscina</span>@endif

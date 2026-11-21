@@ -111,6 +111,15 @@
                         </select>
                         <div class="form-text small">Elegí la categoría más adecuada: vivienda, comercial/industrial (local, oficina, galpón) o terreno.</div>
                     </div>
+                    <div class="col-md-6">
+                        <label for="uso_detalle" class="form-label fw-bold">Uso / habilitación <small class="text-muted fw-normal">(si es comercial: kiosco, tienda, gastronomía…)</small></label>
+                        <input type="text" name="uso_detalle" id="uso_detalle" class="form-control" maxlength="120" list="uso-comercial-suggest" value="{{ old('uso_detalle') }}" placeholder="Ej: Kiosco, tienda de ropa, oficina...">
+                        <datalist id="uso-comercial-suggest">
+                            @foreach(\App\Models\Inmueble::usosComercialesSugeridos() as $u)
+                                <option value="{{ $u }}">
+                            @endforeach
+                        </datalist>
+                    </div>
                 </div>
             </div>
         </div>

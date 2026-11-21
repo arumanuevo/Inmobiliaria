@@ -41,6 +41,9 @@
                         @if($inmueble->carga_asistida)
                             <span class="badge badge-info" title="Cargada por el administrador (carga asistida)"><i class="fas fa-hands-helping"></i> carga asistida</span>
                         @endif
+                        @if($inmueble->puntaje_entorno !== null)
+                            <span class="badge badge-success" title="Puntaje de entorno calculado con OpenStreetMap (arteria, transporte, comercios, servicios)"><i class="fas fa-chart-line"></i> {{ $inmueble->puntaje_entorno }}/100</span>
+                        @endif
                     </td>
                     <td>{{ ucfirst($inmueble->tipo_operacion) }}</td>
                     <td>{{ $inmueble->inmobiliaria->nombre_comercial ?? '-' }}</td>

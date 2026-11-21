@@ -56,6 +56,9 @@
               @if($property->tipo_propiedad)
                 <span class="badge rounded-pill text-bg-light border">{{ \App\Models\Inmueble::tiposPropiedad()[$property->tipo_propiedad] ?? ucfirst($property->tipo_propiedad) }}</span>
               @endif
+              @if($property->puntaje_entorno !== null)
+                <span class="badge rounded-pill text-bg-light border" title="Puntaje de entorno (GIS)"><i class="fas fa-chart-line me-1" style="color:#059669;"></i>{{ $property->puntaje_entorno }}/100</span>
+              @endif
             </div>
             <span class="precio">{{ $property->precio_formateado }}</span>
           </div>
@@ -151,6 +154,7 @@
                   @endif
                 </ul>
                 @include('inmuebles.partials.proximidades', ['inmueble' => $property])
+                @include('inmuebles.partials.entorno', ['inmueble' => $property])
                 <p class="mb-1 text-muted small"><i class="fas fa-map-marker-alt detalle-ico me-2"></i>{{ $property->direccion }}, {{ $property->ciudad }}, {{ $property->estado }}</p>
                 <p class="mb-2 text-muted small"><strong>Anunciante:</strong> {{ $property->inmobiliaria->nombre_comercial ?? '' }}</p>
                 @if($property->descripcion)

@@ -331,7 +331,7 @@
                 @else
                   <span class="badge bg-primary"><i class="fas fa-building me-1"></i> Inmobiliaria</span>
                 @endif
-                <small class="text-muted">{{ ucfirst($inmueble->tipo_operacion) }}@if($inmueble->tipo_propiedad) &middot; {{ \App\Models\Inmueble::tiposPropiedad()[$inmueble->tipo_propiedad] ?? ucfirst($inmueble->tipo_propiedad) }}@endif</small>
+                <small class="text-muted">{{ ucfirst($inmueble->tipo_operacion) }}@if($inmueble->tipo_propiedad) &middot; {{ \App\Models\Inmueble::tiposPropiedad()[$inmueble->tipo_propiedad] ?? ucfirst($inmueble->tipo_propiedad) }}@endif@if($inmueble->puntaje_entorno !== null) &middot; <i class="fas fa-chart-line"></i> {{ $inmueble->puntaje_entorno }}/100 @endif</small>
               </div>
               <h5 class="card-title"><a href="{{ route('propiedad.show', [$inmueble->inmobiliaria->slug, $inmueble->id]) }}" class="text-decoration-none text-dark">{{ $inmueble->titulo }}</a></h5>
               <p class="card-text text-muted mb-1 small">{{ $inmueble->inmobiliaria->nombre_comercial ?? '' }}</p>
@@ -421,6 +421,7 @@
                       @endif
                     </ul>
                     @include('inmuebles.partials.proximidades', ['inmueble' => $inmueble])
+                    @include('inmuebles.partials.entorno', ['inmueble' => $inmueble])
                     @if($inmueble->piscina || $inmueble->jardin || $inmueble->garaje || $inmueble->ascensor)
                       <div class="mb-3">
                         @if($inmueble->piscina)<span class="badge text-bg-light border me-1"><i class="fas fa-swimmer me-1"></i>Piscina</span>@endif

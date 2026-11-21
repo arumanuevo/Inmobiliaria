@@ -15,7 +15,8 @@ class Inmueble extends Model
         'piscina', 'jardin', 'garaje', 'ascensor', 'fotos', 'destacado', 'publicado', 'visitas',
         'cerrada', 'tipo_cierre', 'cerrada_at',
         'comision_porcentaje', 'comision_monto', 'comision_estado', 'comision_cobrada_at',
-        'carga_asistida', 'declaracion_propietario', 'proximidades',
+        'carga_asistida', 'declaracion_propietario', 'proximidades', 'uso_detalle',
+        'puntaje_entorno', 'puntaje_entorno_detalle', 'puntaje_entorno_at',
         'propdom', 'propnombre', 'propdni', 'propemail', 'proptel'
     ];
 
@@ -31,6 +32,9 @@ class Inmueble extends Model
         'carga_asistida' => 'boolean',
         'declaracion_propietario' => 'boolean',
         'proximidades' => 'array',
+        'puntaje_entorno' => 'integer',
+        'puntaje_entorno_detalle' => 'array',
+        'puntaje_entorno_at' => 'datetime',
     ];
 
     public static function tiposPropiedad(): array
@@ -69,6 +73,28 @@ class Inmueble extends Model
     public function esComercial(): bool
     {
         return in_array($this->tipo_propiedad, static::tiposComerciales(), true);
+    }
+
+    // Sugerencias de uso/habilitación para el datalist del formulario (comerciales)
+    public static function usosComercialesSugeridos(): array
+    {
+        return [
+            'Kiosco', 'Tienda de ropa / calzado', 'Gastronomía / bar', 'Cafetería', 'Panadería',
+            'Carnicería / verdulería', 'Farmacia', 'Peluquería', 'Gimnasio', 'Consultorio',
+            'Oficina administrativa', 'Estudio profesional', 'Showroom', 'Depósito / logística',
+            'Industria liviana', 'Taller mecánico', 'Lavadero de autos', 'Salón de eventos', 'Almacén',
+        ];
+    }
+
+    // Etiqueta/color del puntaje de entorno (0-100) para mostrar en fichas y tarjetas
+    public function puntajeEntornoLabel(): ?array
+    {
+        if ($this->puntaje_entorno === null) { return null; }
+        $p = (int) $this->puntaje_entorno;
+        if ($p >= 75) { return ['texto' => 'Ubicación premium', 'color' => '#059669', 'bg' => '#ecfdf5', 'borde' => '#a7f3d0']; }
+        if ($p >= 50) { return ['texto' => 'Buena ubicación', 'color' => '#2563eb', 'bg' => '#eff6ff', 'borde' => '#bfdbfe']; }
+        if ($p >= 25) { return ['texto' => 'Ubicación regular', 'color' => '#b45309', 'bg' => '#fffbeb', 'borde' => '#fde68a']; }
+        return ['texto' => 'Baja circulación', 'color' => '#6b7280', 'bg' => '#f3f4f6', 'borde' => '#e5e7eb'];
     }
 
     public function getPrecioFormateadoAttribute(): string

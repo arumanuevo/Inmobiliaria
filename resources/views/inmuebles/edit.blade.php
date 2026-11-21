@@ -43,6 +43,15 @@
                         </select>
                     </div>
                     <div class="col-md-4 form-group">
+                        <label for="uso_detalle">Uso / habilitación <small class="text-muted">(si es comercial)</small></label>
+                        <input type="text" name="uso_detalle" id="uso_detalle" class="form-control" maxlength="120" list="uso-comercial-suggest" value="{{ old('uso_detalle', $inmueble->uso_detalle) }}" placeholder="Ej: Kiosco, gastronomía, oficina...">
+                        <datalist id="uso-comercial-suggest">
+                            @foreach(\App\Models\Inmueble::usosComercialesSugeridos() as $u)
+                                <option value="{{ $u }}">
+                            @endforeach
+                        </datalist>
+                    </div>
+                    <div class="col-md-4 form-group">
                         <label for="moneda">Moneda</label>
                         <select name="moneda" id="moneda" class="form-control">
                             <option value="ARS" {{ old('moneda', $inmueble->moneda ?? 'ARS') == 'ARS' ? 'selected' : '' }}>Pesos (ARS $)</option>
@@ -135,6 +144,18 @@
                     <div id="resultados-mapa" class="list-group mb-1"></div>
                     <div id="mapa-inmueble" style="height: 320px; border-radius: 6px; border: 1px solid #ccc;"></div>
                     <small class="text-muted">Ayuda: escribí la dirección y elegí un resultado (o apretá Buscar), o hacé clic directamente en el mapa. Las coordenadas se completan solas.</small>
+                </div>
+                <div class="form-group">
+                    @if($inmueble->puntaje_entorno !== null)
+                        @php $pe = $inmueble->puntajeEntornoLabel(); @endphp
+                        <div class="alert alert-light border d-flex align-items-center justify-content-between mb-0 py-2">
+                            <span><i class="fas fa-chart-line me-1" style="color: {{ $pe['color'] }};"></i> Puntaje de entorno: <strong>{{ $inmueble->puntaje_entorno }}/100</strong> ({{ $pe['texto'] }})</span>
+                            <form action="{{ route('inmuebles.recalcularEntorno', $inmueble) }}" method="POST" class="mb-0">@csrf<button type="submit" class="btn btn-outline-primary btn-sm rounded-pill"><i class="fas fa-sync-alt me-1"></i>Recalcular</button></form>
+                        </div>
+                    @else
+                        <form action="{{ route('inmuebles.recalcularEntorno', $inmueble) }}" method="POST" class="mb-0">@csrf<button type="submit" class="btn btn-outline-secondary btn-sm rounded-pill"><i class="fas fa-sync-alt me-1"></i>Calcular puntaje de entorno</button></form>
+                        <small class="text-muted d-block mt-1">Se calcula con OpenStreetMap según lo que rodea al inmueble: arteria, transporte, comercios y servicios cercanos.</small>
+                    @endif
                 </div>
 
                 <!-- Prestaciones -->

@@ -222,8 +222,13 @@ class AdminController extends Controller
         $data['inmobiliaria_id'] = $inmobiliaria->id;
         $data['usuario_id'] = $inmobiliaria->usuario_id;
         $data['carga_asistida'] = 1;
+        $data['proximidades'] = InmuebleController::normalizarProximidades($request->input('proximidades_json')) ?: null;
+        unset($data['proximidades_json']);
 
         $inmueble = Inmueble::create($data);
+
+        // Puntaje de entorno GIS (Overpass/OSM) si hay coordenadas
+        InmuebleController::puntuarEntorno($inmueble);
 
         if ($request->hasFile('imagenes')) {
             $images = $request->file('imagenes');

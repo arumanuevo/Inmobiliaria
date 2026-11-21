@@ -73,7 +73,43 @@ class InmuebleController extends Controller
             'declaracion_propietario' => ['required', 'accepted'],
             // Proximidades / ventajas del entorno (JSON desde el repeater del form)
             'proximidades_json' => 'nullable|string|max:6000',
+            // Uso / habilitación para comerciales (kiosco, tienda de ropa, gastronomía...)
+            'uso_detalle' => 'nullable|string|max:120',
         ];
+    }
+
+    // Calcula el puntaje de entorno (Overpass/OSM) si el inmueble tiene coordenadas.
+    // Nunca rompe el guardado: ante cualquier falla queda sin puntaje.
+    public static function puntuarEntorno(Inmueble $inmueble): void
+    {
+        try {
+            $raw = trim((string) ($inmueble->coordenadas ?? ''));
+            if ($raw === '' || strpos($raw, ',') === false) { return; }
+            $p = array_map('trim', explode(',', $raw));
+            if (count($p) !== 2 || !is_numeric($p[0]) || !is_numeric($p[1])) { return; }
+            $res = \App\Services\PuntajeEntornoService::calcular((float) $p[0], (float) $p[1]);
+            if ($res) {
+                $inmueble->puntaje_entorno = $res['puntaje'];
+                $inmueble->puntaje_entorno_detalle = $res['detalle'];
+                $inmueble->puntaje_entorno_at = now();
+                $inmueble->save();
+            }
+        } catch (\Throwable $e) {
+            Log::warning('puntuarEntorno falló', ['inmueble_id' => $inmueble->id, 'error' => $e->getMessage()]);
+        }
+    }
+
+    // Botón "Recalcular puntaje" en la edición
+    public function recalcularEntorno(Inmueble $inmueble)
+    {
+        $this->authorize('update', $inmueble);
+        if (trim((string) ($inmueble->coordenadas ?? '')) === '') {
+            return back()->with('error', 'La propiedad necesita coordenadas (geocodificá la dirección en el mapa) para calcular el puntaje.');
+        }
+        static::puntuarEntorno($inmueble);
+        return back()->with('success', $inmueble->puntaje_entorno !== null
+            ? 'Puntaje de entorno recalculado: ' . $inmueble->puntaje_entorno . '/100.'
+            : 'No se pudo calcular ahora (servicio de mapas no disponible). Probá de nuevo en un rato.');
     }
 
     // Normaliza el JSON de proximidades enviado por el formulario: [{nombre, metros}], máx 12, saneado
@@ -131,6 +167,9 @@ class InmuebleController extends Controller
         }
 
         $inmueble = Inmueble::create($data);
+
+        // Puntaje de entorno GIS (Overpass/OSM) si hay coordenadas
+        static::puntuarEntorno($inmueble);
 
         // Guardado directo de imágenes si fueron adjuntadas en el alta
         if ($request->hasFile('imagenes')) {
@@ -196,6 +235,9 @@ class InmuebleController extends Controller
         $this->authorize('update', $inmueble);
 
         $inmueble->update($data);
+
+        // Recalcular puntaje de entorno si cambiaron las coordenadas
+        static::puntuarEntorno($inmueble);
 
         // Si pasó de borrador a publicado, avisar a las búsquedas guardadas
         if (!$yaPublicado && $inmueble->publicado) {

@@ -127,7 +127,30 @@
         @if($inmueble->estado_propiedad)
           <span class="badge bg-info text-dark">{{ ['a_estrenar'=>'A estrenar','usado'=>'Usado / buen estado','a_refaccionar'=>'A refaccionar','en_construccion'=>'En construcción'][$inmueble->estado_propiedad] ?? $inmueble->estado_propiedad }}</span>
         @endif
+        @if($inmueble->uso_detalle)
+          <span class="badge text-bg-light border"><i class="fas fa-store me-1"></i>{{ $inmueble->uso_detalle }}</span>
+        @endif
       </p>
+
+      @if($inmueble->puntaje_entorno !== null)
+        @php
+          $pe = $inmueble->puntajeEntornoLabel();
+          $peDet = is_array($inmueble->puntaje_entorno_detalle) ? $inmueble->puntaje_entorno_detalle : [];
+        @endphp
+        <div class="mb-3">
+          <span class="badge" style="background: {{ $pe['bg'] }}; color: {{ $pe['color'] }}; border: 1px solid {{ $pe['borde'] }}; font-size: .85rem; padding: 6px 12px;">
+            <i class="fas fa-chart-line me-1"></i> Puntaje de entorno: <strong>{{ $inmueble->puntaje_entorno }}/100</strong> — {{ $pe['texto'] }}
+          </span>
+          @if(!empty($peDet))
+            <div class="small text-muted mt-1">
+              @if(!empty($peDet['arteria']))<span class="me-2"><i class="fas fa-road me-1"></i>{{ $peDet['arteria']['label'] }} (+{{ $peDet['arteria']['puntos'] }})</span>@endif
+              @if(!empty($peDet['transporte']))<span class="me-2"><i class="fas fa-bus me-1"></i>{{ $peDet['transporte']['estaciones_tren_subte'] ?? 0 }} est. tren/subte · {{ $peDet['transporte']['paradas_bus'] ?? 0 }} paradas (+{{ $peDet['transporte']['puntos'] ?? 0 }})</span>@endif
+              @if(!empty($peDet['comercio']))<span class="me-2"><i class="fas fa-store me-1"></i>{{ $peDet['comercio']['cantidad'] ?? 0 }} comercios (+{{ $peDet['comercio']['puntos'] ?? 0 }})</span>@endif
+              @if(!empty($peDet['servicios']))<span class="me-2"><i class="fas fa-concierge-bell me-1"></i>{{ $peDet['servicios']['cantidad'] ?? 0 }} servicios (+{{ $peDet['servicios']['puntos'] ?? 0 }})</span>@endif
+            </div>
+          @endif
+        </div>
+      @endif
 
       <h2 class="h4 fw-bold mb-3" style="color: {{ $inmobiliaria->color_tema ?: '#0d6efd' }};">{{ $inmueble->precio_formateado }}
         @if($inmueble->expensas)<small class="text-muted fw-normal">+ ${{ number_format($inmueble->expensas, 2) }} expensas</small>@endif
