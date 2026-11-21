@@ -331,7 +331,17 @@
                 @else
                   <span class="badge bg-primary"><i class="fas fa-building me-1"></i> Inmobiliaria</span>
                 @endif
-                <small class="text-muted">{{ ucfirst($inmueble->tipo_operacion) }}@if($inmueble->tipo_propiedad) &middot; {{ \App\Models\Inmueble::tiposPropiedad()[$inmueble->tipo_propiedad] ?? ucfirst($inmueble->tipo_propiedad) }}@endif@if($inmueble->puntaje_entorno !== null) &middot; <i class="fas fa-chart-line"></i> {{ $inmueble->puntaje_entorno }}/100 @endif</small>
+                @php
+                  // OJO: nunca juntar @endif@if (la letra antes del @ hace que Blade no compile el @if y explote con "unexpected endif")
+                  $lineaTipo = ucfirst($inmueble->tipo_operacion);
+                  if ($inmueble->tipo_propiedad) {
+                      $lineaTipo .= ' &middot; ' . (\App\Models\Inmueble::tiposPropiedad()[$inmueble->tipo_propiedad] ?? ucfirst($inmueble->tipo_propiedad));
+                  }
+                  if ($inmueble->puntaje_entorno !== null) {
+                      $lineaTipo .= ' &middot; <i class="fas fa-chart-line"></i> ' . $inmueble->puntaje_entorno . '/100';
+                  }
+                @endphp
+                <small class="text-muted">{!! $lineaTipo !!}</small>
               </div>
               <h5 class="card-title"><a href="{{ route('propiedad.show', [$inmueble->inmobiliaria->slug, $inmueble->id]) }}" class="text-decoration-none text-dark">{{ $inmueble->titulo }}</a></h5>
               <p class="card-text text-muted mb-1 small">{{ $inmueble->inmobiliaria->nombre_comercial ?? '' }}</p>
