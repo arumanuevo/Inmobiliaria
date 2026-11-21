@@ -84,7 +84,8 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
 
 // Rutas para el CRUD de Inmuebles (admin e inmobiliarias; cada una solo gestiona lo suyo)
 Route::resource('inmuebles', InmuebleController::class);
-Route::post('inmuebles/{inmueble}/recalcular-entorno', [InmuebleController::class, 'recalcularEntorno'])->name('inmuebles.recalcularEntorno');
+// OJO: el form de edición manda _method=PUT (resource update), así que aceptamos POST y PUT
+Route::match(['post', 'put'], 'inmuebles/{inmueble}/recalcular-entorno', [InmuebleController::class, 'recalcularEntorno'])->name('inmuebles.recalcularEntorno');
 Route::get('inmuebles/{inmueble}/add-photos', [InmuebleController::class, 'addPhotos'])->name('inmuebles.addPhotos');
 Route::post('inmuebles/{id}/store-photos', [InmuebleController::class, 'storePhotos'])->name('inmuebles.storePhotos');
 Route::get('inmuebles/{inmueble}/delete-photos', [InmuebleController::class, 'deletePhotos'])->name('inmuebles.deletePhotos');
