@@ -27,6 +27,11 @@
           'url' => ($preview && !$i->publicado) ? route('inmuebles.edit', $i->id) : route('propiedad.show', [$inmobiliaria->slug, $i->id]),
       ];
   })->filter()->values();
+  $brand = $inmobiliaria->color_tema ?: '#6366f1';
+  // OJO: @json(expr) de Blade hace explode(',') del argumento -> no usar expresiones con comas adentro
+  $oficinaPopup = '<strong>' . e($inmobiliaria->nombre_comercial) . '</strong><br>'
+      . e(trim(($inmobiliaria->direccion ? $inmobiliaria->direccion . ', ' : '') . $inmobiliaria->ciudad . ', ' . $inmobiliaria->provincia, ', '))
+      . '<br><small>Oficina</small>';
 @endphp
 
 @section('title', $inmobiliaria->nombre_comercial . ($preview ? ' (vista previa)' : ''))
@@ -378,7 +383,7 @@
 document.addEventListener('DOMContentLoaded', function () {
     var div = document.getElementById('mapa-perfil');
     if (!div || typeof L === 'undefined') { return; }
-    var brand = @json($inmobiliaria->color_tema ?: '#6366f1');
+    var brand = @json($brand);
     var props = @json($markers);
     var map = L.map('mapa-perfil', { scrollWheelZoom: false });
     var osm = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -410,7 +415,7 @@ document.addEventListener('DOMContentLoaded', function () {
     });
     @if($oficinaCoords)
     L.marker([{{ (float) $inmobiliaria->lat }}, {{ (float) $inmobiliaria->lng }}], { icon: pin('#101828') }).addTo(layer)
-      .bindPopup(@json('<strong>' . e($inmobiliaria->nombre_comercial) . '</strong><br>' . e(trim(($inmobiliaria->direccion ? $inmobiliaria->direccion . ', ' : '') . $inmobiliaria->ciudad . ', ' . $inmobiliaria->provincia, ', ')) . '<br><small>Oficina</small>'));
+      .bindPopup(@json($oficinaPopup));
     @endif
     if (layer.getLayers().length > 0) {
       map.fitBounds(layer.getBounds().pad(0.15));
