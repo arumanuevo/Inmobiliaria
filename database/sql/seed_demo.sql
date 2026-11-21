@@ -86,6 +86,22 @@ SET @ddl := IF(@c=0, 'ALTER TABLE `inmobiliarias` ADD COLUMN `galeria` TEXT NULL
 PREPARE s FROM @ddl; EXECUTE s; DEALLOCATE PREPARE s;
 
 -- ============================================================
+-- 0c) Columnas de personalización del perfil público (si no
+--     corriste saas_personalizacion.sql todavía)
+-- ============================================================
+SET @c := (SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME='inmobiliarias' AND COLUMN_NAME='mostrar_operaciones');
+SET @ddl := IF(@c=0, 'ALTER TABLE `inmobiliarias` ADD COLUMN `mostrar_operaciones` TINYINT(1) NOT NULL DEFAULT 1', 'SELECT ''ok'' AS msg');
+PREPARE s FROM @ddl; EXECUTE s; DEALLOCATE PREPARE s;
+
+SET @c := (SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME='inmobiliarias' AND COLUMN_NAME='mostrar_mapa');
+SET @ddl := IF(@c=0, 'ALTER TABLE `inmobiliarias` ADD COLUMN `mostrar_mapa` TINYINT(1) NOT NULL DEFAULT 1', 'SELECT ''ok'' AS msg');
+PREPARE s FROM @ddl; EXECUTE s; DEALLOCATE PREPARE s;
+
+SET @c := (SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME='inmobiliarias' AND COLUMN_NAME='mostrar_redes');
+SET @ddl := IF(@c=0, 'ALTER TABLE `inmobiliarias` ADD COLUMN `mostrar_redes` TINYINT(1) NOT NULL DEFAULT 1', 'SELECT ''ok'' AS msg');
+PREPARE s FROM @ddl; EXECUTE s; DEALLOCATE PREPARE s;
+
+-- ============================================================
 -- 0b) TABLA busquedas_guardadas y columnas de contactos (si no
 --     corriste saas_alertas.sql / saas_multi_inmobiliaria.sql)
 -- ============================================================
@@ -171,6 +187,9 @@ SELECT u.`id`, p.`id`, 'Juan Demo (particular)','demo-juan',
 FROM `users` u JOIN `planes` p ON p.`slug`='particular'
 WHERE u.`email`='demo3@seed.local'
 AND NOT EXISTS (SELECT 1 FROM `inmobiliarias` WHERE `slug`='demo-juan');
+
+-- Activar mapa / redes / operaciones en los perfiles demo (idempotente; las columnas ya existen por el bloque 0c)
+UPDATE `inmobiliarias` SET `mostrar_mapa`=1, `mostrar_redes`=1, `mostrar_operaciones`=1 WHERE `slug` LIKE 'demo-%';
 
 -- ============================================================
 -- 4) PROPIEDADES DEMO (fotos = imágenes demo ya existentes en public/images/fotosinmuebles)

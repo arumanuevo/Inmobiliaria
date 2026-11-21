@@ -8,6 +8,25 @@
   $radiusCard = ['moderno' => '14px', 'elegante' => '6px', 'minimal' => '18px', 'corporativo' => '8px'][$tema] ?? '14px';
   $fuenteTitulos = $tema === 'elegante' ? 'Georgia, "Times New Roman", serif' : null;
   $fuenteBody = $tema === 'corporativo' ? 'Arial, Helvetica, sans-serif' : null;
+  // Mapa del perfil: se muestra si mostrar_mapa está activo y hay oficina con coords o propiedades geocodificadas
+  $oficinaCoords = $inmobiliaria->lat && $inmobiliaria->lng;
+  $tieneMapa = (bool) $inmobiliaria->mostrar_mapa && ($oficinaCoords || $inmueblesMapa->count() > 0);
+  $zonas = array_values(array_filter(array_map('trim', explode(',', (string) $inmobiliaria->zonas_cobertura))));
+  // Markers de propiedades para el mapa (lat,lng viene como "lat,lng" en coordenadas)
+  $markers = $inmueblesMapa->map(function ($i) use ($inmobiliaria, $preview) {
+      $p = array_map('trim', explode(',', (string) $i->coordenadas));
+      if (count($p) !== 2 || !is_numeric($p[0]) || !is_numeric($p[1])) { return null; }
+      $fotos = $i->fotos ?? [];
+      return [
+          'lat' => (float) $p[0],
+          'lng' => (float) $p[1],
+          'titulo' => e((string) $i->titulo),
+          'precio' => $i->precio_formateado,
+          'ciudad' => e((string) ($i->ciudad ?: '')),
+          'foto' => !empty($fotos) ? asset('images/fotosinmuebles/' . $fotos[0]) : null,
+          'url' => ($preview && !$i->publicado) ? route('inmuebles.edit', $i->id) : route('propiedad.show', [$inmobiliaria->slug, $i->id]),
+      ];
+  })->filter()->values();
 @endphp
 
 @section('title', $inmobiliaria->nombre_comercial . ($preview ? ' (vista previa)' : ''))
@@ -15,7 +34,7 @@
 @section('css')
 <link rel="stylesheet" href="{{ asset('css/landing.css') }}">
 <link rel="stylesheet" href="{{ asset('css/navbar.css') }}">
-@if($inmobiliaria->mostrar_mapa && $inmobiliaria->lat && $inmobiliaria->lng)
+@if($tieneMapa)
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 @endif
 <style>
@@ -138,6 +157,14 @@
         @if($inmobiliaria->email)
           <p class="mb-1"><i class="fas fa-envelope"></i> {{ $inmobiliaria->email }}</p>
         @endif
+        @if(!empty($zonas))
+          <p class="mb-1"><i class="fas fa-map-marked-alt me-1"></i>
+            @foreach($zonas as $zona)
+              <span class="badge" style="background: rgba(255,255,255,.18); color:#fff; font-weight:500;">{{ $zona }}</span>
+            @endforeach
+          </p>
+        @endif
+        <p class="mb-1"><span class="badge bg-light text-dark"><i class="fas fa-home"></i> {{ $inmuebles->total() }} {{ Str::plural('propiedad', $inmuebles->total()) }} {{ $preview ? 'en total' : 'publicada(s)' }}</span></p>
         @if($inmobiliaria->mostrar_redes)
           <p class="mb-1">
             @if($inmobiliaria->facebook)<a href="{{ $inmobiliaria->facebook }}" target="_blank" class="text-white me-2" title="Facebook"><i class="fab fa-facebook fa-lg"></i></a>@endif
@@ -175,11 +202,17 @@
     </div>
   @endif
 
-  @if($inmobiliaria->mostrar_mapa && $inmobiliaria->lat && $inmobiliaria->lng)
+  @if($tieneMapa)
     <div class="card shadow-sm mb-4">
       <div class="card-body">
-        <h5 class="mb-2"><i class="fas fa-map-marker-alt me-1"></i> Nuestra oficina</h5>
-        <div id="mapa-oficina" style="height: 260px; border-radius: 10px;"></div>
+        <h5 class="mb-2"><i class="fas fa-map-marked-alt me-1"></i> Mapa: propiedades y oficina</h5>
+        <div id="mapa-perfil" style="height: 340px; border-radius: 10px;"></div>
+        <small class="text-muted d-block mt-2">
+          <span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:{{ $inmobiliaria->color_tema ?: '#6366f1' }};margin-right:4px;vertical-align:middle;"></span> Propiedad
+          @if($oficinaCoords)
+            &nbsp;&middot;&nbsp; <span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#101828;margin-right:4px;vertical-align:middle;"></span> Oficina
+          @endif
+        </small>
       </div>
     </div>
   @endif
@@ -339,16 +372,52 @@
 @stop
 
 @section('js')
-@if($inmobiliaria->mostrar_mapa && $inmobiliaria->lat && $inmobiliaria->lng)
+@if($tieneMapa)
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-    var div = document.getElementById('mapa-oficina');
+    var div = document.getElementById('mapa-perfil');
     if (!div || typeof L === 'undefined') { return; }
-    var map = L.map('mapa-oficina', { scrollWheelZoom: false }).setView([{{ (float) $inmobiliaria->lat }}, {{ (float) $inmobiliaria->lng }}], 15);
-    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '&copy; OpenStreetMap' }).addTo(map);
-    L.marker([{{ (float) $inmobiliaria->lat }}, {{ (float) $inmobiliaria->lng }}]).addTo(map)
-        .bindPopup({{ \Illuminate\Support\Json::encode($inmobiliaria->nombre_comercial . ' · ' . trim(($inmobiliaria->direccion ? $inmobiliaria->direccion . ', ' : '') . $inmobiliaria->ciudad, ', ')) }).openPopup();
+    var brand = @json($inmobiliaria->color_tema ?: '#6366f1');
+    var props = @json($markers);
+    var map = L.map('mapa-perfil', { scrollWheelZoom: false });
+    var osm = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+    });
+    var sat = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+      maxZoom: 19, maxNativeZoom: 18, attribution: 'Tiles &copy; Esri'
+    });
+    L.control.layers({ 'Callejera (OSM)': osm, 'Satelital (Esri)': sat }, null, { position: 'topright' }).addTo(map);
+    osm.addTo(map);
+    var layer = L.featureGroup().addTo(map);
+    var pin = function (color) {
+      return L.divIcon({
+        className: '',
+        html: '<div style="width:16px;height:16px;border-radius:50%;background:' + color + ';border:3px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.45);"></div>',
+        iconSize: [16, 16], iconAnchor: [8, 8]
+      });
+    };
+    props.forEach(function (p) {
+      var html = '<div style="min-width:200px;max-width:240px;">' +
+        (p.foto ? '<img src="' + p.foto + '" style="width:100%;height:110px;object-fit:cover;border-radius:6px;margin-bottom:6px;">' : '') +
+        '<div class="fw-bold mb-1">' + p.titulo + '</div>' +
+        '<div class="fw-bold mb-1" style="color:' + brand + ';">' + p.precio + '</div>' +
+        (p.ciudad ? '<div class="small text-muted mb-1">' + p.ciudad + '</div>' : '') +
+        '<a href="' + p.url + '" class="btn btn-sm w-100" style="background:' + brand + ';color:#fff;">Ver propiedad</a>' +
+        '</div>';
+      L.marker([p.lat, p.lng], { icon: pin(brand) }).addTo(layer).bindPopup(html);
+    });
+    @if($oficinaCoords)
+    L.marker([{{ (float) $inmobiliaria->lat }}, {{ (float) $inmobiliaria->lng }}], { icon: pin('#101828') }).addTo(layer)
+      .bindPopup(@json('<strong>' . e($inmobiliaria->nombre_comercial) . '</strong><br>' . e(trim(($inmobiliaria->direccion ? $inmobiliaria->direccion . ', ' : '') . $inmobiliaria->ciudad . ', ' . $inmobiliaria->provincia, ', ')) . '<br><small>Oficina</small>'));
+    @endif
+    if (layer.getLayers().length > 0) {
+      map.fitBounds(layer.getBounds().pad(0.15));
+    } else {
+      map.setView([-38.5, -64.5], 5);
+    }
+    setTimeout(function () { map.invalidateSize(); }, 250);
 });
 </script>
 @endif

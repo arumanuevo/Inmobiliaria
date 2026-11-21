@@ -50,7 +50,15 @@ class InmobiliariaController extends Controller
             ->latest()
             ->paginate(9);
 
-        return view('inmobiliarias.show', compact('inmobiliaria', 'destacados', 'inmuebles'));
+        // Propiedades publicadas con coordenadas para el mapa del perfil ("espacio digital")
+        $inmueblesMapa = $inmobiliaria->inmueblesPublicados()
+            ->whereNotNull('coordenadas')
+            ->where('coordenadas', '!=', '')
+            ->where('coordenadas', 'like', '%,%')
+            ->latest()
+            ->get(['id', 'titulo', 'coordenadas', 'precio', 'moneda', 'fotos', 'ciudad', 'tipo_operacion', 'publicado']);
+
+        return view('inmobiliarias.show', compact('inmobiliaria', 'destacados', 'inmuebles', 'inmueblesMapa'));
     }
 
     // Ficha pública individual de una propiedad (SEO) dentro del perfil de su inmobiliaria
@@ -119,9 +127,15 @@ class InmobiliariaController extends Controller
 
         $destacados = $inmobiliaria->inmuebles()->where('destacado', 1)->latest()->get();
         $inmuebles = $inmobiliaria->inmuebles()->latest()->paginate(9);
+        $inmueblesMapa = $inmobiliaria->inmuebles()
+            ->whereNotNull('coordenadas')
+            ->where('coordenadas', '!=', '')
+            ->where('coordenadas', 'like', '%,%')
+            ->latest()
+            ->get(['id', 'titulo', 'coordenadas', 'precio', 'moneda', 'fotos', 'ciudad', 'tipo_operacion', 'publicado']);
         $preview = true;
 
-        return view('inmobiliarias.show', compact('inmobiliaria', 'destacados', 'inmuebles', 'preview'));
+        return view('inmobiliarias.show', compact('inmobiliaria', 'destacados', 'inmuebles', 'inmueblesMapa', 'preview'));
     }
 
     // Formulario del perfil editable por la propia inmobiliaria
