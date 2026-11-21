@@ -68,6 +68,14 @@
     display: inline-flex; align-items: center; justify-content: center;
   }
   .property-card img { height: 200px; object-fit: cover; }
+  /* Modal de detalle: scrollable (el body hace scroll, header/footer quedan fijos) y en 2 columnas en pantallas grandes */
+  .perfil-modal .modal-content { border: none; border-radius: 18px; overflow: hidden; }
+  .perfil-modal .modal-img { height: 240px; object-fit: cover; }
+  @media (min-width: 992px) {
+    .perfil-modal .modal-img { height: 420px; }
+  }
+  .perfil-modal .detalle-ico { color: {{ $inmobiliaria->color_tema ?: '#0d6efd' }}; }
+  .perfil-modal .detalle-item { font-size: .92rem; }
   .footer {
     background-color: #343a40;
     color: white;
@@ -300,57 +308,6 @@
         </div>
       </div>
 
-      <!-- Modal -->
-      <div class="modal fade" id="propertyModal{{ $inmueble->id }}" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-lg">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h5 class="modal-title">{{ $inmueble->titulo }}</h5>
-              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-              @if(!empty($inmueble->fotos))
-                <div id="modalCarousel{{ $inmueble->id }}" class="carousel slide" data-bs-ride="carousel">
-                  <div class="carousel-inner">
-                    @foreach(($inmueble->fotos ?? []) as $index => $foto)
-                      <div class="carousel-item {{ $index === 0 ? 'active' : '' }}">
-                        <img src="{{ asset('images/fotosinmuebles/' . $foto) }}" class="d-block w-100" style="height: 400px; object-fit: cover;" alt="{{ $inmueble->titulo }}">
-                      </div>
-                    @endforeach
-                  </div>
-                  <button class="carousel-control-prev" type="button" data-bs-target="#modalCarousel{{ $inmueble->id }}" data-bs-slide="prev">
-                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                    <span class="visually-hidden">Previous</span>
-                  </button>
-                  <button class="carousel-control-next" type="button" data-bs-target="#modalCarousel{{ $inmueble->id }}" data-bs-slide="next">
-                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                    <span class="visually-hidden">Next</span>
-                  </button>
-                </div>
-                <hr>
-              @endif
-              <p><strong>Operación:</strong> {{ ucfirst($inmueble->tipo_operacion) }}</p>
-              <p><strong>Precio:</strong> {{ $inmueble->precio_formateado }}</p>
-              <p><strong>Habitaciones:</strong> {{ $inmueble->habitaciones }} &bull; <strong>Baños:</strong> {{ $inmueble->banos }} &bull; <strong>Superficie:</strong> {{ $inmueble->superficie_cubierta }} m²</p>
-              @if($inmueble->tipo_propiedad)<p><strong>Tipo:</strong> {{ \App\Models\Inmueble::tiposPropiedad()[$inmueble->tipo_propiedad] ?? ucfirst($inmueble->tipo_propiedad) }}</p>@endif
-              @if($inmueble->ambientes)<p><strong>Ambientes:</strong> {{ $inmueble->ambientes }}</p>@endif
-              @if($inmueble->cocheras)<p><strong>Cocheras:</strong> {{ $inmueble->cocheras }}</p>@endif
-              @if($inmueble->expensas)<p><strong>Expensas:</strong> ${{ number_format($inmueble->expensas, 2) }}</p>@endif
-              @if($inmueble->orientacion)<p><strong>Orientación:</strong> {{ $inmueble->orientacion }}</p>@endif
-              @if($inmueble->estado_propiedad)<p><strong>Estado:</strong> {{ ['a_estrenar'=>'A estrenar','usado'=>'Usado / buen estado','a_refaccionar'=>'A refaccionar','en_construccion'=>'En construcción'][$inmueble->estado_propiedad] ?? $inmueble->estado_propiedad }}</p>@endif
-              <p><strong>Dirección:</strong> {{ $inmueble->direccion }}, {{ $inmueble->ciudad }}, {{ $inmueble->estado }}</p>
-              <p><strong>Descripción:</strong> {{ $inmueble->descripcion }}</p>
-              <p>
-                {{ $inmueble->piscina ? 'Piscina · ' : '' }}{{ $inmueble->jardin ? 'Jardín · ' : '' }}{{ $inmueble->garaje ? 'Garaje · ' : '' }}{{ $inmueble->ascensor ? 'Ascensor' : '' }}
-              </p>
-            </div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-              <a href="{{ route('contacto', ['property' => $inmueble->id, 'inmobiliaria' => $inmobiliaria->id]) }}" class="btn btn-primary">Me Interesa</a>
-            </div>
-          </div>
-        </div>
-      </div>
     @empty
       <div class="col-12">
         <p class="text-muted">Esta inmobiliaria todavía no tiene propiedades publicadas.</p>
@@ -363,6 +320,100 @@
   </div>
 
   <a href="{{ route('inmobiliarias.index') }}" class="btn btn-outline-secondary mt-3">&larr; Volver a inmobiliarias</a>
+
+  {{-- Modales de detalle: uno solo por propiedad (destacadas + página actual), sin ids duplicados.
+       modal-dialog-scrollable => el body hace scroll y header/footer quedan siempre visibles. --}}
+  @foreach($destacados->merge($inmuebles->getCollection())->unique('id') as $inmueble)
+    <div class="modal fade perfil-modal" id="propertyModal{{ $inmueble->id }}" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+          <div class="modal-header" style="background: {{ $inmobiliaria->color_tema ?: '#0d6efd' }}; color: #fff; border: none;">
+            <h5 class="modal-title fw-bold">{{ $inmueble->titulo }}</h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+          </div>
+          <div class="modal-body p-0">
+            <div class="row g-0">
+              <div class="col-lg-6 bg-dark">
+                @if(!empty($inmueble->fotos))
+                  <div id="modalCarousel{{ $inmueble->id }}" class="carousel slide" data-bs-ride="carousel">
+                    <div class="carousel-inner">
+                      @foreach(($inmueble->fotos ?? []) as $index => $foto)
+                        <div class="carousel-item {{ $index === 0 ? 'active' : '' }}">
+                          <img src="{{ asset('images/fotosinmuebles/' . $foto) }}" class="d-block w-100 modal-img" alt="{{ $inmueble->titulo }}">
+                        </div>
+                      @endforeach
+                    </div>
+                    @if(count($inmueble->fotos ?? []) > 1)
+                      <button class="carousel-control-prev" type="button" data-bs-target="#modalCarousel{{ $inmueble->id }}" data-bs-slide="prev">
+                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Anterior</span>
+                      </button>
+                      <button class="carousel-control-next" type="button" data-bs-target="#modalCarousel{{ $inmueble->id }}" data-bs-slide="next">
+                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Siguiente</span>
+                      </button>
+                    @endif
+                  </div>
+                @else
+                  <div class="d-flex align-items-center justify-content-center h-100" style="min-height: 240px;">
+                    <i class="fas fa-image fa-3x text-white-50"></i>
+                  </div>
+                @endif
+              </div>
+              <div class="col-lg-6 p-3 p-lg-4">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                  <span style="color: {{ $inmobiliaria->color_tema ?: '#0d6efd' }}; font-weight: 800; font-size: 1.3rem;">{{ $inmueble->precio_formateado }}</span>
+                  <span class="badge text-bg-light border">{{ ucfirst($inmueble->tipo_operacion) }}</span>
+                </div>
+                <ul class="list-unstyled mb-3">
+                  <li class="detalle-item mb-1">
+                    <i class="fas fa-bed detalle-ico me-2"></i>{{ $inmueble->habitaciones }} hab.
+                    <i class="fas fa-bath detalle-ico mx-1"></i>{{ $inmueble->banos }} baños
+                    <i class="fas fa-ruler-combined detalle-ico mx-1"></i>{{ $inmueble->superficie_cubierta }} m&sup2;
+                  </li>
+                  @if($inmueble->tipo_propiedad)
+                    <li class="detalle-item mb-1"><i class="fas fa-building detalle-ico me-2"></i>{{ \App\Models\Inmueble::tiposPropiedad()[$inmueble->tipo_propiedad] ?? ucfirst($inmueble->tipo_propiedad) }}</li>
+                  @endif
+                  @if($inmueble->ambientes)
+                    <li class="detalle-item mb-1"><i class="fas fa-door-open detalle-ico me-2"></i>{{ $inmueble->ambientes }} ambientes</li>
+                  @endif
+                  @if($inmueble->cocheras)
+                    <li class="detalle-item mb-1"><i class="fas fa-car detalle-ico me-2"></i>{{ $inmueble->cocheras }} cochera(s)</li>
+                  @endif
+                  @if($inmueble->expensas)
+                    <li class="detalle-item mb-1"><i class="fas fa-receipt detalle-ico me-2"></i>Expensas ${{ number_format($inmueble->expensas, 2) }}</li>
+                  @endif
+                  @if($inmueble->orientacion)
+                    <li class="detalle-item mb-1"><i class="fas fa-compass detalle-ico me-2"></i>{{ $inmueble->orientacion }}</li>
+                  @endif
+                  @if($inmueble->estado_propiedad)
+                    <li class="detalle-item mb-1"><i class="fas fa-tag detalle-ico me-2"></i>{{ ['a_estrenar'=>'A estrenar','usado'=>'Usado / buen estado','a_refaccionar'=>'A refaccionar','en_construccion'=>'En construcción'][$inmueble->estado_propiedad] ?? $inmueble->estado_propiedad }}</li>
+                  @endif
+                </ul>
+                @if($inmueble->piscina || $inmueble->jardin || $inmueble->garaje || $inmueble->ascensor)
+                  <div class="mb-3">
+                    @if($inmueble->piscina)<span class="badge text-bg-light border me-1"><i class="fas fa-swimmer me-1"></i>Piscina</span>@endif
+                    @if($inmueble->jardin)<span class="badge text-bg-light border me-1"><i class="fas fa-tree me-1"></i>Jardín</span>@endif
+                    @if($inmueble->garaje)<span class="badge text-bg-light border me-1"><i class="fas fa-warehouse me-1"></i>Garaje</span>@endif
+                    @if($inmueble->ascensor)<span class="badge text-bg-light border me-1"><i class="fas fa-elevator me-1"></i>Ascensor</span>@endif
+                  </div>
+                @endif
+                <p class="small text-muted mb-2"><i class="fas fa-map-marker-alt detalle-ico me-2"></i>{{ $inmueble->direccion }}, {{ $inmueble->ciudad }}, {{ $inmueble->estado }}</p>
+                @if($inmueble->descripcion)
+                  <hr class="my-2">
+                  <p class="small mb-0" style="white-space: pre-line;">{{ $inmueble->descripcion }}</p>
+                @endif
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-outline-secondary rounded-pill" data-bs-dismiss="modal">Cerrar</button>
+            <a href="{{ route('contacto', ['property' => $inmueble->id, 'inmobiliaria' => $inmobiliaria->id]) }}" class="btn btn-primary rounded-pill px-4 fw-semibold" style="background: {{ $inmobiliaria->color_tema ?: '#0d6efd' }}; border-color: transparent;">Me interesa</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  @endforeach
 </div>
 
 <footer class="footer">
