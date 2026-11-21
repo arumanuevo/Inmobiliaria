@@ -1,3 +1,7 @@
+@php
+  // Helper JSON para bloques <script type="application/ld+json"> y popups: sin depender de Illuminate\Support\Json
+  $jsonLd = fn($v) => json_encode($v, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT);
+@endphp
 @extends('layouts.landing')
 
 @section('title', $inmueble->titulo . ' en ' . ($inmueble->ciudad ?: 'la zona') . ' | ' . $inmobiliaria->nombre_comercial)
@@ -15,14 +19,14 @@
 {
   "@context": "https://schema.org",
   "@type": "RealEstateListing",
-  "name": {{ Illuminate\Support\Json::encode($inmueble->titulo) }},
-  "description": {{ Illuminate\Support\Json::encode(\Illuminate\Support\Str::limit(strip_tags($inmueble->descripcion), 300)) }},
-  "url": {{ Illuminate\Support\Json::encode(route('propiedad.show', [$inmobiliaria->slug, $inmueble->id])) }},
+  "name": {{ $jsonLd($inmueble->titulo) }},
+  "description": {{ $jsonLd(\Illuminate\Support\Str::limit(strip_tags($inmueble->descripcion), 300)) }},
+  "url": {{ $jsonLd(route('propiedad.show', [$inmobiliaria->slug, $inmueble->id])) }},
   "address": {
     "@type": "PostalAddress",
-    "streetAddress": {{ Illuminate\Support\Json::encode($inmueble->direccion) }},
-    "addressLocality": {{ Illuminate\Support\Json::encode($inmueble->ciudad) }},
-    "addressRegion": {{ Illuminate\Support\Json::encode($inmueble->estado) }},
+    "streetAddress": {{ $jsonLd($inmueble->direccion) }},
+    "addressLocality": {{ $jsonLd($inmueble->ciudad) }},
+    "addressRegion": {{ $jsonLd($inmueble->estado) }},
     "addressCountry": "AR"
   },
   "offers": {
@@ -249,7 +253,7 @@ document.addEventListener('DOMContentLoaded', function () {
     var osm = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '&copy; OpenStreetMap' }).addTo(map);
     var sat = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', { maxZoom: 19, maxNativeZoom: 18, attribution: 'Tiles &copy; Esri' });
     L.control.layers({ 'Callejera': osm, 'Satelital': sat }, null, { position: 'topright' }).addTo(map);
-    L.marker([lat, lng]).addTo(map).bindPopup({{ Illuminate\Support\Json::encode($inmueble->titulo) }}).openPopup();
+    L.marker([lat, lng]).addTo(map).bindPopup({{ $jsonLd($inmueble->titulo) }}).openPopup();
 });
 </script>
 @endif

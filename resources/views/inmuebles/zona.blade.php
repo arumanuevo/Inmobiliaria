@@ -1,3 +1,7 @@
+@php
+  // Helper JSON para bloques <script type="application/ld+json"> y popups: sin depender de Illuminate\Support\Json
+  $jsonLd = fn($v) => json_encode($v, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT);
+@endphp
 @extends('layouts.landing')
 
 @section('title', 'Propiedades en ' . $operacion . ' en ' . ucfirst($ciudadNombre) . ' | ' . config('app.name'))
@@ -15,7 +19,7 @@
     {
       "@type": "ListItem",
       "position": {{ $i + 1 }},
-      "url": {{ Illuminate\Support\Json::encode($p->inmobiliaria ? route('propiedad.show', [$p->inmobiliaria->slug, $p->id]) : '') }}
+      "url": {{ $jsonLd($p->inmobiliaria ? route('propiedad.show', [$p->inmobiliaria->slug, $p->id]) : '') }}
     }@if(!$loop->last),@endif
     @endforeach
   ]
