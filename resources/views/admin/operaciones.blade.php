@@ -20,7 +20,7 @@
         <div class="col-md-4">
             <div class="card text-center">
                 <div class="card-body">
-                    <div class="h3 mb-1 text-warning">${{ number_format((float) $totales['pendiente'], 2) }}</div>
+                    <div class="h3 mb-1 text-warning">@dinero((float) $totales['pendiente'], 2)</div>
                     <div class="text-muted">comisiones pendientes</div>
                 </div>
             </div>
@@ -28,7 +28,7 @@
         <div class="col-md-4">
             <div class="card text-center">
                 <div class="card-body">
-                    <div class="h3 mb-1 text-success">${{ number_format((float) $totales['cobrada'], 2) }}</div>
+                    <div class="h3 mb-1 text-success">@dinero((float) $totales['cobrada'], 2)</div>
                     <div class="text-muted">comisiones cobradas</div>
                 </div>
             </div>
@@ -62,7 +62,7 @@
                         <td>{{ $op->precio_formateado }}</td>
                         <td>
                             @if($op->comision_monto !== null)
-                                ${{ number_format((float) $op->comision_monto, 2) }}
+                                @dinero((float) $op->comision_monto, 2)
                                 @if($op->comision_porcentaje !== null)<small class="text-muted">({{ $op->comision_porcentaje }}%)</small>@endif
                             @else
                                 <span class="text-muted">-</span>

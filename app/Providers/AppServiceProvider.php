@@ -24,6 +24,11 @@ class AppServiceProvider extends ServiceProvider
     {
         Paginator::useBootstrap();
 
+        // @dinero($x) / @dinero($x, 0) -> $1.234.567,89 (formato AR: miles con punto, decimales con coma)
+        \Illuminate\Support\Facades\Blade::directive('dinero', function ($expr) {
+            return "<?php echo \\App\\Support\\Dinero::fmt{$expr}; ?>";
+        });
+
         if ($this->app->environment('production')) {
             URL::forceScheme('https');
         }

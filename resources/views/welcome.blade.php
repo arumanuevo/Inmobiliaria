@@ -418,7 +418,7 @@
                         <li class="detalle-item mb-1"><i class="fas fa-car detalle-ico me-2"></i>{{ $inmueble->cocheras }} cochera(s)</li>
                       @endif
                       @if($inmueble->expensas)
-                        <li class="detalle-item mb-1"><i class="fas fa-receipt detalle-ico me-2"></i>Expensas ${{ number_format($inmueble->expensas, 2) }}</li>
+                        <li class="detalle-item mb-1"><i class="fas fa-receipt detalle-ico me-2"></i>Expensas @dinero($inmueble->expensas, 2)</li>
                       @endif
                       @if($inmueble->orientacion)
                         <li class="detalle-item mb-1"><i class="fas fa-compass detalle-ico me-2"></i>{{ $inmueble->orientacion }}</li>

@@ -47,7 +47,7 @@
                     </td>
                     <td>{{ ucfirst($inmueble->tipo_operacion) }}</td>
                     <td>{{ $inmueble->inmobiliaria->nombre_comercial ?? '-' }}</td>
-                    <td>${{ number_format($inmueble->precio, 2) }}</td>
+                    <td>@dinero($inmueble->precio, 2)</td>
                     <td>{{ $inmueble->superficie_cubierta }} m²</td>
                     <td>{{ $inmueble->propnombre }}</td>
                     <td>{{ $inmueble->propdni }}</td>
@@ -66,7 +66,7 @@
                     <td>{{ $inmueble->contactos_count }}</td>
                     <td>
                         @if($inmueble->comision_monto !== null)
-                            ${{ number_format((float) $inmueble->comision_monto, 2) }}
+                            @dinero((float) $inmueble->comision_monto, 2)
                             @if($inmueble->comision_estado === 'cobrada')
                                 <span class="badge badge-success">cobrada</span>
                             @else

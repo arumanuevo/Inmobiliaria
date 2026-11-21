@@ -65,7 +65,7 @@
                                 <select name="plan_id" class="form-control form-control-sm mr-1">
                                     @foreach($planes as $plan)
                                         <option value="{{ $plan->id }}" {{ $inmobiliaria->plan_id == $plan->id ? 'selected' : '' }}>
-                                            {{ $plan->nombre }} (${{ number_format($plan->precio_mensual, 0) }}/mes)
+                                            {{ $plan->nombre }} (@dinero($plan->precio_mensual, 0)/mes)
                                         </option>
                                     @endforeach
                                 </select>

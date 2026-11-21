@@ -100,7 +100,7 @@ class Inmueble extends Model
     public function getPrecioFormateadoAttribute(): string
     {
         $simbolo = (($this->moneda ?? 'ARS') === 'USD') ? 'U$S ' : '$';
-        return $simbolo . number_format((float) $this->precio, 2);
+        return $simbolo . number_format((float) $this->precio, 2, ',', '.');
     }
 
     // Proximidades / ventajas del entorno: lista normalizada [{nombre, metros}] ordenada por cercanía

@@ -52,6 +52,8 @@ Route::middleware('auth')->group(function () {
     Route::delete('/mis-busquedas/{busqueda}', [BusquedaGuardadaController::class, 'destroy'])->name('busquedas.destroy');
     Route::get('/mis-solicitudes', [App\Http\Controllers\SolicitudCargaController::class, 'mis'])->name('solicitudes.mias');
     Route::post('/mis-solicitudes', [App\Http\Controllers\SolicitudCargaController::class, 'store'])->name('solicitudes.store');
+    // Puntuar elementos de Overpass enviados por el navegador (no llama a Overpass del lado server)
+    Route::post('/api/entorno/puntuar', [InmuebleController::class, 'puntuarApi'])->name('entorno.puntuar');
 });
 
 // Búsquedas guardadas (público: cualquiera puede recibir alertas por email de nuevas propiedades)

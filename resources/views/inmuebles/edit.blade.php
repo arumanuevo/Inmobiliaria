@@ -134,6 +134,7 @@
                 <div class="form-group">
                     <label for="coordenadas">Coordenadas</label>
                     <input type="text" name="coordenadas" id="coordenadas" class="form-control" placeholder="Latitud, Longitud" value="{{ $inmueble->coordenadas }}">
+                    @include('inmuebles.partials.entorno_form')
                 </div>
                 <div class="form-group">
                     <label for="busqueda-mapa">Ubicación en el mapa</label>
@@ -402,6 +403,7 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 });
 </script>
+@include('inmuebles.partials.entorno_form_js')
 @include('inmuebles.partials.proximidades_js')
 @stop
 

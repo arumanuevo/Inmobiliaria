@@ -15,7 +15,7 @@
         <div class="card-body">
             <p><strong>Tipo de Operación:</strong> {{ ucfirst($inmueble->tipo_operacion) }}</p>
             <p><strong>Descripción:</strong> {{ $inmueble->descripcion }}</p>
-            <p><strong>Precio:</strong> ${{ number_format($inmueble->precio,2) }}</p>
+            <p><strong>Precio:</strong> @dinero($inmueble->precio, 2)</p>
             <p><strong>Superficie Cubierta:</strong> {{ $inmueble->superficie_cubierta }} m²</p>
             <p><strong>Habitaciones:</strong> {{ $inmueble->habitaciones }}</p>
             <p><strong>Baños:</strong> {{ $inmueble->banos }}</p>

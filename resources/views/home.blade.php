@@ -28,7 +28,7 @@
             <div class="col-md-3 mb-2">
                 <small class="text-muted d-block">Plan</small>
                 <strong>{{ $i->plan->nombre ?? 'Sin plan' }}</strong>
-                <span class="text-muted">(${{ number_format($i->plan->precio_mensual ?? 0, 0) }}/mes)</span>
+                <span class="text-muted">(@dinero($i->plan->precio_mensual ?? 0, 0)/mes)</span>
             </div>
             <div class="col-md-3 mb-2">
                 <small class="text-muted d-block">Vencimiento del plan</small>

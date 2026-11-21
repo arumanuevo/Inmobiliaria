@@ -227,8 +227,8 @@ class AdminController extends Controller
 
         $inmueble = Inmueble::create($data);
 
-        // Puntaje de entorno GIS (Overpass/OSM) si hay coordenadas
-        InmuebleController::puntuarEntorno($inmueble);
+        // Puntaje de entorno: primero el del navegador (entorno_json), fallback server-side
+        InmuebleController::guardarEntorno($inmueble, $request->input('entorno_json'));
 
         if ($request->hasFile('imagenes')) {
             $images = $request->file('imagenes');

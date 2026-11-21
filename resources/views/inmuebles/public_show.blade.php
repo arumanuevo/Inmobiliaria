@@ -153,7 +153,7 @@
       @endif
 
       <h2 class="h4 fw-bold mb-3" style="color: {{ $inmobiliaria->color_tema ?: '#0d6efd' }};">{{ $inmueble->precio_formateado }}
-        @if($inmueble->expensas)<small class="text-muted fw-normal">+ ${{ number_format($inmueble->expensas, 2) }} expensas</small>@endif
+        @if($inmueble->expensas)<small class="text-muted fw-normal">+ @dinero($inmueble->expensas, 2) expensas</small>@endif
       </h2>
       @if(!empty($comparativa))
         <p class="mb-3">
@@ -164,7 +164,7 @@
           @else
             <span class="badge bg-info text-dark">En línea con el promedio de {{ $inmueble->ciudad }}</span>
           @endif
-          <small class="text-muted">{{ $inmueble->precio_formateado }} / {{ $inmueble->superficie_cubierta }} m² = ${{ number_format($comparativa['m2'], 0) }}/m² · promedio de la zona: ${{ number_format($comparativa['promedio_m2'], 0) }}/m² ({{ $comparativa['n'] }} propiedades)</small>
+          <small class="text-muted">{{ $inmueble->precio_formateado }} / {{ $inmueble->superficie_cubierta }} m² = @dinero($comparativa['m2'], 0)/m² · promedio de la zona: @dinero($comparativa['promedio_m2'], 0)/m² ({{ $comparativa['n'] }} propiedades)</small>
         </p>
       @endif
 

@@ -75,7 +75,42 @@ class InmuebleController extends Controller
             'proximidades_json' => 'nullable|string|max:6000',
             // Uso / habilitación para comerciales (kiosco, tienda de ropa, gastronomía...)
             'uso_detalle' => 'nullable|string|max:120',
+            // Puntaje de entorno calculado desde el navegador (hidden entorno_json)
+            'entorno_json' => 'nullable|string|max:4000',
         ];
+    }
+
+    // Endpoint para el navegador: puntúa elementos de Overpass que él consiguió (CORS) sin llamar a Overpass del server
+    public function puntuarApi(Request $request)
+    {
+        $data = $request->validate(['elements' => 'required|array|max:400']);
+        return response()->json(\App\Services\PuntajeEntornoService::puntuar($data['elements']));
+    }
+
+    // Normaliza el entorno_json enviado por el form (calculado en el navegador)
+    public static function normalizarEntornoJson(?string $json): ?array
+    {
+        if (!$json) { return null; }
+        $raw = json_decode($json, true);
+        if (!is_array($raw) || !isset($raw['puntaje']) || !is_numeric($raw['puntaje'])) { return null; }
+        return [
+            'puntaje' => max(0, min(100, (int) $raw['puntaje'])),
+            'detalle' => (isset($raw['detalle']) && is_array($raw['detalle'])) ? $raw['detalle'] : [],
+        ];
+    }
+
+    // Guarda el puntaje: primero el calculado por el navegador (entorno_json), fallback server-side (Overpass)
+    public static function guardarEntorno(Inmueble $inmueble, ?string $entornoJson): void
+    {
+        $entorno = static::normalizarEntornoJson($entornoJson);
+        if ($entorno) {
+            $inmueble->puntaje_entorno = $entorno['puntaje'];
+            $inmueble->puntaje_entorno_detalle = $entorno['detalle'];
+            $inmueble->puntaje_entorno_at = now();
+            $inmueble->save();
+            return;
+        }
+        static::puntuarEntorno($inmueble);
     }
 
     // Calcula el puntaje de entorno (Overpass/OSM) si el inmueble tiene coordenadas.
@@ -201,8 +236,8 @@ class InmuebleController extends Controller
 
         $inmueble = Inmueble::create($data);
 
-        // Puntaje de entorno GIS (Overpass/OSM) si hay coordenadas
-        static::puntuarEntorno($inmueble);
+        // Puntaje de entorno: primero el del navegador (entorno_json), fallback server-side
+        static::guardarEntorno($inmueble, $request->input('entorno_json'));
 
         // Guardado directo de imágenes si fueron adjuntadas en el alta
         if ($request->hasFile('imagenes')) {
@@ -269,8 +304,8 @@ class InmuebleController extends Controller
 
         $inmueble->update($data);
 
-        // Recalcular puntaje de entorno si cambiaron las coordenadas
-        static::puntuarEntorno($inmueble);
+        // Recalcular puntaje de entorno (navegador primero, fallback server-side)
+        static::guardarEntorno($inmueble, $request->input('entorno_json'));
 
         // Si pasó de borrador a publicado, avisar a las búsquedas guardadas
         if (!$yaPublicado && $inmueble->publicado) {
@@ -411,7 +446,7 @@ class InmuebleController extends Controller
 
         $inmueble->save();
 
-        $extra = ($monto !== null) ? ' Comisión registrada: $' . number_format((float) $monto, 2) . ' (pendiente).' : '';
+        $extra = ($monto !== null) ? ' Comisión registrada: $' . number_format((float) $monto, 2, ',', '.') . ' (pendiente).' : '';
 
         return back()->with('success', 'Propiedad marcada como ' . $data['tipo_cierre'] . 'da. Ya no es visible en el portal público.' . $extra);
     }

@@ -142,7 +142,7 @@
       <div class="col-md-4">
         <div class="plan-card {{ $plan->precio_mensual > 0 && $loop->iteration == $planes->count() ? 'destacado' : '' }} text-center">
           <h5 class="fw-bold">{{ $plan->nombre }}</h5>
-          <div class="display-6 fw-bold my-2">@if($plan->precio_mensual > 0)${{ number_format($plan->precio_mensual, 0) }}<small class="fs-6 text-muted">/mes</small>@else Gratis @endif</div>
+          <div class="display-6 fw-bold my-2">@if($plan->precio_mensual > 0)@dinero($plan->precio_mensual, 0)<small class="fs-6 text-muted">/mes</small>@else Gratis @endif</div>
           <ul class="list-unstyled text-muted small">
             <li>{{ $plan->limite_inmuebles }} publicaciones</li>
             <li>{{ $plan->limite_destacados }} destacadas</li>

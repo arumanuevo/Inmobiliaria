@@ -270,6 +270,7 @@
                         <div class="d-flex align-items-center">
                             <label for="coordenadas" class="small text-muted me-2 mb-0">Coordenadas:</label>
                             <input type="text" name="coordenadas" id="coordenadas" class="form-control form-control-sm text-center" style="width: 220px;" value="{{ old('coordenadas') }}" placeholder="Latitud, Longitud" readonly>
+                            @include('inmuebles.partials.entorno_form')
                         </div>
                     </div>
                 </div>
@@ -564,5 +565,6 @@ function imageUploader() {
     };
 }
 </script>
+@include('inmuebles.partials.entorno_form_js')
 @include('inmuebles.partials.proximidades_js')
 @stop

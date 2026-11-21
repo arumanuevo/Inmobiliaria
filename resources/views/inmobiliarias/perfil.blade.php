@@ -126,7 +126,7 @@
                             <select name="plan_id" id="plan_id" class="form-select mb-3">
                                 @foreach(\App\Models\Plan::where('activo', 1)->where('slug', '!=', 'particular')->orderBy('precio_mensual')->get() as $p)
                                     <option value="{{ $p->id }}" {{ $inmobiliaria->plan_id == $p->id ? 'selected' : '' }}>
-                                        {{ $p->nombre }} - ${{ number_format($p->precio_mensual, 0) }}/mes
+                                        {{ $p->nombre }} - @dinero($p->precio_mensual, 0)/mes
                                     </option>
                                 @endforeach
                             </select>

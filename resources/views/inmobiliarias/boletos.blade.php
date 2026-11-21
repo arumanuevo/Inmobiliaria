@@ -41,7 +41,7 @@
                     <tr>
                         <td>{{ $boleto->id }}</td>
                         <td>{{ $boleto->concepto }}</td>
-                        <td>${{ number_format($boleto->monto, 2) }}</td>
+                        <td>@dinero($boleto->monto, 2)</td>
                         <td>{{ $boleto->plan->nombre ?? '-' }}</td>
                         <td>{{ $boleto->vence_at ? $boleto->vence_at->format('d/m/Y') : '-' }}</td>
                         <td>
