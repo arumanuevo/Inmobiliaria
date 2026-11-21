@@ -47,11 +47,16 @@
         </div>
         <div class="card-body d-flex flex-column">
           <div class="d-flex justify-content-between align-items-center mb-2">
-            @if($property->inmobiliaria && $property->inmobiliaria->usuario?->hasRole('particular'))
-              <span class="badge rounded-pill text-bg-secondary"><i class="fas fa-user me-1"></i>Dueño directo</span>
-            @else
-              <span class="badge rounded-pill text-bg-primary"><i class="fas fa-store me-1"></i>Inmobiliaria</span>
-            @endif
+            <div class="d-flex gap-1 align-items-center flex-wrap">
+              @if($property->inmobiliaria && $property->inmobiliaria->usuario?->hasRole('particular'))
+                <span class="badge rounded-pill text-bg-secondary"><i class="fas fa-user me-1"></i>Dueño directo</span>
+              @else
+                <span class="badge rounded-pill text-bg-primary"><i class="fas fa-store me-1"></i>Inmobiliaria</span>
+              @endif
+              @if($property->tipo_propiedad)
+                <span class="badge rounded-pill text-bg-light border">{{ \App\Models\Inmueble::tiposPropiedad()[$property->tipo_propiedad] ?? ucfirst($property->tipo_propiedad) }}</span>
+              @endif
+            </div>
             <span class="precio">{{ $property->precio_formateado }}</span>
           </div>
           <h5 class="card-title mb-1">

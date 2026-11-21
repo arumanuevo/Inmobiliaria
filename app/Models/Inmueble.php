@@ -42,6 +42,35 @@ class Inmueble extends Model
         ];
     }
 
+    // Tipos de uso comercial / industrial (para el filtro "uso comercial")
+    public static function tiposComerciales(): array
+    {
+        return ['local', 'oficina', 'galpon'];
+    }
+
+    // Tipos agrupados para los <select> con <optgroup> (vivienda / comercial / otros)
+    public static function gruposTipos(): array
+    {
+        return [
+            'Vivienda' => [
+                'casa' => 'Casa', 'departamento' => 'Departamento', 'ph' => 'PH',
+                'duplex' => 'Dúplex', 'quinta' => 'Quinta',
+            ],
+            'Comercial e industrial' => [
+                'local' => 'Local comercial', 'oficina' => 'Oficina',
+                'galpon' => 'Galpón', 'cochera' => 'Cochera',
+            ],
+            'Terrenos y otros' => [
+                'terreno' => 'Terreno', 'campo' => 'Campo',
+            ],
+        ];
+    }
+
+    public function esComercial(): bool
+    {
+        return in_array($this->tipo_propiedad, static::tiposComerciales(), true);
+    }
+
     public function getPrecioFormateadoAttribute(): string
     {
         $simbolo = (($this->moneda ?? 'ARS') === 'USD') ? 'U$S ' : '$';
@@ -195,6 +224,10 @@ class Inmueble extends Model
             if (!empty($f[$k])) {
                 $query->where($k, $f[$k]);
             }
+        }
+        // Filtro rápido "uso comercial" (local / oficina / galpón)
+        if (!empty($f['uso_comercial'])) {
+            $query->whereIn('tipo_propiedad', self::tiposComerciales());
         }
         $minimos = [
             'ambientes_min' => 'ambientes',

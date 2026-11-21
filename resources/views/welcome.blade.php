@@ -331,7 +331,7 @@
                 @else
                   <span class="badge bg-primary"><i class="fas fa-building me-1"></i> Inmobiliaria</span>
                 @endif
-                <small class="text-muted">{{ ucfirst($inmueble->tipo_operacion) }}</small>
+                <small class="text-muted">{{ ucfirst($inmueble->tipo_operacion) }}@if($inmueble->tipo_propiedad) &middot; {{ \App\Models\Inmueble::tiposPropiedad()[$inmueble->tipo_propiedad] ?? ucfirst($inmueble->tipo_propiedad) }}@endif</small>
               </div>
               <h5 class="card-title"><a href="{{ route('propiedad.show', [$inmueble->inmobiliaria->slug, $inmueble->id]) }}" class="text-decoration-none text-dark">{{ $inmueble->titulo }}</a></h5>
               <p class="card-text text-muted mb-1 small">{{ $inmueble->inmobiliaria->nombre_comercial ?? '' }}</p>

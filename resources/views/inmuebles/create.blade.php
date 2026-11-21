@@ -101,11 +101,15 @@
                         <label for="tipo_propiedad" class="form-label fw-bold">Tipo de Propiedad</label>
                         <select name="tipo_propiedad" id="tipo_propiedad" class="form-select form-select-lg">
                             <option value="">Seleccione el tipo de inmueble...</option>
-                            @foreach(\App\Models\Inmueble::tiposPropiedad() as $val => $lbl)
-                                <option value="{{ $val }}" {{ old('tipo_propiedad') == $val ? 'selected' : '' }}>{{ $lbl }}</option>
+                            @foreach(\App\Models\Inmueble::gruposTipos() as $grupo => $opciones)
+                                <optgroup label="{{ $grupo }}">
+                                    @foreach($opciones as $val => $lbl)
+                                        <option value="{{ $val }}" {{ old('tipo_propiedad') == $val ? 'selected' : '' }}>{{ $lbl }}</option>
+                                    @endforeach
+                                </optgroup>
                             @endforeach
                         </select>
-                        <div class="form-text small">Elegí la categoría más adecuada (casa, departamento, ph, terreno, etc.).</div>
+                        <div class="form-text small">Elegí la categoría más adecuada: vivienda, comercial/industrial (local, oficina, galpón) o terreno.</div>
                     </div>
                 </div>
             </div>

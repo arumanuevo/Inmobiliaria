@@ -17,7 +17,7 @@ class PropertySearchController extends Controller
             })
             ->with(['inmobiliaria.usuario.roles'])
             ->aplicarFiltros($request->only([
-                'inmobiliaria', 'tipo_anunciante', 'tipo_operacion', 'tipo_propiedad', 'moneda',
+                'inmobiliaria', 'tipo_anunciante', 'tipo_operacion', 'tipo_propiedad', 'moneda', 'uso_comercial',
                 'ambientes_min', 'cocheras_min', 'precio_min', 'precio_max',
                 'habitaciones', 'banos', 'superficie_min', 'superficie_max', 'ciudad',
                 'geo_lat', 'geo_lng', 'radio_km',
@@ -121,7 +121,7 @@ class PropertySearchController extends Controller
             ->where('coordenadas', 'like', '%,%')
             ->with(['inmobiliaria.usuario.roles'])
             ->aplicarFiltros($request->only([
-                'inmobiliaria', 'tipo_anunciante', 'tipo_operacion', 'tipo_propiedad', 'moneda',
+                'inmobiliaria', 'tipo_anunciante', 'tipo_operacion', 'tipo_propiedad', 'moneda', 'uso_comercial',
                 'ambientes_min', 'cocheras_min', 'precio_min', 'precio_max',
                 'habitaciones', 'banos', 'superficie_min', 'superficie_max', 'ciudad',
                 'geo_lat', 'geo_lng', 'radio_km',
@@ -158,6 +158,8 @@ class PropertySearchController extends Controller
                 'precio_fmt' => $i->precio_formateado,
                 'tipo_operacion' => $i->tipo_operacion,
                 'tipo_propiedad' => $i->tipo_propiedad,
+                'tipo_lbl' => $i->tipo_propiedad ? (\App\Models\Inmueble::tiposPropiedad()[$i->tipo_propiedad] ?? ucfirst($i->tipo_propiedad)) : null,
+                'es_comercial' => $i->esComercial(),
                 'habitaciones' => $i->habitaciones,
                 'ambientes' => $i->ambientes,
                 'banos' => $i->banos,

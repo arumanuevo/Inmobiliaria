@@ -178,10 +178,18 @@
             <label class="form-label" for="tipo_propiedad">Tipo de propiedad</label>
             <select class="form-select" id="tipo_propiedad" name="tipo_propiedad">
               <option value="">Todos los tipos</option>
-              @foreach($tipos as $val => $lbl)
-                <option value="{{ $val }}">{{ $lbl }}</option>
+              @foreach(\App\Models\Inmueble::gruposTipos() as $grupo => $opciones)
+                <optgroup label="{{ $grupo }}">
+                  @foreach($opciones as $val => $lbl)
+                    <option value="{{ $val }}" {{ request('tipo_propiedad') == $val ? 'selected' : '' }}>{{ $lbl }}</option>
+                  @endforeach
+                </optgroup>
               @endforeach
             </select>
+            <div class="form-check mt-1">
+              <input class="form-check-input" type="checkbox" name="uso_comercial" id="uso_comercial" value="1" {{ request('uso_comercial') ? 'checked' : '' }}>
+              <label class="form-check-label small" for="uso_comercial"><i class="fas fa-store me-1"></i>Solo uso comercial (local, oficina, galpón)</label>
+            </div>
           </div>
         </div>
         <div class="col-md-3">
@@ -431,6 +439,7 @@
               foto +
               '<div>' + badge + '</div>' +
               '<div class="fw-bold mb-1">' + it.titulo + '</div>' +
+              (it.tipo_lbl ? '<div class="small text-muted mb-1"><i class="fas fa-tag me-1"></i>' + it.tipo_lbl + '</div>' : '') +
               '<div class="text-primary fw-bold">' + it.precio_fmt + '</div>' +
               '<div class="small text-muted mb-1">' + (it.ciudad || '') + ' · ' + (it.inmobiliaria || '') + '</div>' +
               (it.url ? '<a href="' + it.url + '" class="btn btn-primary btn-sm w-100 py-1" style="font-size:12px;">Ver propiedad</a>' : '') +

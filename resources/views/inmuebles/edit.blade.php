@@ -33,8 +33,12 @@
                         <label for="tipo_propiedad">Tipo de propiedad</label>
                         <select name="tipo_propiedad" id="tipo_propiedad" class="form-control">
                             <option value="">Seleccione</option>
-                            @foreach(\App\Models\Inmueble::tiposPropiedad() as $val => $lbl)
-                                <option value="{{ $val }}" {{ old('tipo_propiedad', $inmueble->tipo_propiedad) == $val ? 'selected' : '' }}>{{ $lbl }}</option>
+                            @foreach(\App\Models\Inmueble::gruposTipos() as $grupo => $opciones)
+                                <optgroup label="{{ $grupo }}">
+                                    @foreach($opciones as $val => $lbl)
+                                        <option value="{{ $val }}" {{ old('tipo_propiedad', $inmueble->tipo_propiedad) == $val ? 'selected' : '' }}>{{ $lbl }}</option>
+                                    @endforeach
+                                </optgroup>
                             @endforeach
                         </select>
                     </div>
