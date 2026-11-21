@@ -146,14 +146,15 @@
                     <small class="text-muted">Ayuda: escribí la dirección y elegí un resultado (o apretá Buscar), o hacé clic directamente en el mapa. Las coordenadas se completan solas.</small>
                 </div>
                 <div class="form-group">
+                    {{-- OJO: nada de formulario anidado acá (rompe el form principal). Se usa formaction del botón submit --}}
                     @if($inmueble->puntaje_entorno !== null)
                         @php $pe = $inmueble->puntajeEntornoLabel(); @endphp
                         <div class="alert alert-light border d-flex align-items-center justify-content-between mb-0 py-2">
                             <span><i class="fas fa-chart-line me-1" style="color: {{ $pe['color'] }};"></i> Puntaje de entorno: <strong>{{ $inmueble->puntaje_entorno }}/100</strong> ({{ $pe['texto'] }})</span>
-                            <form action="{{ route('inmuebles.recalcularEntorno', $inmueble) }}" method="POST" class="mb-0">@csrf<button type="submit" class="btn btn-outline-primary btn-sm rounded-pill"><i class="fas fa-sync-alt me-1"></i>Recalcular</button></form>
+                            <button type="submit" class="btn btn-outline-primary btn-sm rounded-pill" formaction="{{ route('inmuebles.recalcularEntorno', $inmueble) }}" formmethod="POST"><i class="fas fa-sync-alt me-1"></i>Recalcular</button>
                         </div>
                     @else
-                        <form action="{{ route('inmuebles.recalcularEntorno', $inmueble) }}" method="POST" class="mb-0">@csrf<button type="submit" class="btn btn-outline-secondary btn-sm rounded-pill"><i class="fas fa-sync-alt me-1"></i>Calcular puntaje de entorno</button></form>
+                        <button type="submit" class="btn btn-outline-secondary btn-sm rounded-pill" formaction="{{ route('inmuebles.recalcularEntorno', $inmueble) }}" formmethod="POST"><i class="fas fa-sync-alt me-1"></i>Calcular puntaje de entorno</button>
                         <small class="text-muted d-block mt-1">Se calcula con OpenStreetMap según lo que rodea al inmueble: arteria, transporte, comercios y servicios cercanos.</small>
                     @endif
                 </div>
