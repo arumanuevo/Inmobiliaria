@@ -150,14 +150,14 @@
 <header class="perfil-header">
   <div class="container">
     <div class="row align-items-center">
-      <div class="col-md-3 text-center mb-3 mb-md-0">
+      <div class="col-md-2 text-center mb-3 mb-md-0 d-flex align-items-center justify-content-center">
         @if($inmobiliaria->logo)
           <img src="{{ asset($inmobiliaria->logo) }}" alt="{{ $inmobiliaria->nombre_comercial }}" class="perfil-logo">
         @else
           <div class="perfil-inicial">{{ strtoupper(substr($inmobiliaria->nombre_comercial, 0, 1)) }}</div>
         @endif
       </div>
-      <div class="col-md-9">
+      <div class="col-md-10">
         <h1 class="mb-1">{{ $inmobiliaria->nombre_comercial }}</h1>
         @if($inmobiliaria->mensaje_destacado)
           <p class="mb-1"><span class="badge" style="background: rgba(255,255,255,.22); color: #fff; font-size: 13px; padding: 7px 14px;"><i class="fas fa-bullhorn me-1"></i>{{ $inmobiliaria->mensaje_destacado }}</span></p>
