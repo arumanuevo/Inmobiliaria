@@ -19,7 +19,7 @@
     {
       "@type": "ListItem",
       "position": {{ $i + 1 }},
-      "url": {{ $jsonLd($p->inmobiliaria ? route('propiedad.show', [$p->inmobiliaria->slug, $p->id]) : '') }}
+      "url": {!! $jsonLd($p->inmobiliaria ? route('propiedad.show', [$p->inmobiliaria->slug, $p->id]) : '') !!}
     }@if(!$loop->last),@endif
     @endforeach
   ]

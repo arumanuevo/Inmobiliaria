@@ -19,14 +19,14 @@
 {
   "@context": "https://schema.org",
   "@type": "RealEstateListing",
-  "name": {{ $jsonLd($inmueble->titulo) }},
-  "description": {{ $jsonLd(\Illuminate\Support\Str::limit(strip_tags($inmueble->descripcion), 300)) }},
-  "url": {{ $jsonLd(route('propiedad.show', [$inmobiliaria->slug, $inmueble->id])) }},
+  "name": {!! $jsonLd($inmueble->titulo) !!},
+  "description": {!! $jsonLd(\Illuminate\Support\Str::limit(strip_tags($inmueble->descripcion), 300)) !!},
+  "url": {!! $jsonLd(route('propiedad.show', [$inmobiliaria->slug, $inmueble->id])) !!},
   "address": {
     "@type": "PostalAddress",
-    "streetAddress": {{ $jsonLd($inmueble->direccion) }},
-    "addressLocality": {{ $jsonLd($inmueble->ciudad) }},
-    "addressRegion": {{ $jsonLd($inmueble->estado) }},
+    "streetAddress": {!! $jsonLd($inmueble->direccion) !!},
+    "addressLocality": {!! $jsonLd($inmueble->ciudad) !!},
+    "addressRegion": {!! $jsonLd($inmueble->estado) !!},
     "addressCountry": "AR"
   },
   "offers": {
@@ -50,6 +50,10 @@
   .ficha-foto { height: 420px; object-fit: cover; width: 100%; }
   .dato { border-bottom: 1px solid #eee; padding: 8px 0; }
   .dato strong { color: #6b7280; font-size: 12px; text-transform: uppercase; letter-spacing: .04em; display: block; }
+  /* Grilla de datos alineada con el contenido de arriba (sin el margen negativo del .row) */
+  .datos-ficha { margin-left: 0; margin-right: 0; }
+  .datos-ficha > [class*="col"] { padding-left: 0; padding-right: 16px; }
+  .prox-ico { color: #6366f1; }
   #mapa-ficha { height: 300px; border-radius: 12px; border: 1px solid #ccc; }
   .footer { background-color: #343a40; color: white; text-align: center; padding: 10px 0; font-size: 10px; }
   .footer p { margin: 0; }
@@ -141,7 +145,7 @@
         </p>
       @endif
 
-      <div class="row mb-4">
+      <div class="row mb-4 datos-ficha">
         <div class="col-6 col-md-3 dato"><strong>Superficie</strong>{{ $inmueble->superficie_cubierta }} m²</div>
         <div class="col-6 col-md-3 dato"><strong>Ambientes</strong>{{ $inmueble->ambientes ?? '-' }}</div>
         <div class="col-6 col-md-3 dato"><strong>Dormitorios</strong>{{ $inmueble->habitaciones }}</div>
@@ -156,10 +160,13 @@
       <p style="white-space: pre-line;">{{ $inmueble->descripcion }}</p>
 
       <h5>Comodidades</h5>
-      <p>
-        {{ $inmueble->piscina ? '🏊 Piscina · ' : '' }}{{ $inmueble->jardin ? '🌳 Jardín · ' : '' }}{{ $inmueble->garaje ? '🚗 Garaje · ' : '' }}{{ $inmueble->ascensor ? '🛗 Ascensor' : '' }}
-        @if(!$inmueble->piscina && !$inmueble->jardin && !$inmueble->garaje && !$inmueble->ascensor) <span class="text-muted">Sin comodidades adicionales</span> @endif
-      </p>
+      <div class="mb-2">
+        @if($inmueble->piscina)<span class="badge text-bg-light border me-1"><i class="fas fa-swimmer me-1 prox-ico"></i>Piscina</span>@endif
+        @if($inmueble->jardin)<span class="badge text-bg-light border me-1"><i class="fas fa-tree me-1 prox-ico"></i>Jardín</span>@endif
+        @if($inmueble->garaje)<span class="badge text-bg-light border me-1"><i class="fas fa-warehouse me-1 prox-ico"></i>Garaje</span>@endif
+        @if($inmueble->ascensor)<span class="badge text-bg-light border me-1"><i class="fas fa-elevator me-1 prox-ico"></i>Ascensor</span>@endif
+        @if(!$inmueble->piscina && !$inmueble->jardin && !$inmueble->garaje && !$inmueble->ascensor)<span class="text-muted">Sin comodidades adicionales</span>@endif
+      </div>
 
       @include('inmuebles.partials.proximidades', ['inmueble' => $inmueble])
 
@@ -244,17 +251,28 @@
 @if($inmueble->coordenadas)
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-document.addEventListener('DOMContentLoaded', function () {
-    if (typeof L === 'undefined') { return; }
+function initMapaFicha() {
+    var div = document.getElementById('mapa-ficha');
+    if (!div) { return; }
+    if (typeof L === 'undefined') {
+        div.innerHTML = '<div class="d-flex align-items-center justify-content-center h-100 text-muted small p-3">No se pudo cargar el mapa. Recargá la página.</div>';
+        return;
+    }
     var partes = '{{ $inmueble->coordenadas }}'.split(',');
     var lat = parseFloat(partes[0]), lng = parseFloat(partes[1]);
     if (isNaN(lat) || isNaN(lng)) { return; }
-    var map = L.map('mapa-ficha').setView([lat, lng], 16);
+    var map = L.map('mapa-ficha', { scrollWheelZoom: false }).setView([lat, lng], 16);
     var osm = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '&copy; OpenStreetMap' }).addTo(map);
     var sat = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', { maxZoom: 19, maxNativeZoom: 18, attribution: 'Tiles &copy; Esri' });
     L.control.layers({ 'Callejera': osm, 'Satelital': sat }, null, { position: 'topright' }).addTo(map);
-    L.marker([lat, lng]).addTo(map).bindPopup({{ $jsonLd($inmueble->titulo) }}).openPopup();
-});
+    L.marker([lat, lng]).addTo(map).bindPopup({!! $jsonLd($inmueble->titulo) !!}).openPopup();
+    setTimeout(function () { map.invalidateSize(); }, 300);
+}
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initMapaFicha);
+} else {
+    initMapaFicha();
+}
 </script>
 @endif
 @stop
