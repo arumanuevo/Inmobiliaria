@@ -100,7 +100,7 @@ class InmuebleController extends Controller
     }
 
     // Guarda el puntaje: primero el calculado por el navegador (entorno_json), fallback server-side (Overpass)
-    public static function guardarEntorno(Inmueble $inmueble, ?string $entornoJson): void
+    public static function aplicarEntorno(Inmueble $inmueble, ?string $entornoJson): void
     {
         $entorno = static::normalizarEntornoJson($entornoJson);
         if ($entorno) {
@@ -237,7 +237,7 @@ class InmuebleController extends Controller
         $inmueble = Inmueble::create($data);
 
         // Puntaje de entorno: primero el del navegador (entorno_json), fallback server-side
-        static::guardarEntorno($inmueble, $request->input('entorno_json'));
+        static::aplicarEntorno($inmueble, $request->input('entorno_json'));
 
         // Guardado directo de imágenes si fueron adjuntadas en el alta
         if ($request->hasFile('imagenes')) {
@@ -305,7 +305,7 @@ class InmuebleController extends Controller
         $inmueble->update($data);
 
         // Recalcular puntaje de entorno (navegador primero, fallback server-side)
-        static::guardarEntorno($inmueble, $request->input('entorno_json'));
+        static::aplicarEntorno($inmueble, $request->input('entorno_json'));
 
         // Si pasó de borrador a publicado, avisar a las búsquedas guardadas
         if (!$yaPublicado && $inmueble->publicado) {
