@@ -38,6 +38,14 @@ class PuntajeEntornoService
         'service' => 'Calle interna / pasaje', 'living_street' => 'Calle peatonal',
     ];
 
+    // Mirrors públicos de Overpass: si uno está caído/rate-limiteado/bloqueado, se prueba el siguiente
+    const MIRRORS = [
+        'https://overpass-api.de/api/interpreter',
+        'https://overpass.kumi.systems/api/interpreter',
+        'https://overpass.private.coffee/api/interpreter',
+        'https://overpass.nchc.org.tw/api/interpreter',
+    ];
+
     /**
      * @return array|null ['puntaje' => int 0-100, 'detalle' => array]
      */
@@ -46,19 +54,25 @@ class PuntajeEntornoService
         if ($lat === null || $lng === null || !is_finite($lat) || !is_finite($lng)) {
             return null;
         }
-        try {
-            $q = self::queryOverpass((float) $lat, (float) $lng);
-            $resp = Http::timeout(12)->get('https://overpass-api.de/api/interpreter', ['data' => $q]);
-            if (!$resp->ok()) {
-                Log::warning('PuntajeEntorno: Overpass no respondió OK', ['status' => $resp->status()]);
-                return null;
+        $q = self::queryOverpass((float) $lat, (float) $lng);
+        $ultimoError = null;
+        foreach (self::MIRRORS as $url) {
+            try {
+                $resp = Http::connectTimeout(8)->timeout(20)
+                    ->withHeaders(['User-Agent' => 'ArumasoftPortal/1.0 (portal inmobiliario AR)'])
+                    ->get($url, ['data' => $q]);
+                if ($resp->ok()) {
+                    $elements = $resp->json('elements') ?? [];
+                    return self::puntuar($elements);
+                }
+                $ultimoError = 'HTTP ' . $resp->status() . ' ' . substr((string) $resp->body(), 0, 200);
+            } catch (\Throwable $e) {
+                $ultimoError = get_class($e) . ': ' . $e->getMessage();
             }
-            $elements = $resp->json('elements') ?? [];
-            return self::puntuar($elements);
-        } catch (\Throwable $e) {
-            Log::warning('PuntajeEntorno: falló el cálculo', ['error' => $e->getMessage()]);
-            return null;
+            Log::warning('PuntajeEntorno: mirror falló', ['url' => $url, 'error' => $ultimoError]);
         }
+        Log::warning('PuntajeEntorno: todos los mirrors fallaron', ['lat' => $lat, 'lng' => $lng, 'ultimo_error' => $ultimoError]);
+        return null;
     }
 
     protected static function queryOverpass(float $lat, float $lng): string
@@ -82,7 +96,7 @@ class PuntajeEntornoService
             . 'out tags center 300;';
     }
 
-    protected static function puntuar(array $elements): array
+    public static function puntuar(array $elements): array
     {
         $mejorArteria = null; // ['tipo'=>, 'puntos'=>]
         $estacionesTren = 0;   // railway station / subway_entrance

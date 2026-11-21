@@ -158,6 +158,11 @@
                         <small class="text-muted d-block mt-1">Se calcula con OpenStreetMap según lo que rodea al inmueble: arteria, transporte, comercios y servicios cercanos.</small>
                     @endif
                 </div>
+                <div class="form-group">
+                    <button type="button" id="btn-entorno-browser" class="btn btn-outline-info btn-sm rounded-pill"><i class="fas fa-globe me-1"></i>Calcular desde el navegador</button>
+                    <small class="text-muted d-block mt-1">Alternativa si el servidor no puede salir a internet: consulta OpenStreetMap desde tu navegador y guarda el puntaje igual.</small>
+                    <span id="entorno-browser-msg" class="small d-block mt-1"></span>
+                </div>
 
                 <!-- Prestaciones -->
                 <div class="form-group">
@@ -332,6 +337,69 @@ document.addEventListener('DOMContentLoaded', function () {
     if (btnBuscar) {
         btnBuscar.addEventListener('click', function (e) { e.preventDefault(); clearTimeout(timer); buscar(); });
     }
+});
+</script>
+<script>
+// Fallback "Calcular desde el navegador": Overpass tiene CORS habilitado, así que el browser
+// puede consultarlo aunque el servidor (hosting compartido) tenga la salida bloqueada.
+document.addEventListener('DOMContentLoaded', function () {
+    var btnEB = document.getElementById('btn-entorno-browser');
+    if (!btnEB) { return; }
+    btnEB.addEventListener('click', async function () {
+        var msg = document.getElementById('entorno-browser-msg');
+        var coord = (document.getElementById('coordenadas').value || '').split(',');
+        var lat = parseFloat(coord[0]), lng = parseFloat(coord[1]);
+        if (isNaN(lat) || isNaN(lng)) {
+            msg.textContent = 'Primero geocodificá la dirección en el mapa (coordenadas vacías).';
+            msg.className = 'small d-block mt-1 text-danger';
+            return;
+        }
+        btnEB.disabled = true;
+        msg.textContent = 'Consultando OpenStreetMap desde el navegador...';
+        msg.className = 'small d-block mt-1 text-muted';
+        var q = '[out:json][timeout:20];(way(around:150,' + lat + ',' + lng + ')[highway~"^(motorway|trunk|primary|secondary|tertiary|residential|unclassified|service|living_street)$"];'
+            + 'nwr(around:400,' + lat + ',' + lng + ')[railway~"^(station|subway_entrance|halt)$"];'
+            + 'nwr(around:400,' + lat + ',' + lng + ')[public_transport~"^(stop_position|station|platform)$"];'
+            + 'nwr(around:400,' + lat + ',' + lng + ')[bus=yes];'
+            + 'nwr(around:400,' + lat + ',' + lng + ')[shop];'
+            + 'nwr(around:400,' + lat + ',' + lng + ')[amenity~"^(restaurant|cafe|bar|fast_food|bank|pharmacy|hospital|clinic|school|kindergarten|university|marketplace|supermarket|convenience|fuel|bus_station|police|fire_station|post_office)$"]);'
+            + 'out tags center 300;';
+        var mirrors = [
+            'https://overpass-api.de/api/interpreter',
+            'https://overpass.kumi.systems/api/interpreter',
+            'https://overpass.private.coffee/api/interpreter'
+        ];
+        var elements = null;
+        for (var i = 0; i < mirrors.length && !elements; i++) {
+            try {
+                var r = await fetch(mirrors[i] + '?data=' + encodeURIComponent(q));
+                if (r.ok) {
+                    var j = await r.json();
+                    if (j && j.elements) { elements = j.elements; }
+                }
+            } catch (e) { /* siguiente mirror */ }
+        }
+        if (!elements) {
+            msg.textContent = 'Tampoco se pudo consultar OpenStreetMap desde el navegador. Probá de nuevo en un rato.';
+            msg.className = 'small d-block mt-1 text-danger';
+            btnEB.disabled = false;
+            return;
+        }
+        msg.textContent = 'Guardando puntaje (' + elements.length + ' elementos)...';
+        try {
+            var r2 = await fetch('{{ route('inmuebles.guardarEntorno', $inmueble) }}', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+                body: JSON.stringify({ _token: '{{ csrf_token() }}', elements: elements })
+            });
+            if (r2.ok) { location.reload(); return; }
+            msg.textContent = 'No se pudo guardar el puntaje (HTTP ' + r2.status + ').';
+        } catch (e) {
+            msg.textContent = 'Error de red al guardar: ' + e.message;
+        }
+        msg.className = 'small d-block mt-1 text-danger';
+        btnEB.disabled = false;
+    });
 });
 </script>
 @include('inmuebles.partials.proximidades_js')

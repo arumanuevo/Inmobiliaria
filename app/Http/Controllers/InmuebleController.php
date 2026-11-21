@@ -109,7 +109,25 @@ class InmuebleController extends Controller
         static::puntuarEntorno($inmueble);
         return back()->with('success', $inmueble->puntaje_entorno !== null
             ? 'Puntaje de entorno recalculado: ' . $inmueble->puntaje_entorno . '/100.'
-            : 'No se pudo calcular ahora (servicio de mapas no disponible). Probá de nuevo en un rato.');
+            : 'No se pudo calcular ahora (servicio de mapas no disponible). Probá de nuevo en un rato o usá "Calcular desde el navegador".');
+    }
+
+    // Fallback: el navegador consulta Overpass (CORS habilitado) y manda los elementos; el server puntúa y guarda
+    public function guardarEntorno(Request $request, Inmueble $inmueble)
+    {
+        $this->authorize('update', $inmueble);
+        $data = $request->validate([
+            'elements' => 'required|array|max:400',
+        ], [
+            'elements.required' => 'No llegaron datos de OpenStreetMap.',
+            'elements.max' => 'Demasiados datos recibidos, reintentá.',
+        ]);
+        $res = \App\Services\PuntajeEntornoService::puntuar($data['elements']);
+        $inmueble->puntaje_entorno = $res['puntaje'];
+        $inmueble->puntaje_entorno_detalle = $res['detalle'];
+        $inmueble->puntaje_entorno_at = now();
+        $inmueble->save();
+        return back()->with('success', 'Puntaje de entorno calculado: ' . $res['puntaje'] . '/100.');
     }
 
     // Mensajes de validación en español claro (el default de Laravel traduce mal los snake_case)

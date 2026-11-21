@@ -86,6 +86,8 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
 Route::resource('inmuebles', InmuebleController::class);
 // OJO: el form de edición manda _method=PUT (resource update), así que aceptamos POST y PUT
 Route::match(['post', 'put'], 'inmuebles/{inmueble}/recalcular-entorno', [InmuebleController::class, 'recalcularEntorno'])->name('inmuebles.recalcularEntorno');
+// Fallback navegador: el cliente manda los elementos de Overpass y el server puntúa
+Route::post('inmuebles/{inmueble}/guardar-entorno', [InmuebleController::class, 'guardarEntorno'])->name('inmuebles.guardarEntorno');
 Route::get('inmuebles/{inmueble}/add-photos', [InmuebleController::class, 'addPhotos'])->name('inmuebles.addPhotos');
 Route::post('inmuebles/{id}/store-photos', [InmuebleController::class, 'storePhotos'])->name('inmuebles.storePhotos');
 Route::get('inmuebles/{inmueble}/delete-photos', [InmuebleController::class, 'deletePhotos'])->name('inmuebles.deletePhotos');
