@@ -15,7 +15,7 @@ class Inmueble extends Model
         'piscina', 'jardin', 'garaje', 'ascensor', 'fotos', 'destacado', 'publicado', 'visitas',
         'cerrada', 'tipo_cierre', 'cerrada_at',
         'comision_porcentaje', 'comision_monto', 'comision_estado', 'comision_cobrada_at',
-        'carga_asistida', 'declaracion_propietario',
+        'carga_asistida', 'declaracion_propietario', 'proximidades',
         'propdom', 'propnombre', 'propdni', 'propemail', 'proptel'
     ];
 
@@ -30,6 +30,7 @@ class Inmueble extends Model
         'comision_cobrada_at' => 'datetime',
         'carga_asistida' => 'boolean',
         'declaracion_propietario' => 'boolean',
+        'proximidades' => 'array',
     ];
 
     public static function tiposPropiedad(): array
@@ -45,6 +46,74 @@ class Inmueble extends Model
     {
         $simbolo = (($this->moneda ?? 'ARS') === 'USD') ? 'U$S ' : '$';
         return $simbolo . number_format((float) $this->precio, 2);
+    }
+
+    // Proximidades / ventajas del entorno: lista normalizada [{nombre, metros}] ordenada por cercanía
+    public function proximidadesLista(): array
+    {
+        $raw = $this->proximidades;
+        if (is_string($raw)) {
+            $raw = json_decode($raw, true);
+        }
+        if (!is_array($raw)) {
+            return [];
+        }
+        $out = [];
+        foreach ($raw as $p) {
+            if (!is_array($p)) { continue; }
+            $nombre = trim((string) ($p['nombre'] ?? ''));
+            if ($nombre === '') { continue; }
+            $metros = (isset($p['metros']) && is_numeric($p['metros'])) ? (int) $p['metros'] : null;
+            $out[] = ['nombre' => mb_substr($nombre, 0, 80), 'metros' => $metros];
+        }
+        usort($out, function ($a, $b) {
+            return ($a['metros'] ?? PHP_INT_MAX) <=> ($b['metros'] ?? PHP_INT_MAX);
+        });
+        return $out;
+    }
+
+    // Icono Font Awesome según palabras clave del nombre del punto de interés
+    public static function iconoProximidad(string $nombre): string
+    {
+        $n = mb_strtolower($nombre);
+        $mapa = [
+            'tren|ferrocarril' => 'fa-train',
+            'subte|metro' => 'fa-subway',
+            'colectivo|bus|omnibus|ómnibus' => 'fa-bus',
+            'autopista|ruta|peaje' => 'fa-road',
+            'supermercado|almacen|almacén' => 'fa-basket-shopping',
+            'shopping|local|comercial|negocio' => 'fa-store',
+            'plaza|parque|verde' => 'fa-tree',
+            'escuela|colegio|jardín de infantes|jardin de infantes' => 'fa-school',
+            'universidad|instituto|facultad' => 'fa-graduation-cap',
+            'hospital|clínica|clinica|salud|centro de salud' => 'fa-hospital',
+            'farmacia|droguería|drogueria' => 'fa-pills',
+            'banco|cajero' => 'fa-landmark',
+            'comisaría|comisaria|policía|policia|seguridad' => 'fa-shield-halved',
+            'gimnasio|gym|club' => 'fa-dumbbell',
+            'deportivo|fútbol|futbol|cancha' => 'fa-futbol',
+            'gastron|restaurant|bar|café|cafe' => 'fa-utensils',
+            'playa|lago|rio|río|costanera' => 'fa-umbrella-beach',
+            'iglesia|parroquia|templo|capilla' => 'fa-church',
+            'transporte' => 'fa-bus',
+        ];
+        foreach ($mapa as $regex => $icono) {
+            if (preg_match('/' . $regex . '/u', $n)) {
+                return $icono;
+            }
+        }
+        return 'fa-star';
+    }
+
+    // Sugerencias para el datalist del formulario de proximidades
+    public static function sugerenciasProximidad(): array
+    {
+        return [
+            'Estación de tren', 'Boca de subte', 'Parada de colectivo', 'Acceso a autopista',
+            'Ruta nacional / provincial', 'Supermercado', 'Centro comercial / shopping', 'Plaza o parque',
+            'Escuela', 'Universidad', 'Hospital o clínica', 'Farmacia', 'Banco', 'Comisaría',
+            'Gimnasio', 'Club deportivo', 'Zona gastronómica', 'Playa / río / costanera', 'Iglesia',
+        ];
     }
 
     // Relación: un inmueble tiene muchas fotos

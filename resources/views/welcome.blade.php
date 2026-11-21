@@ -339,6 +339,9 @@
               <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#propertyModal{{ $inmueble->id }}">
                 Ver Detalles
               </button>
+              <a href="{{ route('propiedades.index', ['vista' => 'mapa', 'prop' => $inmueble->id]) }}" class="btn btn-outline-primary btn-sm ms-1" title="Ver esta propiedad en el mapa del portal">
+                <i class="fas fa-map-marked-alt me-1"></i> En el mapa
+              </a>
             </div>
           </div>
         </div>
@@ -417,6 +420,7 @@
                         <li class="detalle-item mb-1"><i class="fas fa-calendar detalle-ico me-2"></i>Construido en {{ $inmueble->anio_construccion }}</li>
                       @endif
                     </ul>
+                    @include('inmuebles.partials.proximidades', ['inmueble' => $inmueble])
                     @if($inmueble->piscina || $inmueble->jardin || $inmueble->garaje || $inmueble->ascensor)
                       <div class="mb-3">
                         @if($inmueble->piscina)<span class="badge text-bg-light border me-1"><i class="fas fa-swimmer me-1"></i>Piscina</span>@endif

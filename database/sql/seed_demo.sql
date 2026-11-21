@@ -65,6 +65,10 @@ SET @c := (SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA=DA
 SET @ddl := IF(@c=0, 'ALTER TABLE `inmuebles` ADD COLUMN `declaracion_propietario` TINYINT(1) NOT NULL DEFAULT 0', 'SELECT ''ok'' AS msg');
 PREPARE s FROM @ddl; EXECUTE s; DEALLOCATE PREPARE s;
 
+SET @c := (SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME='inmuebles' AND COLUMN_NAME='proximidades');
+SET @ddl := IF(@c=0, 'ALTER TABLE `inmuebles` ADD COLUMN `proximidades` TEXT NULL DEFAULT NULL', 'SELECT ''ok'' AS msg');
+PREPARE s FROM @ddl; EXECUTE s; DEALLOCATE PREPARE s;
+
 SET @c := (SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME='inmobiliarias' AND COLUMN_NAME='zonas_cobertura');
 SET @ddl := IF(@c=0, 'ALTER TABLE `inmobiliarias` ADD COLUMN `zonas_cobertura` VARCHAR(255) NULL DEFAULT NULL', 'SELECT ''ok'' AS msg');
 PREPARE s FROM @ddl; EXECUTE s; DEALLOCATE PREPARE s;

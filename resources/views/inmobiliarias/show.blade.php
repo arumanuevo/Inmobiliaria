@@ -18,6 +18,7 @@
       if (count($p) !== 2 || !is_numeric($p[0]) || !is_numeric($p[1])) { return null; }
       $fotos = $i->fotos ?? [];
       return [
+          'id' => $i->id,
           'lat' => (float) $p[0],
           'lng' => (float) $p[1],
           'titulo' => e((string) $i->titulo),
@@ -76,6 +77,7 @@
   }
   .perfil-modal .detalle-ico { color: {{ $inmobiliaria->color_tema ?: '#0d6efd' }}; }
   .perfil-modal .detalle-item { font-size: .92rem; }
+  .perfil-modal .prox-ico { color: {{ $inmobiliaria->color_tema ?: '#0d6efd' }}; }
   .footer {
     background-color: #343a40;
     color: white;
@@ -259,7 +261,12 @@
                 @endif
               </h5>
               <p class="card-text">{{ $inmueble->precio_formateado }} &bull; {{ $inmueble->habitaciones }} Hab. &bull; {{ $inmueble->banos }} Baños &bull; {{ $inmueble->superficie_cubierta }} m²</p>
-              <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#propertyModal{{ $inmueble->id }}">Ver Detalles</button>
+              <div class="d-flex gap-2 flex-wrap">
+                <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#propertyModal{{ $inmueble->id }}">Ver Detalles</button>
+                @if($tieneMapa)
+                  <button type="button" class="btn btn-outline-secondary btn-sm btn-ver-mapa" data-id="{{ $inmueble->id }}"><i class="fas fa-map-marker-alt me-1"></i>En el mapa</button>
+                @endif
+              </div>
             </div>
           </div>
         </div>
@@ -390,6 +397,7 @@
                     <li class="detalle-item mb-1"><i class="fas fa-tag detalle-ico me-2"></i>{{ ['a_estrenar'=>'A estrenar','usado'=>'Usado / buen estado','a_refaccionar'=>'A refaccionar','en_construccion'=>'En construcción'][$inmueble->estado_propiedad] ?? $inmueble->estado_propiedad }}</li>
                   @endif
                 </ul>
+                @include('inmuebles.partials.proximidades', ['inmueble' => $inmueble])
                 @if($inmueble->piscina || $inmueble->jardin || $inmueble->garaje || $inmueble->ascensor)
                   <div class="mb-3">
                     @if($inmueble->piscina)<span class="badge text-bg-light border me-1"><i class="fas fa-swimmer me-1"></i>Piscina</span>@endif
@@ -447,6 +455,7 @@ document.addEventListener('DOMContentLoaded', function () {
     L.control.layers({ 'Callejera (OSM)': osm, 'Satelital (Esri)': sat }, null, { position: 'topright' }).addTo(map);
     osm.addTo(map);
     var layer = L.featureGroup().addTo(map);
+    var markersById = {};
     var pin = function (color) {
       return L.divIcon({
         className: '',
@@ -462,7 +471,7 @@ document.addEventListener('DOMContentLoaded', function () {
         (p.ciudad ? '<div class="small text-muted mb-1">' + p.ciudad + '</div>' : '') +
         '<a href="' + p.url + '" class="btn btn-sm w-100" style="background:' + brand + ';color:#fff;">Ver propiedad</a>' +
         '</div>';
-      L.marker([p.lat, p.lng], { icon: pin(brand) }).addTo(layer).bindPopup(html);
+      markersById[p.id] = L.marker([p.lat, p.lng], { icon: pin(brand) }).addTo(layer).bindPopup(html);
     });
     @if($oficinaCoords)
     L.marker([{{ (float) $inmobiliaria->lat }}, {{ (float) $inmobiliaria->lng }}], { icon: pin('#101828') }).addTo(layer)
@@ -474,6 +483,20 @@ document.addEventListener('DOMContentLoaded', function () {
       map.setView([-38.5, -64.5], 5);
     }
     setTimeout(function () { map.invalidateSize(); }, 250);
+
+    // Botón "En el mapa" de cada tarjeta: scrollea al mapa, hace zoom y abre el popup del marcador
+    document.querySelectorAll('.btn-ver-mapa').forEach(function (b) {
+      b.addEventListener('click', function () {
+        var m = markersById[b.getAttribute('data-id')];
+        if (!m) { return; }
+        document.getElementById('mapa-perfil').scrollIntoView({ behavior: 'smooth', block: 'center' });
+        setTimeout(function () {
+          map.invalidateSize();
+          map.setView(m.getLatLng(), 17);
+          m.openPopup();
+        }, 400);
+      });
+    });
 });
 </script>
 @endif

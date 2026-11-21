@@ -71,7 +71,26 @@ class InmuebleController extends Controller
             'proptel'             => 'nullable|string|max:20',
             // Protección legal: el anunciante declara ser propietario o estar autorizado
             'declaracion_propietario' => ['required', 'accepted'],
+            // Proximidades / ventajas del entorno (JSON desde el repeater del form)
+            'proximidades_json' => 'nullable|string|max:6000',
         ];
+    }
+
+    // Normaliza el JSON de proximidades enviado por el formulario: [{nombre, metros}], máx 12, saneado
+    public static function normalizarProximidades(?string $json): array
+    {
+        if (!$json) { return []; }
+        $raw = json_decode($json, true);
+        if (!is_array($raw)) { return []; }
+        $out = [];
+        foreach (array_slice($raw, 0, 12) as $p) {
+            if (!is_array($p)) { continue; }
+            $nombre = trim((string) ($p['nombre'] ?? ''));
+            if ($nombre === '') { continue; }
+            $metros = (isset($p['metros']) && is_numeric($p['metros'])) ? max(0, min(100000, (int) $p['metros'])) : null;
+            $out[] = ['nombre' => mb_substr($nombre, 0, 80), 'metros' => $metros];
+        }
+        return $out;
     }
 
     public function store(Request $request)
@@ -90,6 +109,8 @@ class InmuebleController extends Controller
         $data['declaracion_propietario'] = $request->has('declaracion_propietario') ? 1 : 0;
         $data['moneda'] = $data['moneda'] ?? 'ARS';
         $data['cocheras'] = $data['cocheras'] ?? 0;
+        $data['proximidades'] = static::normalizarProximidades($request->input('proximidades_json')) ?: null;
+        unset($data['proximidades_json']);
 
         $user = auth()->user();
         $data['usuario_id'] = $user->id;
@@ -169,6 +190,8 @@ class InmuebleController extends Controller
         $data['declaracion_propietario'] = $request->has('declaracion_propietario') ? 1 : 0;
         $data['moneda'] = $data['moneda'] ?? 'ARS';
         $data['cocheras'] = $data['cocheras'] ?? 0;
+        $data['proximidades'] = static::normalizarProximidades($request->input('proximidades_json')) ?: null;
+        unset($data['proximidades_json']);
 
         $this->authorize('update', $inmueble);
 

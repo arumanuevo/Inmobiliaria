@@ -384,6 +384,7 @@
     var vistaActual = 'lista';
     var mapInstancia = null;
     var markersLayer = null;
+    var markersById = {};
 
     function initMapa() {
       if (mapInstancia) return;
@@ -414,6 +415,7 @@
         data: formData,
         success: function(items) {
           markersLayer.clearLayers();
+          markersById = {};
           if (!items || !items.length) {
             $('#contador-resultados-texto').text('(0 propiedades en mapa)');
             return;
@@ -434,11 +436,20 @@
               (it.url ? '<a href="' + it.url + '" class="btn btn-primary btn-sm w-100 py-1" style="font-size:12px;">Ver propiedad</a>' : '') +
               '</div>';
             var marker = L.marker([it.lat, it.lng]).bindPopup(popup);
+            markersById[it.id] = marker;
             markersLayer.addLayer(marker);
           });
 
           if (markersLayer.getLayers().length > 0) {
             mapInstancia.fitBounds(markersLayer.getBounds().pad(0.15));
+          }
+
+          // Foco desde "En el mapa" (?prop=ID): zoom al marcador y abrir su popup
+          var propFocus = (typeof urlParams !== 'undefined') ? urlParams.get('prop') : null;
+          if (propFocus && markersById[propFocus]) {
+            var mk = markersById[propFocus];
+            mapInstancia.setView(mk.getLatLng(), 17);
+            mk.openPopup();
           }
         }
       });

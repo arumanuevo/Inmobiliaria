@@ -157,6 +157,8 @@
         @if(!$inmueble->piscina && !$inmueble->jardin && !$inmueble->garaje && !$inmueble->ascensor) <span class="text-muted">Sin comodidades adicionales</span> @endif
       </p>
 
+      @include('inmuebles.partials.proximidades', ['inmueble' => $inmueble])
+
       @if($inmueble->coordenadas)
         <h5>Ubicación</h5>
         <div id="mapa-ficha" class="mb-3"></div>

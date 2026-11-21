@@ -183,6 +183,9 @@
                     </div>
                 </div>
 
+                <!-- Proximidades / ventajas del entorno -->
+                @include('inmuebles.partials.proximidades_form')
+
                 <!-- Visibilidad -->
                 <div class="form-group form-check mt-4">
                     <input class="form-check-input" type="checkbox" name="publicado" value="1" id="publicado" {{ $inmueble->publicado ? 'checked' : '' }}>
@@ -305,5 +308,6 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 });
 </script>
+@include('inmuebles.partials.proximidades_js')
 @stop
 

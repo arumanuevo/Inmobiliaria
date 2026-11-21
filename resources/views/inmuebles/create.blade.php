@@ -370,6 +370,9 @@
                     </div>
                 </div>
 
+                {{-- Proximidades / ventajas del entorno --}}
+                @include('inmuebles.partials.proximidades_form')
+
                 {{-- Declaración Jurada Legal --}}
                 <div class="p-3 bg-light border border-primary rounded mb-3">
                     <div class="form-check">
@@ -548,4 +551,5 @@ function imageUploader() {
     };
 }
 </script>
+@include('inmuebles.partials.proximidades_js')
 @stop

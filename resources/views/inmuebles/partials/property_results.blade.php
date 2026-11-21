@@ -145,6 +145,7 @@
                     <li class="detalle-item mb-1"><i class="fas fa-tag detalle-ico me-2"></i>{{ ['a_estrenar'=>'A estrenar','usado'=>'Usado / buen estado','a_refaccionar'=>'A refaccionar','en_construccion'=>'En construcción'][$property->estado_propiedad] ?? $property->estado_propiedad }}</li>
                   @endif
                 </ul>
+                @include('inmuebles.partials.proximidades', ['inmueble' => $property])
                 <p class="mb-1 text-muted small"><i class="fas fa-map-marker-alt detalle-ico me-2"></i>{{ $property->direccion }}, {{ $property->ciudad }}, {{ $property->estado }}</p>
                 <p class="mb-2 text-muted small"><strong>Anunciante:</strong> {{ $property->inmobiliaria->nombre_comercial ?? '' }}</p>
                 @if($property->descripcion)
