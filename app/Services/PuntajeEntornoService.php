@@ -38,12 +38,13 @@ class PuntajeEntornoService
         'service' => 'Calle interna / pasaje', 'living_street' => 'Calle peatonal',
     ];
 
-    // Mirrors públicos de Overpass: si uno está caído/rate-limiteado/bloqueado, se prueba el siguiente
+    // Mirrors públicos de Overpass: si uno está caído/rate-limiteado/bloqueado, se prueba el siguiente.
+    // OJO: en hosting compartido la salida a veces cuelga (firewall) -> timeouts cortos para no trabar el guardado;
+    // el fallback posta desde el navegador (botón "Calcular desde el navegador" en la edición).
     const MIRRORS = [
         'https://overpass-api.de/api/interpreter',
         'https://overpass.kumi.systems/api/interpreter',
         'https://overpass.private.coffee/api/interpreter',
-        'https://overpass.nchc.org.tw/api/interpreter',
     ];
 
     /**
@@ -58,8 +59,11 @@ class PuntajeEntornoService
         $ultimoError = null;
         foreach (self::MIRRORS as $url) {
             try {
-                $resp = Http::connectTimeout(8)->timeout(20)
-                    ->withHeaders(['User-Agent' => 'ArumasoftPortal/1.0 (portal inmobiliario AR)'])
+                $resp = Http::connectTimeout(5)->timeout(10)
+                    ->withHeaders([
+                        'User-Agent' => 'ArumasoftPortal/1.0 (portal inmobiliario AR)',
+                        'Accept' => 'application/json',
+                    ])
                     ->get($url, ['data' => $q]);
                 if ($resp->ok()) {
                     $elements = $resp->json('elements') ?? [];
