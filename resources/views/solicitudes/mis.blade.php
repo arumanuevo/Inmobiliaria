@@ -32,6 +32,7 @@
                 </div>
             </div>
             <p class="text-muted small mb-0 mt-3">Ideal para arrancar sin cargar una por una, o cuando tenés varias propiedades para publicar. Mientras tanto, tu perfil público ya está activo.</p>
+            <p class="small mb-0 mt-2" style="color:#4f46e5;"><i class="fas fa-unlock-alt me-1"></i> <strong>Sin ataduras:</strong> una vez cargada, la propiedad es tuya — podés editarla, cambiarle las fotos, destacarla, marcarla como cerrada o eliminarla desde <a href="{{ route('inmuebles.index') }}" style="color:#4f46e5; font-weight:600;">Mis Inmuebles</a> cuando quieras. La marca "carga asistida" solo indica el origen.</p>
         </div>
     </div>
 
