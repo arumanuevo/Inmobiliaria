@@ -332,7 +332,7 @@
                   <span class="badge bg-primary"><i class="fas fa-building me-1"></i> Inmobiliaria</span>
                 @endif
                 @php
-                  // OJO: nunca juntar @endif@if (la letra antes del @ hace que Blade no compile el @if y explote con "unexpected endif")
+                  // OJO: nunca pegar una directiva de Blade justo después de una letra (el @ debe ir precedido de espacio o no-word) porque el regex \B@ no la compila y después explota con "unexpected endif"
                   $lineaTipo = ucfirst($inmueble->tipo_operacion);
                   if ($inmueble->tipo_propiedad) {
                       $lineaTipo .= ' &middot; ' . (\App\Models\Inmueble::tiposPropiedad()[$inmueble->tipo_propiedad] ?? ucfirst($inmueble->tipo_propiedad));
