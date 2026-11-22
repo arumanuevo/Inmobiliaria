@@ -565,6 +565,7 @@ function imageUploader() {
     };
 }
 </script>
+@include('inmuebles.partials.entorno_overpass_js')
 @include('inmuebles.partials.entorno_form_js')
 @include('inmuebles.partials.proximidades_js')
 @stop

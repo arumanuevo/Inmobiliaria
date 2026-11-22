@@ -97,7 +97,7 @@ class PuntajeEntornoService
             // servicios
             . "nwr(around:{$r},{$lat},{$lng})[amenity~\"^(restaurant|cafe|bar|fast_food|bank|pharmacy|hospital|clinic|school|kindergarten|university|marketplace|supermarket|convenience|fuel|bus_station|police|fire_station|post_office)$\"];"
             . ');'
-            . 'out tags center 300;';
+            . 'out tags 250;';
     }
 
     public static function puntuar(array $elements): array

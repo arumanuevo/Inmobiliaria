@@ -358,30 +358,9 @@ document.addEventListener('DOMContentLoaded', function () {
         btnEB.disabled = true;
         msg.textContent = 'Consultando OpenStreetMap desde el navegador...';
         msg.className = 'small d-block mt-1 text-muted';
-        var q = '[out:json][timeout:20];(way(around:150,' + lat + ',' + lng + ')[highway~"^(motorway|trunk|primary|secondary|tertiary|residential|unclassified|service|living_street)$"];'
-            + 'nwr(around:400,' + lat + ',' + lng + ')[railway~"^(station|subway_entrance|halt)$"];'
-            + 'nwr(around:400,' + lat + ',' + lng + ')[public_transport~"^(stop_position|station|platform)$"];'
-            + 'nwr(around:400,' + lat + ',' + lng + ')[bus=yes];'
-            + 'nwr(around:400,' + lat + ',' + lng + ')[shop];'
-            + 'nwr(around:400,' + lat + ',' + lng + ')[amenity~"^(restaurant|cafe|bar|fast_food|bank|pharmacy|hospital|clinic|school|kindergarten|university|marketplace|supermarket|convenience|fuel|bus_station|police|fire_station|post_office)$"]);'
-            + 'out tags center 300;';
-        var mirrors = [
-            'https://overpass-api.de/api/interpreter',
-            'https://overpass.kumi.systems/api/interpreter',
-            'https://overpass.private.coffee/api/interpreter'
-        ];
-        var elements = null;
-        for (var i = 0; i < mirrors.length && !elements; i++) {
-            try {
-                var r = await fetch(mirrors[i] + '?data=' + encodeURIComponent(q));
-                if (r.ok) {
-                    var j = await r.json();
-                    if (j && j.elements) { elements = j.elements; }
-                }
-            } catch (e) { /* siguiente mirror */ }
-        }
+        var elements = await window.consultarEntorno(lat, lng);
         if (!elements) {
-            msg.textContent = 'Tampoco se pudo consultar OpenStreetMap desde el navegador. Probá de nuevo en un rato.';
+            msg.textContent = 'No se pudo consultar OpenStreetMap desde el navegador (rate limit). Esperá unos segundos y reintentá.';
             msg.className = 'small d-block mt-1 text-danger';
             btnEB.disabled = false;
             return;
@@ -403,6 +382,7 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 });
 </script>
+@include('inmuebles.partials.entorno_overpass_js')
 @include('inmuebles.partials.entorno_form_js')
 @include('inmuebles.partials.proximidades_js')
 @stop
