@@ -52,8 +52,6 @@ Route::middleware('auth')->group(function () {
     Route::delete('/mis-busquedas/{busqueda}', [BusquedaGuardadaController::class, 'destroy'])->name('busquedas.destroy');
     Route::get('/mis-solicitudes', [App\Http\Controllers\SolicitudCargaController::class, 'mis'])->name('solicitudes.mias');
     Route::post('/mis-solicitudes', [App\Http\Controllers\SolicitudCargaController::class, 'store'])->name('solicitudes.store');
-    // Puntuar elementos de Overpass enviados por el navegador (no llama a Overpass del lado server)
-    Route::post('/api/entorno/puntuar', [InmuebleController::class, 'puntuarApi'])->name('entorno.puntuar');
 });
 
 // Búsquedas guardadas (público: cualquiera puede recibir alertas por email de nuevas propiedades)
@@ -86,10 +84,6 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
 
 // Rutas para el CRUD de Inmuebles (admin e inmobiliarias; cada una solo gestiona lo suyo)
 Route::resource('inmuebles', InmuebleController::class);
-// OJO: el form de edición manda _method=PUT (resource update), así que aceptamos POST y PUT
-Route::match(['post', 'put'], 'inmuebles/{inmueble}/recalcular-entorno', [InmuebleController::class, 'recalcularEntorno'])->name('inmuebles.recalcularEntorno');
-// Fallback navegador: el cliente manda los elementos de Overpass y el server puntúa
-Route::post('inmuebles/{inmueble}/guardar-entorno', [InmuebleController::class, 'guardarEntorno'])->name('inmuebles.guardarEntorno');
 Route::get('inmuebles/{inmueble}/add-photos', [InmuebleController::class, 'addPhotos'])->name('inmuebles.addPhotos');
 Route::post('inmuebles/{id}/store-photos', [InmuebleController::class, 'storePhotos'])->name('inmuebles.storePhotos');
 Route::get('inmuebles/{inmueble}/delete-photos', [InmuebleController::class, 'deletePhotos'])->name('inmuebles.deletePhotos');

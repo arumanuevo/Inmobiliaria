@@ -134,7 +134,6 @@
                 <div class="form-group">
                     <label for="coordenadas">Coordenadas</label>
                     <input type="text" name="coordenadas" id="coordenadas" class="form-control" placeholder="Latitud, Longitud" value="{{ $inmueble->coordenadas }}">
-                    @include('inmuebles.partials.entorno_form')
                 </div>
                 <div class="form-group">
                     <label for="busqueda-mapa">Ubicación en el mapa</label>
@@ -145,24 +144,6 @@
                     <div id="resultados-mapa" class="list-group mb-1"></div>
                     <div id="mapa-inmueble" style="height: 320px; border-radius: 6px; border: 1px solid #ccc;"></div>
                     <small class="text-muted">Ayuda: escribí la dirección y elegí un resultado (o apretá Buscar), o hacé clic directamente en el mapa. Las coordenadas se completan solas.</small>
-                </div>
-                <div class="form-group">
-                    {{-- OJO: nada de formulario anidado acá (rompe el form principal). Se usa formaction del botón submit --}}
-                    @if($inmueble->puntaje_entorno !== null)
-                        @php $pe = $inmueble->puntajeEntornoLabel(); @endphp
-                        <div class="alert alert-light border d-flex align-items-center justify-content-between mb-0 py-2">
-                            <span><i class="fas fa-chart-line me-1" style="color: {{ $pe['color'] }};"></i> Puntaje de entorno: <strong>{{ $inmueble->puntaje_entorno }}/100</strong> ({{ $pe['texto'] }})</span>
-                            <button type="submit" class="btn btn-outline-primary btn-sm rounded-pill" formaction="{{ route('inmuebles.recalcularEntorno', $inmueble) }}" formmethod="POST"><i class="fas fa-sync-alt me-1"></i>Recalcular</button>
-                        </div>
-                    @else
-                        <button type="submit" class="btn btn-outline-secondary btn-sm rounded-pill" formaction="{{ route('inmuebles.recalcularEntorno', $inmueble) }}" formmethod="POST"><i class="fas fa-sync-alt me-1"></i>Calcular puntaje de entorno</button>
-                        <small class="text-muted d-block mt-1">Se calcula con OpenStreetMap según lo que rodea al inmueble: arteria, transporte, comercios y servicios cercanos.</small>
-                    @endif
-                </div>
-                <div class="form-group">
-                    <button type="button" id="btn-entorno-browser" class="btn btn-outline-info btn-sm rounded-pill"><i class="fas fa-globe me-1"></i>Calcular desde el navegador</button>
-                    <small class="text-muted d-block mt-1">Alternativa si el servidor no puede salir a internet: consulta OpenStreetMap desde tu navegador y guarda el puntaje igual.</small>
-                    <span id="entorno-browser-msg" class="small d-block mt-1"></span>
                 </div>
 
                 <!-- Prestaciones -->
@@ -340,50 +321,6 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 });
 </script>
-<script>
-// Fallback "Calcular desde el navegador": Overpass tiene CORS habilitado, así que el browser
-// puede consultarlo aunque el servidor (hosting compartido) tenga la salida bloqueada.
-document.addEventListener('DOMContentLoaded', function () {
-    var btnEB = document.getElementById('btn-entorno-browser');
-    if (!btnEB) { return; }
-    btnEB.addEventListener('click', async function () {
-        var msg = document.getElementById('entorno-browser-msg');
-        var coord = (document.getElementById('coordenadas').value || '').split(',');
-        var lat = parseFloat(coord[0]), lng = parseFloat(coord[1]);
-        if (isNaN(lat) || isNaN(lng)) {
-            msg.textContent = 'Primero geocodificá la dirección en el mapa (coordenadas vacías).';
-            msg.className = 'small d-block mt-1 text-danger';
-            return;
-        }
-        btnEB.disabled = true;
-        msg.textContent = 'Consultando OpenStreetMap desde el navegador...';
-        msg.className = 'small d-block mt-1 text-muted';
-        var elements = await window.consultarEntorno(lat, lng);
-        if (!elements) {
-            msg.textContent = 'No se pudo consultar OpenStreetMap desde el navegador (rate limit). Esperá unos segundos y reintentá.';
-            msg.className = 'small d-block mt-1 text-danger';
-            btnEB.disabled = false;
-            return;
-        }
-        msg.textContent = 'Guardando puntaje (' + elements.length + ' elementos)...';
-        try {
-            var r2 = await fetch('{{ route('inmuebles.guardarEntorno', $inmueble) }}', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
-                body: JSON.stringify({ _token: '{{ csrf_token() }}', elements: elements })
-            });
-            if (r2.ok) { location.reload(); return; }
-            msg.textContent = 'No se pudo guardar el puntaje (HTTP ' + r2.status + ').';
-        } catch (e) {
-            msg.textContent = 'Error de red al guardar: ' + e.message;
-        }
-        msg.className = 'small d-block mt-1 text-danger';
-        btnEB.disabled = false;
-    });
-});
-</script>
-@include('inmuebles.partials.entorno_overpass_js')
-@include('inmuebles.partials.entorno_form_js')
 @include('inmuebles.partials.proximidades_js')
 @stop
 

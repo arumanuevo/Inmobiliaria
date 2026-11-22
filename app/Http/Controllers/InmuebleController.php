@@ -75,95 +75,25 @@ class InmuebleController extends Controller
             'proximidades_json' => 'nullable|string|max:6000',
             // Uso / habilitación para comerciales (kiosco, tienda de ropa, gastronomía...)
             'uso_detalle' => 'nullable|string|max:120',
-            // Puntaje de entorno calculado desde el navegador (hidden entorno_json)
-            'entorno_json' => 'nullable|string|max:4000',
         ];
     }
 
     // Endpoint para el navegador: puntúa elementos de Overpass que él consiguió (CORS) sin llamar a Overpass del server
-    public function puntuarApi(Request $request)
-    {
-        $data = $request->validate(['elements' => 'required|array|max:400']);
-        return response()->json(\App\Services\PuntajeEntornoService::puntuar($data['elements']));
-    }
+    
 
-    // Normaliza el entorno_json enviado por el form (calculado en el navegador)
-    public static function normalizarEntornoJson(?string $json): ?array
-    {
-        if (!$json) { return null; }
-        $raw = json_decode($json, true);
-        if (!is_array($raw) || !isset($raw['puntaje']) || !is_numeric($raw['puntaje'])) { return null; }
-        return [
-            'puntaje' => max(0, min(100, (int) $raw['puntaje'])),
-            'detalle' => (isset($raw['detalle']) && is_array($raw['detalle'])) ? $raw['detalle'] : [],
-        ];
-    }
+    
 
-    // Guarda el puntaje: primero el calculado por el navegador (entorno_json), fallback server-side (Overpass)
-    public static function aplicarEntorno(Inmueble $inmueble, ?string $entornoJson): void
-    {
-        $entorno = static::normalizarEntornoJson($entornoJson);
-        if ($entorno) {
-            $inmueble->puntaje_entorno = $entorno['puntaje'];
-            $inmueble->puntaje_entorno_detalle = $entorno['detalle'];
-            $inmueble->puntaje_entorno_at = now();
-            $inmueble->save();
-            return;
-        }
-        static::puntuarEntorno($inmueble);
-    }
+    
 
     // Calcula el puntaje de entorno (Overpass/OSM) si el inmueble tiene coordenadas.
     // Nunca rompe el guardado: ante cualquier falla queda sin puntaje.
-    public static function puntuarEntorno(Inmueble $inmueble): void
-    {
-        try {
-            $raw = trim((string) ($inmueble->coordenadas ?? ''));
-            if ($raw === '' || strpos($raw, ',') === false) { return; }
-            $p = array_map('trim', explode(',', $raw));
-            if (count($p) !== 2 || !is_numeric($p[0]) || !is_numeric($p[1])) { return; }
-            $res = \App\Services\PuntajeEntornoService::calcular((float) $p[0], (float) $p[1]);
-            if ($res) {
-                $inmueble->puntaje_entorno = $res['puntaje'];
-                $inmueble->puntaje_entorno_detalle = $res['detalle'];
-                $inmueble->puntaje_entorno_at = now();
-                $inmueble->save();
-            }
-        } catch (\Throwable $e) {
-            Log::warning('puntuarEntorno falló', ['inmueble_id' => $inmueble->id, 'error' => $e->getMessage()]);
-        }
-    }
+    
 
     // Botón "Recalcular puntaje" en la edición
-    public function recalcularEntorno(Inmueble $inmueble)
-    {
-        $this->authorize('update', $inmueble);
-        if (trim((string) ($inmueble->coordenadas ?? '')) === '') {
-            return back()->with('error', 'La propiedad necesita coordenadas (geocodificá la dirección en el mapa) para calcular el puntaje.');
-        }
-        static::puntuarEntorno($inmueble);
-        return back()->with('success', $inmueble->puntaje_entorno !== null
-            ? 'Puntaje de entorno recalculado: ' . $inmueble->puntaje_entorno . '/100.'
-            : 'No se pudo calcular ahora (servicio de mapas no disponible). Probá de nuevo en un rato o usá "Calcular desde el navegador".');
-    }
+    
 
     // Fallback: el navegador consulta Overpass (CORS habilitado) y manda los elementos; el server puntúa y guarda
-    public function guardarEntorno(Request $request, Inmueble $inmueble)
-    {
-        $this->authorize('update', $inmueble);
-        $data = $request->validate([
-            'elements' => 'required|array|max:400',
-        ], [
-            'elements.required' => 'No llegaron datos de OpenStreetMap.',
-            'elements.max' => 'Demasiados datos recibidos, reintentá.',
-        ]);
-        $res = \App\Services\PuntajeEntornoService::puntuar($data['elements']);
-        $inmueble->puntaje_entorno = $res['puntaje'];
-        $inmueble->puntaje_entorno_detalle = $res['detalle'];
-        $inmueble->puntaje_entorno_at = now();
-        $inmueble->save();
-        return back()->with('success', 'Puntaje de entorno calculado: ' . $res['puntaje'] . '/100.');
-    }
+    
 
     // Mensajes de validación en español claro (el default de Laravel traduce mal los snake_case)
     public static function mensajesValidacion(): array
@@ -236,8 +166,6 @@ class InmuebleController extends Controller
 
         $inmueble = Inmueble::create($data);
 
-        // Puntaje de entorno: primero el del navegador (entorno_json), fallback server-side
-        static::aplicarEntorno($inmueble, $request->input('entorno_json'));
 
         // Guardado directo de imágenes si fueron adjuntadas en el alta
         if ($request->hasFile('imagenes')) {
@@ -304,8 +232,6 @@ class InmuebleController extends Controller
 
         $inmueble->update($data);
 
-        // Recalcular puntaje de entorno (navegador primero, fallback server-side)
-        static::aplicarEntorno($inmueble, $request->input('entorno_json'));
 
         // Si pasó de borrador a publicado, avisar a las búsquedas guardadas
         if (!$yaPublicado && $inmueble->publicado) {
