@@ -17,7 +17,7 @@ class InmuebleController extends Controller
     }
 
     // Mostrar listado de inmuebles (cada inmobiliaria solo ve los suyos)
-    public function index()
+    public function index(Request $request)
     {
         $user = auth()->user();
         $query = Inmueble::with('inmobiliaria')->withCount('contactos')->latest();
@@ -26,7 +26,27 @@ class InmuebleController extends Controller
             $query->deInmobiliaria($user->inmobiliaria->id ?? 0);
         }
 
-        $inmuebles = $query->get();
+        // Filtros granulares (GET /inmuebles?q=&estado=&tipo_operacion=&tipo_propiedad=&destacado=&precio_min=&precio_max=)
+        if ($q = trim((string) $request->input('q', ''))) {
+            $query->where(function ($w) use ($q) {
+                $w->where('titulo', 'like', "%{$q}%")
+                  ->orWhere('direccion', 'like', "%{$q}%")
+                  ->orWhere('ciudad', 'like', "%{$q}%");
+            });
+        }
+        switch ($request->input('estado')) {
+            case 'publicado': $query->where('publicado', 1)->where('cerrada', 0); break;
+            case 'borrador': $query->where('publicado', 0)->where('cerrada', 0); break;
+            case 'cerrada':   $query->where('cerrada', 1); break;
+        }
+        if ($op = $request->input('tipo_operacion')) { $query->where('tipo_operacion', $op); }
+        if ($tp = $request->input('tipo_propiedad')) { $query->where('tipo_propiedad', $tp); }
+        if ($request->input('destacado') === '1') { $query->where('destacado', 1); }
+        if ($request->input('destacado') === '0') { $query->where('destacado', 0); }
+        if (is_numeric($request->input('precio_min'))) { $query->where('precio', '>=', (float) $request->input('precio_min')); }
+        if (is_numeric($request->input('precio_max'))) { $query->where('precio', '<=', (float) $request->input('precio_max')); }
+
+        $inmuebles = $query->paginate(15)->withQueryString();
 
         return view('inmuebles.index', compact('inmuebles'));
     }

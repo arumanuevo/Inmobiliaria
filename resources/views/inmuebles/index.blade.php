@@ -1,5 +1,4 @@
 @extends('layouts.panel')
-
 @section('title', 'Mis Inmuebles')
 
 @section('content_header')
@@ -7,91 +6,153 @@
 @stop
 
 @section('content')
-<div class="card">
-    <div class="card-header d-flex justify-content-between align-items-center">
-        <h3 class="card-title mb-0">Resultados ({{ $inmuebles->count() }})</h3>
-        <a href="{{ route('inmuebles.create') }}" class="btn btn-primary btn-sm"><i class="fas fa-plus"></i> Nuevo</a>
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <span class="fw-bold fs-5">{{ $inmuebles->total() }}</span>
+        <span class="text-muted">{{ Str::plural('propiedad', $inmuebles->total()) }}</span>
+        @if(request()->hasAny(['q','estado','tipo_operacion','tipo_propiedad','destacado','precio_min','precio_max']))
+            <span class="badge text-bg-info ms-1">filtrado</span>
+        @endif
     </div>
-    <div class="card-body table-responsive">
-        <table id="inmueblesTable" class="table table-bordered table-striped align-middle" style="width: 100%;">
+    <a href="{{ route('inmuebles.create') }}" class="btn btn-primary btn-sm rounded-pill px-3"><i class="fas fa-plus me-1"></i> Nuevo</a>
+</div>
+
+{{-- Barra de filtros granular --}}
+<div class="card mb-3">
+    <div class="card-body py-2">
+        <form method="GET" action="{{ route('inmuebles.index') }}" class="d-flex flex-wrap gap-2 align-items-end">
+            <div>
+                <label class="form-label small fw-bold mb-1">Buscar</label>
+                <input type="text" name="q" class="form-control form-control-sm" style="width: 220px;" value="{{ request('q') }}" placeholder="Título, dirección o ciudad...">
+            </div>
+            <div>
+                <label class="form-label small fw-bold mb-1">Estado</label>
+                <select name="estado" class="form-select form-select-sm">
+                    <option value="">Todos</option>
+                    <option value="publicado" {{ request('estado') === 'publicado' ? 'selected' : '' }}>Visible</option>
+                    <option value="borrador" {{ request('estado') === 'borrador' ? 'selected' : '' }}>Borrador</option>
+                    <option value="cerrada" {{ request('estado') === 'cerrada' ? 'selected' : '' }}>Cerrada</option>
+                </select>
+            </div>
+            <div>
+                <label class="form-label small fw-bold mb-1">Operación</label>
+                <select name="tipo_operacion" class="form-select form-select-sm">
+                    <option value="">Todas</option>
+                    <option value="venta" {{ request('tipo_operacion') === 'venta' ? 'selected' : '' }}>Venta</option>
+                    <option value="alquiler" {{ request('tipo_operacion') === 'alquiler' ? 'selected' : '' }}>Alquiler</option>
+                </select>
+            </div>
+            <div>
+                <label class="form-label small fw-bold mb-1">Tipo</label>
+                <select name="tipo_propiedad" class="form-select form-select-sm" style="min-width: 170px;">
+                    <option value="">Todos</option>
+                    @foreach(\App\Models\Inmueble::gruposTipos() as $grupo => $opciones)
+                        <optgroup label="{{ $grupo }}">
+                            @foreach($opciones as $val => $lbl)
+                                <option value="{{ $val }}" {{ request('tipo_propiedad') === $val ? 'selected' : '' }}>{{ $lbl }}</option>
+                            @endforeach
+                        </optgroup>
+                    @endforeach
+                </select>
+            </div>
+            <div>
+                <label class="form-label small fw-bold mb-1">Destacado</label>
+                <select name="destacado" class="form-select form-select-sm">
+                    <option value="">Todos</option>
+                    <option value="1" {{ request('destacado') === '1' ? 'selected' : '' }}>Sí</option>
+                    <option value="0" {{ request('destacado') === '0' ? 'selected' : '' }}>No</option>
+                </select>
+            </div>
+            <div>
+                <label class="form-label small fw-bold mb-1">Precio mín.</label>
+                <input type="number" name="precio_min" class="form-control form-control-sm" style="width: 110px;" value="{{ request('precio_min') }}" placeholder="$" min="0">
+            </div>
+            <div>
+                <label class="form-label small fw-bold mb-1">Precio máx.</label>
+                <input type="number" name="precio_max" class="form-control form-control-sm" style="width: 110px;" value="{{ request('precio_max') }}" placeholder="$" min="0">
+            </div>
+            <div class="d-flex gap-1">
+                <button type="submit" class="btn btn-primary btn-sm rounded-pill px-3"><i class="fas fa-search me-1"></i> Buscar</button>
+                <a href="{{ route('inmuebles.index') }}" class="btn btn-outline-secondary btn-sm rounded-pill px-3" title="Limpiar filtros"><i class="fas fa-undo"></i></a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body table-responsive p-0">
+        <table id="inmueblesTable" class="table table-sm align-middle mb-0 tabla-compacta" style="width: 100%;">
             <thead>
                 <tr>
-                    <th>Título</th>
+                    <th>Propiedad</th>
+                    <th>Operación</th>
                     <th>Tipo</th>
-                    <th>Inmobiliaria</th>
                     <th>Precio</th>
-                    <th>Superficie</th>
-                    <th>Propietario</th>
-                    <th>DNI</th>
-                    <th>Email</th>
-                    <th>Teléfono</th>
-                    <th>Publicado</th>
-                    <th>Visitas</th>
-                    <th>Consultas</th>
+                    <th>m²</th>
+                    <th>Estado</th>
+                    <th class="text-center" title="Visitas / consultas">Vis.·Cons.</th>
                     <th>Comisión</th>
-                    <th class="text-center">Destacado</th>
-                    <th class="text-center">Acciones</th>
+                    <th class="text-center" title="Destacado">Dest.</th>
+                    <th class="text-center acciones">Acciones</th>
                 </tr>
             </thead>
             <tbody>
                 @forelse($inmuebles as $inmueble)
                 <tr>
-                    <td>
-                        {{ $inmueble->titulo }}
+                    <td style="min-width: 240px;">
+                        <div class="fw-semibold">{{ $inmueble->titulo }}</div>
+                        <small class="text-muted"><i class="fas fa-map-marker-alt me-1"></i>{{ $inmueble->ciudad ?: $inmueble->direccion }}</small>
                         @if($inmueble->carga_asistida)
-                            <span class="badge badge-info" title="Cargada por el administrador (carga asistida)"><i class="fas fa-hands-helping"></i> carga asistida</span>
+                            <span class="badge text-bg-info ms-1" title="Cargada por el administrador (carga asistida)"><i class="fas fa-hands-helping"></i> asistida</span>
                         @endif
-                        @if($inmueble->puntaje_entorno !== null)
-                            <span class="badge badge-success" title="Puntaje de entorno calculado con OpenStreetMap (arteria, transporte, comercios, servicios)"><i class="fas fa-chart-line"></i> {{ $inmueble->puntaje_entorno }}/100</span>
+                        @if($inmueble->propnombre)
+                            <small class="d-block text-muted" title="{{ $inmueble->propemail }} · {{ $inmueble->proptel }}">Prop.: {{ $inmueble->propnombre }} · DNI {{ $inmueble->propdni }}</small>
                         @endif
                     </td>
                     <td>{{ ucfirst($inmueble->tipo_operacion) }}</td>
-                    <td>{{ $inmueble->inmobiliaria->nombre_comercial ?? '-' }}</td>
-                    <td>@dinero($inmueble->precio, 2)</td>
-                    <td>{{ $inmueble->superficie_cubierta }} m²</td>
-                    <td>{{ $inmueble->propnombre }}</td>
-                    <td>{{ $inmueble->propdni }}</td>
-                    <td>{{ $inmueble->propemail }}</td>
-                    <td>{{ $inmueble->proptel }}</td>
+                    <td>{{ $inmueble->tipo_propiedad ? (\App\Models\Inmueble::tiposPropiedad()[$inmueble->tipo_propiedad] ?? ucfirst($inmueble->tipo_propiedad)) : '-' }}</td>
+                    <td class="text-nowrap fw-semibold" style="color:#4f46e5;">@dinero($inmueble->precio, 2)</td>
+                    <td class="text-nowrap">{{ $inmueble->superficie_cubierta }} m²</td>
                     <td>
                         @if($inmueble->cerrada)
-                            <span class="badge badge-dark">Cerrada ({{ $inmueble->tipo_cierre }})</span>
+                            <span class="badge text-bg-dark">Cerrada ({{ $inmueble->tipo_cierre }})</span>
                         @elseif($inmueble->publicado)
-                            <span class="badge badge-success">Visible</span>
+                            <span class="badge text-bg-success">Visible</span>
                         @else
-                            <span class="badge badge-secondary">Borrador</span>
+                            <span class="badge text-bg-secondary">Borrador</span>
                         @endif
                     </td>
-                    <td>{{ $inmueble->visitas }}</td>
-                    <td>{{ $inmueble->contactos_count }}</td>
-                    <td>
+                    <td class="text-center text-nowrap small text-muted" title="Visitas / consultas recibidas">
+                        <i class="fas fa-eye"></i> {{ $inmueble->visitas }} · <i class="fas fa-envelope"></i> {{ $inmueble->contactos_count }}
+                    </td>
+                    <td class="text-nowrap small">
                         @if($inmueble->comision_monto !== null)
                             @dinero((float) $inmueble->comision_monto, 2)
                             @if($inmueble->comision_estado === 'cobrada')
-                                <span class="badge badge-success">cobrada</span>
+                                <span class="badge text-bg-success">cobrada</span>
                             @else
-                                <span class="badge badge-warning">pendiente</span>
+                                <span class="badge text-bg-warning">pendiente</span>
                             @endif
                         @else
                             <span class="text-muted">-</span>
                         @endif
                     </td>
                     <td class="text-center">
-                        <input type="checkbox" class="toggle-destacado form-check-input" data-id="{{ $inmueble->id }}" {{ $inmueble->destacado ? 'checked' : '' }}>
+                        <input type="checkbox" class="toggle-destacado form-check-input" data-id="{{ $inmueble->id }}" {{ $inmueble->destacado ? 'checked' : '' }} title="Destacar en el portal">
                     </td>
-                    <td class="text-center">
-                        <div class="btn-group">
-                            <a href="{{ route('inmuebles.show', $inmueble) }}" class="btn btn-info btn-sm" title="Ver"><i class="fas fa-eye"></i></a>
-                            <a href="{{ route('inmuebles.edit', $inmueble) }}" class="btn btn-warning btn-sm" title="Editar"><i class="fas fa-pen"></i></a>
-                            <a href="{{ route('inmuebles.addPhotos', $inmueble) }}" class="btn btn-primary btn-sm" title="Agregar fotos"><i class="fas fa-images"></i></a>
-                            <a href="{{ route('inmuebles.deletePhotos', $inmueble) }}" class="btn btn-secondary btn-sm" title="Borrar fotos"><i class="fas fa-image"></i></a>
+                    <td class="text-center acciones">
+                        <div class="btn-group btn-group-sm">
+                            <a href="{{ route('inmuebles.show', $inmueble) }}" class="btn btn-outline-info" title="Ver"><i class="fas fa-eye"></i></a>
+                            <a href="{{ route('inmuebles.edit', $inmueble) }}" class="btn btn-outline-warning" title="Editar"><i class="fas fa-pen"></i></a>
+                            <a href="{{ route('inmuebles.addPhotos', $inmueble) }}" class="btn btn-outline-primary" title="Agregar fotos"><i class="fas fa-images"></i></a>
+                            <a href="{{ route('inmuebles.deletePhotos', $inmueble) }}" class="btn btn-outline-secondary" title="Quitar fotos"><i class="fas fa-image"></i></a>
                             @if(!$inmueble->cerrada)
-                            <button type="button" class="btn btn-dark btn-sm" data-bs-toggle="modal" data-bs-target="#cerrarModal{{ $inmueble->id }}" title="Marcar como {{ $inmueble->tipo_operacion }}da"><i class="fas fa-check"></i></button>
+                            <button type="button" class="btn btn-outline-dark" data-bs-toggle="modal" data-bs-target="#cerrarModal{{ $inmueble->id }}" title="Cerrar operación ({{ $inmueble->tipo_operacion }})"><i class="fas fa-check"></i></button>
                             @endif
                             <form action="{{ route('inmuebles.destroy', $inmueble) }}" method="POST" style="display:inline;">
                                 @csrf
                                 @method('DELETE')
-                                <button class="btn btn-danger btn-sm" title="Eliminar" onclick="return confirm('¿Seguro de eliminar?')"><i class="fas fa-trash"></i></button>
+                                <button class="btn btn-outline-danger" title="Eliminar" onclick="return confirm('¿Seguro de eliminar?')"><i class="fas fa-trash"></i></button>
                             </form>
                         </div>
 
@@ -140,37 +201,47 @@
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="15" class="text-center text-muted py-4">
-                        Todavía no tenés inmuebles. <a href="{{ route('inmuebles.create') }}">Crear el primero</a>
+                    <td colspan="10" class="text-center text-muted py-4">
+                        @if(request()->hasAny(['q','estado','tipo_operacion','tipo_propiedad','destacado','precio_min','precio_max']))
+                            No hay propiedades con esos filtros. <a href="{{ route('inmuebles.index') }}">Limpiar filtros</a>
+                        @else
+                            Todavía no tenés inmuebles. <a href="{{ route('inmuebles.create') }}">Crear el primero</a>
+                        @endif
                     </td>
                 </tr>
                 @endforelse
             </tbody>
         </table>
     </div>
+    @if($inmuebles->hasPages())
+    <div class="card-footer py-2 d-flex justify-content-center">
+        {{ $inmuebles->links() }}
+    </div>
+    @endif
 </div>
 @stop
 
 @section('css')
-<link rel="stylesheet" href="https://cdn.datatables.net/1.13.8/css/dataTables.bootstrap5.min.css">
+<style>
+    .tabla-compacta { font-size: .85rem; }
+    .tabla-compacta th, .tabla-compacta td { padding: .45rem .55rem; vertical-align: middle; }
+    .tabla-compacta thead th {
+        background: #f8fafc; font-size: .72rem; text-transform: uppercase; letter-spacing: .04em;
+        color: #667085; border-bottom: 2px solid #e5e7eb; white-space: nowrap;
+    }
+    /* Acciones siempre visibles, aunque la tabla scrollee horizontalmente */
+    .tabla-compacta .acciones {
+        position: sticky; right: 0; background: #fff; white-space: nowrap;
+        box-shadow: -8px 0 10px -8px rgba(16,24,40,.25);
+    }
+    .tabla-compacta tbody tr:hover .acciones { background: #f8fafc; }
+    .tabla-compacta .badge { font-size: .68rem; }
+</style>
 @stop
 
 @section('js')
-<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-<script src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js"></script>
-<script src="https://cdn.datatables.net/1.13.8/js/dataTables.bootstrap5.min.js"></script>
 <script>
-$(document).ready(function () {
-    $('#inmueblesTable').DataTable({
-        language: { url: 'https://cdn.datatables.net/plug-ins/1.13.8/i18n/es-ES.json' },
-        pageLength: 15,
-        lengthMenu: [10, 15, 25, 50, 100],
-        order: [[0, 'asc']],
-        columnDefs: [
-            { orderable: false, searchable: false, targets: [13, 14] }
-        ]
-    });
-
+document.addEventListener('DOMContentLoaded', function () {
     document.querySelectorAll('.toggle-destacado').forEach(function (el) {
         el.addEventListener('change', function () {
             var id = this.dataset.id;
