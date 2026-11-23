@@ -22,6 +22,7 @@ SELECT 'inmobiliarias' AS tabla UNION ALL
 SELECT 'inmuebles' AS tabla UNION ALL
 SELECT 'job_batches' AS tabla UNION ALL
 SELECT 'jobs' AS tabla UNION ALL
+SELECT 'mensajes' AS tabla UNION ALL
 SELECT 'migrations' AS tabla UNION ALL
 SELECT 'model_has_permissions' AS tabla UNION ALL
 SELECT 'model_has_roles' AS tabla UNION ALL
@@ -167,6 +168,14 @@ SELECT 'inmuebles' AS tabla, 'updated_at' AS columna UNION ALL
 SELECT 'inmuebles' AS tabla, 'uso_detalle' AS columna UNION ALL
 SELECT 'inmuebles' AS tabla, 'usuario_id' AS columna UNION ALL
 SELECT 'inmuebles' AS tabla, 'visitas' AS columna UNION ALL
+SELECT 'mensajes' AS tabla, 'cuerpo' AS columna UNION ALL
+SELECT 'mensajes' AS tabla, 'created_at' AS columna UNION ALL
+SELECT 'mensajes' AS tabla, 'id' AS columna UNION ALL
+SELECT 'mensajes' AS tabla, 'leido_at' AS columna UNION ALL
+SELECT 'mensajes' AS tabla, 'tipo' AS columna UNION ALL
+SELECT 'mensajes' AS tabla, 'titulo' AS columna UNION ALL
+SELECT 'mensajes' AS tabla, 'updated_at' AS columna UNION ALL
+SELECT 'mensajes' AS tabla, 'usuario_id' AS columna UNION ALL
 SELECT 'model_has_permissions' AS tabla, 'model_id' AS columna UNION ALL
 SELECT 'model_has_permissions' AS tabla, 'model_type' AS columna UNION ALL
 SELECT 'model_has_permissions' AS tabla, 'permission_id' AS columna UNION ALL

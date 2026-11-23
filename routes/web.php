@@ -52,6 +52,10 @@ Route::middleware('auth')->group(function () {
     Route::delete('/mis-busquedas/{busqueda}', [BusquedaGuardadaController::class, 'destroy'])->name('busquedas.destroy');
     Route::get('/mis-solicitudes', [App\Http\Controllers\SolicitudCargaController::class, 'mis'])->name('solicitudes.mias');
     Route::post('/mis-solicitudes', [App\Http\Controllers\SolicitudCargaController::class, 'store'])->name('solicitudes.store');
+    // Bandeja de mensajes internos (avisos del administrador)
+    Route::get('/mensajes', [App\Http\Controllers\MensajeController::class, 'misMensajes'])->name('mensajes.mias');
+    Route::post('/mensajes/leer-todos', [App\Http\Controllers\MensajeController::class, 'marcarTodosLeidos'])->name('mensajes.leerTodos');
+    Route::post('/mensajes/{mensaje}/leer', [App\Http\Controllers\MensajeController::class, 'marcarLeido'])->name('mensajes.leer');
 });
 
 // Búsquedas guardadas (público: cualquiera puede recibir alertas por email de nuevas propiedades)
@@ -81,6 +85,9 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::post('/inmobiliarias/{id}/cargar-inmueble', [App\Http\Controllers\Admin\AdminController::class, 'cargarInmueble'])->name('carga.store');
     Route::get('/solicitudes', [App\Http\Controllers\Admin\AdminController::class, 'solicitudes'])->name('solicitudes');
     Route::post('/solicitudes/{id}/estado', [App\Http\Controllers\Admin\AdminController::class, 'cambiarEstadoSolicitud'])->name('solicitudes.estado');
+    // Avisos internos a usuarios (solo superadmin, el controller hace abort 403 si no lo es)
+    Route::get('/mensajes', [App\Http\Controllers\MensajeController::class, 'adminIndex'])->name('mensajes');
+    Route::post('/mensajes', [App\Http\Controllers\MensajeController::class, 'adminStore'])->name('mensajes.store');
 });
 
 // Rutas para el CRUD de Inmuebles (admin e inmobiliarias; cada una solo gestiona lo suyo)

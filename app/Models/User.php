@@ -36,6 +36,16 @@ class User extends Authenticatable
         return $this->hasOne(Inmobiliaria::class, 'usuario_id');
     }
 
+    public function mensajes()
+    {
+        return $this->hasMany(Mensaje::class, 'usuario_id');
+    }
+
+    public function mensajesNoLeidos()
+    {
+        return $this->mensajes()->whereNull('leido_at');
+    }
+
     public function esSuperAdmin(): bool
     {
         return $this->email === config('app.superadmin_email');

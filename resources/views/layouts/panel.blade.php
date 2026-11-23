@@ -49,6 +49,11 @@
                 <a href="{{ route('solicitudes.mias') }}" class="{{ request()->is('mis-solicitudes*') ? 'active' : '' }}">
                     <i class="fas fa-hands-helping"></i><span>Carga asistida</span>
                 </a>
+                <a href="{{ route('mensajes.mias') }}" class="{{ request()->is('mensajes*') && ! request()->is('admin/*') ? 'active' : '' }}">
+                    <i class="fas fa-envelope"></i><span>Mensajes</span>
+                    @php $noLeidos = \App\Models\Mensaje::where('usuario_id', auth()->id())->whereNull('leido_at')->count(); @endphp
+                    @if($noLeidos > 0)<span class="badge-super">{{ $noLeidos }}</span>@endif
+                </a>
             @endif
             @if(auth()->user()->hasRole('admin'))
                 <div class="menu-section">Administración</div>
@@ -69,6 +74,9 @@
                 @if(auth()->user()->esSuperAdmin())
                 <a href="{{ route('admin.planes') }}" class="{{ request()->is('admin/planes*') ? 'active' : '' }}">
                     <i class="fas fa-layer-group"></i><span>Paquetes</span>
+                </a>
+                <a href="{{ route('admin.mensajes') }}" class="{{ request()->is('admin/mensajes*') ? 'active' : '' }}">
+                    <i class="fas fa-bullhorn"></i><span>Enviar aviso</span>
                 </a>
                 @endif
             @endif
