@@ -11,6 +11,7 @@ class InmobiliariaController extends Controller
     public function index(Request $request)
     {
         $q = trim((string) $request->input('q', ''));
+        $verificada = $request->input('verificada') === '1';
 
         $query = Inmobiliaria::activas()
             ->whereDoesntHave('usuario.roles', function ($q) {
@@ -18,6 +19,10 @@ class InmobiliariaController extends Controller
             })
             ->withCount(['inmueblesPublicados', 'operaciones'])
             ->with('usuario');
+
+        if ($verificada) {
+            $query->where('verificada', 1);
+        }
 
         if ($q !== '') {
             $query->where(function ($qq) use ($q) {
@@ -30,7 +35,7 @@ class InmobiliariaController extends Controller
 
         $inmobiliarias = $query->latest()->paginate(12)->withQueryString();
 
-        return view('inmobiliarias.index', compact('inmobiliarias', 'q'));
+        return view('inmobiliarias.index', compact('inmobiliarias', 'q', 'verificada'));
     }
 
     // Perfil público de una inmobiliaria con sus propiedades publicadas

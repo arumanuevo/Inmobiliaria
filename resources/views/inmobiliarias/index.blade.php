@@ -33,6 +33,19 @@
     white-space: nowrap; transition: filter .18s ease;
   }
   .dir-search .btn-buscar:hover { filter: brightness(1.12); color: #fff; }
+  .dir-verif {
+    display: inline-flex; align-items: center; gap: 7px; cursor: pointer; user-select: none;
+    font-size: .83rem; font-weight: 600; color: #e4e7ec; white-space: nowrap; margin: 0;
+    background: rgba(255,255,255,.10); border: 1.5px solid rgba(255,255,255,.35);
+    border-radius: 999px; padding: .4rem .95rem; transition: all .15s ease;
+  }
+  .dir-verif input { accent-color: #a5b4fc; margin: 0; }
+  .dir-verif:hover { background: rgba(255,255,255,.22); }
+  .dir-verif.activo {
+    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 60%, #d946ef 100%);
+    border-color: transparent; color: #fff;
+  }
+  .dir-verif.activo input { accent-color: #fff; }
   .dir-panel {
     border: none;
     border-radius: 20px;
@@ -104,10 +117,18 @@
   <div class="container text-center">
     <h1 class="h2 mb-2 text-white">Inmobiliarias del portal</h1>
     <p class="lead mb-4">Inmobiliarias verificadas y dueños directos que publican acá. Buscá por nombre, ciudad o zona.</p>
-    <form method="GET" action="{{ route('inmobiliarias.index') }}" class="dir-search">
-      <i class="fas fa-search"></i>
-      <input type="text" name="q" placeholder="Buscar por nombre, ciudad, provincia o zona..." value="{{ $q ?? '' }}" aria-label="Buscar inmobiliarias">
-      <button class="btn btn-buscar" type="submit">Buscar</button>
+    <form method="GET" action="{{ route('inmobiliarias.index') }}">
+      <div class="dir-search">
+        <i class="fas fa-search"></i>
+        <input type="text" name="q" placeholder="Buscar por nombre, ciudad, provincia o zona..." value="{{ $q ?? '' }}" aria-label="Buscar inmobiliarias">
+        <button class="btn btn-buscar" type="submit">Buscar</button>
+      </div>
+      <div class="text-center mt-3">
+        <label class="dir-verif {{ ($verificada ?? false) ? 'activo' : '' }}" title="Mostrar solo inmobiliarias con CUIT y matrícula verificados por el portal">
+          <input type="checkbox" name="verificada" value="1" onchange="this.form.submit()" {{ ($verificada ?? false) ? 'checked' : '' }}>
+          <i class="fas fa-shield-alt"></i> Solo verificadas
+        </label>
+      </div>
     </form>
   </div>
 </div>
@@ -118,9 +139,11 @@
     <h2 class="h5 fw-bold mb-0 text-dark">
       {{ $inmobiliarias->total() }} {{ Str::plural('inmobiliaria', $inmobiliarias->total()) }} encontrada(s)
     </h2>
-    @if(!empty($q))
+    @if(!empty($q) || ($verificada ?? false))
       <span class="text-muted small">
-        Resultados para “<strong>{{ $q }}</strong>”
+        Resultados
+        @if(!empty($q)) para “<strong>{{ $q }}</strong>” @endif
+        @if($verificada ?? false) <span class="badge text-bg-success ms-1"><i class="fas fa-shield-alt"></i> solo verificadas</span> @endif
         <a href="{{ route('inmobiliarias.index') }}" class="ms-1"><i class="fas fa-times-circle"></i> limpiar</a>
       </span>
     @endif
@@ -173,7 +196,7 @@
           <div class="card-body">
             <i class="fas fa-search fa-2x text-muted mb-3"></i>
             <p class="text-muted mb-1">No encontramos inmobiliarias con ese criterio.</p>
-            @if(!empty($q))
+            @if(!empty($q) || ($verificada ?? false))
               <a href="{{ route('inmobiliarias.index') }}" class="btn btn-outline-primary btn-sm rounded-pill px-3 mt-2">Ver todas</a>
             @else
               <p class="text-muted small mb-0">Pronto habrá inmobiliarias verificadas acá. ¿Tenés una? <a href="{{ route('sumate') }}">Sumate gratis</a>.</p>
