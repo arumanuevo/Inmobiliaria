@@ -17,6 +17,16 @@
   
   <!-- Bootstrap Bundle JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    // Fix universal de modales: los que viven dentro de contenedores con transform/overflow/sticky
+    // (lista de resultados AJAX, tarjetas con hover, celdas de tabla) quedan tapados por el backdrop
+    // y no reciben clics. Al abrirse se mueven al <body>, donde el z-index de Bootstrap funciona bien.
+    document.addEventListener('show.bs.modal', function (e) {
+      if (e.target && e.target.parentElement !== document.body) {
+        document.body.appendChild(e.target);
+      }
+    });
+  </script>
   @yield('js')
 </body>
 </html>

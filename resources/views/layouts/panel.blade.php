@@ -124,6 +124,15 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>
+// Mismos fix que en el layout público: modales dentro de contenedores con transform/sticky
+// se mueven al <body> al abrirse para que el backdrop no los tape ni bloquee los clics
+document.addEventListener('show.bs.modal', function (e) {
+    if (e.target && e.target.parentElement !== document.body) {
+        document.body.appendChild(e.target);
+    }
+});
+</script>
+<script>
 document.addEventListener('DOMContentLoaded', function () {
     // Sidebar: en pantallas angostas (o celular aunque el viewport reporte ancho, ej. "sitio de
     // escritorio") el sidebar es barra superior + drawer. Se fuerza con body.panel-mobile porque
