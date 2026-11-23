@@ -13,7 +13,7 @@ return [
     |
     */
 
-    'default' => env('QUEUE_CONNECTION', 'database'),
+    'default' => env('QUEUE_CONNECTION', 'sync'), // 'sync': el hosting compartido no tiene worker de cola
 
     /*
     |--------------------------------------------------------------------------

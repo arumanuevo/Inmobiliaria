@@ -24,6 +24,12 @@ class AppServiceProvider extends ServiceProvider
     {
         Paginator::useBootstrap();
 
+        // Hosting compartido SIN worker de cola (no se puede correr queue:work permanente):
+        // forzamos la cola 'sync' para que mails/notificaciones (verificación de email, alertas,
+        // avisos) se envíen EN EL MISMO REQUEST. Si algún día se configura un cron con
+        // queue:work, se puede quitar esta línea.
+        config(['queue.default' => 'sync']);
+
         // @dinero($x) / @dinero($x, 0) -> $1.234.567,89 (formato AR: miles con punto, decimales con coma)
         // OJO: Blade le pasa la expresión SIN los paréntesis externos -> hay que envolverla
         \Illuminate\Support\Facades\Blade::directive('dinero', function ($expr) {

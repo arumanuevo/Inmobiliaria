@@ -53,6 +53,44 @@ class AdminController extends Controller
         return back()->with('success', $inmobiliaria->verificada ? 'Inmobiliaria marcada como verificada.' : 'Se quitó la verificación.');
     }
 
+    // Diagnóstico de email (solo superadmin): envía un mail de prueba al superadmin y muestra
+    // la configuración efectiva de mail/cola (con la password enmascarada)
+    public function mailTest()
+    {
+        abort_unless(auth()->user()->esSuperAdmin(), 403, 'Solo el superadmin puede hacer la prueba de mail.');
+
+        $to = config('app.superadmin_email');
+        $smtp = (array) config('mail.mailers.smtp', []);
+        unset($smtp['password']);
+        $smtp['password'] = config('mail.mailers.smtp.password') ? '***configurada***' : '(vacía)';
+
+        $config = [
+            'mail.default (MAIL_MAILER)' => config('mail.default'),
+            'queue.default (QUEUE_CONNECTION)' => config('queue.default'),
+            'smtp.transport' => $smtp['transport'] ?? null,
+            'smtp.scheme' => $smtp['scheme'] ?? null,
+            'smtp.host (MAIL_HOST)' => $smtp['host'] ?? null,
+            'smtp.port (MAIL_PORT)' => $smtp['port'] ?? null,
+            'smtp.username (MAIL_USERNAME)' => $smtp['username'] ?? null,
+            'smtp.password' => $smtp['password'],
+            'mail.from.address' => config('mail.from.address'),
+            'mail.from.name' => config('mail.from.name'),
+        ];
+
+        $resultado = ['ok' => false, 'error' => null];
+        try {
+            Mail::raw('Prueba de envío desde ' . config('app.name') . '. Si ves este mail, el SMTP del servidor funciona correctamente.', function ($m) use ($to) {
+                $m->to($to)->subject('[' . config('app.name') . '] Mail de prueba');
+            });
+            $resultado['ok'] = true;
+        } catch (\Throwable $e) {
+            $resultado['error'] = $e->getMessage();
+            Log::error('Mail de prueba falló: ' . $e->getMessage());
+        }
+
+        return view('admin.mail_test', compact('resultado', 'config', 'to'));
+    }
+
     public function cambiarPlan(Request $request, $id)
     {
         $request->validate([

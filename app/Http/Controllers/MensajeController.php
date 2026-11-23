@@ -2,9 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\AvisoMail;
 use App\Models\Mensaje;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 
 class MensajeController extends Controller
 {
@@ -88,18 +91,21 @@ class MensajeController extends Controller
 
         // Resolver destinatarios según el segmento elegido
         $destinatarios = match ($data['destinatarios']) {
-            'todos' => User::query()->get(['id']),
-            'inmobiliarias' => User::whereHas('roles', fn ($q) => $q->where('name', 'inmobiliaria'))->get(['id']),
-            'particulares' => User::whereHas('roles', fn ($q) => $q->where('name', 'particular'))->get(['id']),
-            'usuario' => User::where('id', (int) $data['usuario_id'])->get(['id']),
+            'todos' => User::query()->get(['id', 'name', 'email']),
+            'inmobiliarias' => User::whereHas('roles', fn ($q) => $q->where('name', 'inmobiliaria'))->get(['id', 'name', 'email']),
+            'particulares' => User::whereHas('roles', fn ($q) => $q->where('name', 'particular'))->get(['id', 'name', 'email']),
+            'usuario' => User::where('id', (int) $data['usuario_id'])->get(['id', 'name', 'email']),
         };
 
         if ($destinatarios->isEmpty()) {
             return back()->with('error', 'No hay usuarios en ese segmento para enviar el aviso.')->withInput();
         }
 
-        // Mismo created_at en todas las filas del envío para poder agruparlas bien en el historial
+        // Mismo created_at en todas las filas del envío para poder agruparlas bien en el historial.
+        // Por cada destinatario: 1 fila en la bandeja interna del panel + 1 email (SMTP, en el mismo request).
         $now = now();
+        $mailsOk = 0;
+        $mailsFallaron = 0;
         foreach ($destinatarios as $u) {
             Mensaje::create([
                 'usuario_id' => $u->id,
@@ -109,11 +115,22 @@ class MensajeController extends Controller
                 'created_at' => $now,
                 'updated_at' => $now,
             ]);
+
+            if ($u->email) {
+                try {
+                    Mail::to($u->email)->send(new AvisoMail($data['titulo'], $data['cuerpo'], $data['tipo']));
+                    $mailsOk++;
+                } catch (\Throwable $e) {
+                    $mailsFallaron++;
+                    Log::warning("Aviso no enviado por email a {$u->email}: " . $e->getMessage());
+                }
+            }
         }
 
         $total = $destinatarios->count();
+        $mensaje = "Aviso enviado a {$total} " . \Illuminate\Support\Str::plural('usuario', $total) . ' (bandeja interna del panel).';
+        $mensaje .= " Emails: {$mailsOk} enviados" . ($mailsFallaron > 0 ? ", {$mailsFallaron} fallaron (ver storage/logs/laravel.log)" : '') . '.';
 
-        return redirect()->route('admin.mensajes')
-            ->with('success', "Aviso enviado a {$total} " . \Illuminate\Support\Str::plural('usuario', $total) . '.');
+        return redirect()->route('admin.mensajes')->with('success', $mensaje);
     }
 }

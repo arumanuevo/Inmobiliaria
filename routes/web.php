@@ -88,6 +88,8 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     // Avisos internos a usuarios (solo superadmin, el controller hace abort 403 si no lo es)
     Route::get('/mensajes', [App\Http\Controllers\MensajeController::class, 'adminIndex'])->name('mensajes');
     Route::post('/mensajes', [App\Http\Controllers\MensajeController::class, 'adminStore'])->name('mensajes.store');
+    // Diagnóstico de envío de email (solo superadmin): envía un mail de prueba y muestra la config efectiva
+    Route::get('/mail-test', [App\Http\Controllers\Admin\AdminController::class, 'mailTest'])->name('mail-test');
 });
 
 // Rutas para el CRUD de Inmuebles (admin e inmobiliarias; cada una solo gestiona lo suyo)

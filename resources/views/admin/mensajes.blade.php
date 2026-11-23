@@ -60,7 +60,12 @@
 
         <div class="col-lg-7">
             <div class="card">
-                <div class="card-header"><h3 class="card-title"><i class="fas fa-history me-2"></i>Avisos enviados</h3></div>
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h3 class="card-title"><i class="fas fa-history me-2"></i>Avisos enviados</h3>
+                    <a href="{{ route('admin.mail-test') }}" class="btn btn-outline-secondary btn-sm rounded-pill px-3" title="Envía un mail de prueba al superadmin y muestra la config de mail efectiva">
+                        <i class="fas fa-envelope-open-text me-1"></i> Probar email
+                    </a>
+                </div>
                 <div class="card-body table-responsive">
                     <table class="table table-sm table-striped align-middle">
                         <thead>

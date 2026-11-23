@@ -45,7 +45,12 @@ class ContactoController extends Controller
         $host = parse_url((string) config('app.url'), PHP_URL_HOST) ?: 'localhost';
         $destinatario = $inmobiliaria?->email ?: (config('mail.from.address') ?: 'contacto@' . $host);
 
-        Mail::to($destinatario)->send(new ContactoMail($data));
+        try {
+            Mail::to($destinatario)->send(new ContactoMail($data));
+        } catch (\Throwable $e) {
+            // No romper el formulario si el SMTP falla; queda asentado en el log
+            \Illuminate\Support\Facades\Log::warning('Mail de contacto no enviado a ' . $destinatario . ': ' . $e->getMessage());
+        }
 
         return redirect()->route('welcome')->with('success', 'Mensaje enviado con éxito.');
     }
