@@ -215,6 +215,7 @@ SELECT 'solicitudes_carga' AS tabla, 'titulo' AS columna UNION ALL
 SELECT 'solicitudes_carga' AS tabla, 'updated_at' AS columna UNION ALL
 SELECT 'users' AS tabla, 'created_at' AS columna UNION ALL
 SELECT 'users' AS tabla, 'email' AS columna UNION ALL
+SELECT 'users' AS tabla, 'email_verified_at' AS columna UNION ALL
 SELECT 'users' AS tabla, 'id' AS columna UNION ALL
 SELECT 'users' AS tabla, 'name' AS columna UNION ALL
 SELECT 'users' AS tabla, 'password' AS columna UNION ALL

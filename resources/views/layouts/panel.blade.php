@@ -114,6 +114,9 @@
                     <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                 </div>
             @endif
+            @if(session('status'))
+                <div class="alert alert-info">{{ session('status') }}</div>
+            @endif
             @if($errors->any())
                 <div class="alert alert-danger">
                     <strong>Revisá el formulario:</strong>
@@ -122,6 +125,19 @@
                             <li>{{ $error }}</li>
                         @endforeach
                     </ul>
+                </div>
+            @endif
+
+            @if(! auth()->user()->hasVerifiedEmail())
+                <div class="alert alert-warning d-flex justify-content-between align-items-center flex-wrap gap-2">
+                    <div>
+                        <i class="fas fa-envelope-open-text me-1"></i>
+                        <strong>Verificá tu email:</strong> te enviamos un enlace a <strong>{{ auth()->user()->email }}</strong> para confirmar tu cuenta.
+                    </div>
+                    <form action="{{ route('verification.resend') }}" method="POST">
+                        @csrf
+                        <button type="submit" class="btn btn-warning btn-sm rounded-pill px-3"><i class="fas fa-paper-plane me-1"></i> Reenviar enlace</button>
+                    </form>
                 </div>
             @endif
 

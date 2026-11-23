@@ -14,7 +14,7 @@ use App\Http\Controllers\FeedController;
 Route::get('/', [InmuebleController::class, 'destacados'])->name('welcome');
 Route::get('/inicio', [InmuebleController::class, 'destacados'])->name('inicio');
 
-Auth::routes();
+Auth::routes(['verify' => true]); // incluye /email/verify, /email/verify/{id}/{hash} y /email/resend
 
 // Login con Google (OAuth2)
 Route::get('/auth/google', [App\Http\Controllers\Auth\GoogleAuthController::class, 'redirect'])->name('login.google');

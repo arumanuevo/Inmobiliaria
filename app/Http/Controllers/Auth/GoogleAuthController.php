@@ -130,6 +130,12 @@ class GoogleAuthController extends Controller
                 ->with('success', 'Cuenta creada con Google. Completá los datos de tu inmobiliaria; quedará pendiente de aprobación.');
         }
 
+        // Si Google confirma el email, damos la cuenta por verificada (sirve también para usuarios ya existentes)
+        if (! $user->email_verified_at && $userInfo->json('email_verified')) {
+            $user->email_verified_at = now();
+            $user->save();
+        }
+
         Auth::login($user);
 
         return redirect()->intended(route('home'));
