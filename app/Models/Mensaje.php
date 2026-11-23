@@ -9,7 +9,7 @@ class Mensaje extends Model
     protected $table = 'mensajes';
 
     protected $fillable = [
-        'usuario_id', 'titulo', 'cuerpo', 'tipo', 'leido_at',
+        'usuario_id', 'titulo', 'cuerpo', 'tipo', 'leido_at', 'created_at', 'updated_at',
     ];
 
     protected $casts = [

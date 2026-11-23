@@ -70,10 +70,16 @@
                                 <th>Título</th>
                                 <th class="text-center">Destinatarios</th>
                                 <th class="text-center">Leídos</th>
+                                <th></th>
                             </tr>
                         </thead>
                         <tbody>
                             @forelse($enviados as $e)
+                            @php
+                                $clave = (string) $e->created_at;
+                                $grupo = $detalles[$clave] ?? collect();
+                                $collapseId = 'dest-' . md5($clave . $e->titulo);
+                            @endphp
                             <tr>
                                 <td class="text-nowrap small">{{ $e->created_at?->format('d/m/Y H:i') }}</td>
                                 <td><span class="badge badge-secondary">{{ \App\Models\Mensaje::tipos()[$e->tipo] ?? $e->tipo }}</span></td>
@@ -84,9 +90,43 @@
                                         {{ $e->leidos }}/{{ $e->destinatarios }}
                                     </span>
                                 </td>
+                                <td class="text-end">
+                                    <button type="button" class="btn btn-outline-primary btn-sm rounded-pill px-3"
+                                            data-bs-toggle="collapse" data-bs-target="#{{ $collapseId }}" aria-expanded="false">
+                                        <i class="fas fa-users me-1"></i> Ver destinatarios
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td colspan="6" class="p-0">
+                                  <div class="collapse" id="{{ $collapseId }}">
+                                    <div class="bg-light p-2 border-top">
+                                    @if($grupo->isEmpty())
+                                        <small class="text-muted">Sin detalle de destinatarios.</small>
+                                    @else
+                                        <ul class="list-unstyled mb-0 small">
+                                            @foreach($grupo as $m)
+                                                <li class="d-flex justify-content-between align-items-center py-1 border-bottom">
+                                                    <span>
+                                                        <i class="fas fa-user me-1 text-muted"></i>
+                                                        {{ $m->usuario?->name ?? ('Usuario #' . $m->usuario_id) }}
+                                                        <small class="text-muted">({{ $m->usuario?->email ?? 'sin email' }})</small>
+                                                    </span>
+                                                    @if($m->leido)
+                                                        <span class="badge badge-success">leído {{ $m->leido_at?->format('d/m H:i') }}</span>
+                                                    @else
+                                                        <span class="badge badge-warning">sin leer</span>
+                                                    @endif
+                                                </li>
+                                            @endforeach
+                                        </ul>
+                                    @endif
+                                    </div>
+                                  </div>
+                                </td>
                             </tr>
                             @empty
-                            <tr><td colspan="5" class="text-center text-muted py-4">Todavía no se envió ningún aviso.</td></tr>
+                            <tr><td colspan="6" class="text-center text-muted py-4">Todavía no se envió ningún aviso.</td></tr>
                             @endforelse
                         </tbody>
                     </table>

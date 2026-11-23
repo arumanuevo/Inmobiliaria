@@ -59,9 +59,19 @@ class MensajeController extends Controller
             ->latest('created_at')
             ->paginate(15);
 
+        // Detalle de destinatarios de los envíos de esta página (para el desplegable "ver destinatarios")
+        $detalles = collect();
+        if ($enviados->count()) {
+            $detalles = Mensaje::with('usuario:id,name,email')
+                ->whereIn('created_at', $enviados->pluck('created_at')->all())
+                ->orderBy('leido_at')
+                ->get()
+                ->groupBy(fn ($m) => (string) $m->created_at);
+        }
+
         $usuarios = User::orderBy('name')->get(['id', 'name', 'email']);
 
-        return view('admin.mensajes', compact('enviados', 'usuarios'));
+        return view('admin.mensajes', compact('enviados', 'usuarios', 'detalles'));
     }
 
     public function adminStore(Request $request)
@@ -88,12 +98,16 @@ class MensajeController extends Controller
             return back()->with('error', 'No hay usuarios en ese segmento para enviar el aviso.')->withInput();
         }
 
+        // Mismo created_at en todas las filas del envío para poder agruparlas bien en el historial
+        $now = now();
         foreach ($destinatarios as $u) {
             Mensaje::create([
                 'usuario_id' => $u->id,
                 'titulo' => $data['titulo'],
                 'cuerpo' => $data['cuerpo'],
                 'tipo' => $data['tipo'],
+                'created_at' => $now,
+                'updated_at' => $now,
             ]);
         }
 
