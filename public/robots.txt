@@ -1,2 +1,25 @@
 User-agent: *
-Disallow:
+
+# Panel privado y endpoints AJAX/JSON: no indexar
+Disallow: /buscar-propiedades
+Disallow: /api/
+Disallow: /admin
+Disallow: /inmuebles
+Disallow: /mi-inmobiliaria
+Disallow: /mis-boletos
+Disallow: /mis-busquedas
+Disallow: /mis-solicitudes
+Disallow: /boletos/
+Disallow: /busquedas-guardadas
+Disallow: /guardar_imagenes
+Disallow: /home
+Disallow: /login
+Disallow: /register
+Disallow: /password
+Disallow: /email
+
+# Público: home, buscador /propiedades, directorio /inmobiliarias, perfiles /inmobiliaria/{slug},
+# fichas /inmobiliaria/{slug}/propiedad/{id}, zonas /propiedades-en-{operacion}-en-{ciudad} y feeds XML
+Allow: /
+
+Sitemap: https://inmobiliariaxyz.arumasoft.com/sitemap.xml

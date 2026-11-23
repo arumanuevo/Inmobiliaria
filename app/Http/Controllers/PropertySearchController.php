@@ -10,6 +10,13 @@ class PropertySearchController extends Controller
 {
     public function search(Request $request)
     {
+        // Esta ruta solo debe servir el partial por AJAX (paginación del buscador, que manda
+        // X-Requested-With). Un acceso directo (navegador o Google) veía el partial suelto sin
+        // estilos: redirigimos al buscador público conservando los filtros de la query string.
+        if (! $request->ajax()) {
+            return redirect()->route('propiedades.index', $request->query());
+        }
+
         // Mismos filtros que usan las alertas de búsquedas guardadas (Inmueble::scopeAplicarFiltros)
         $query = Inmueble::publicados()
             ->whereHas('inmobiliaria', function ($q) {
@@ -25,7 +32,10 @@ class PropertySearchController extends Controller
 
         $properties = $query->paginate(6);
 
-        return view('inmuebles.partials.property_results', compact('properties'));
+        // El partial nunca debe indexarse suelto
+        return response()
+            ->view('inmuebles.partials.property_results', compact('properties'))
+            ->header('X-Robots-Tag', 'noindex, nofollow');
     }
 
     public function index()
