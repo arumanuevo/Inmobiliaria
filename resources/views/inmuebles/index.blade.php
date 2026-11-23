@@ -85,21 +85,21 @@
             <thead>
                 <tr>
                     <th>Propiedad</th>
-                    <th>Operación</th>
-                    <th>Tipo</th>
+                    <th class="d-none d-lg-table-cell">Operación</th>
+                    <th class="d-none d-lg-table-cell">Tipo</th>
                     <th>Precio</th>
-                    <th>m²</th>
+                    <th class="d-none d-lg-table-cell">m²</th>
                     <th>Estado</th>
-                    <th class="text-center" title="Visitas / consultas">Vis.·Cons.</th>
-                    <th>Comisión</th>
-                    <th class="text-center" title="Destacado">Dest.</th>
+                    <th class="text-center d-none d-lg-table-cell" title="Visitas / consultas">Vis.·Cons.</th>
+                    <th class="d-none d-lg-table-cell">Comisión</th>
+                    <th class="text-center d-none d-lg-table-cell" title="Destacado">Dest.</th>
                     <th class="text-center acciones">Acciones</th>
                 </tr>
             </thead>
             <tbody>
                 @forelse($inmuebles as $inmueble)
                 <tr>
-                    <td style="min-width: 240px;">
+                    <td class="celda-prop">
                         <div class="fw-semibold">{{ $inmueble->titulo }}</div>
                         <small class="text-muted"><i class="fas fa-map-marker-alt me-1"></i>{{ $inmueble->ciudad ?: $inmueble->direccion }}</small>
                         @if($inmueble->carga_asistida)
@@ -109,10 +109,10 @@
                             <small class="d-block text-muted" title="{{ $inmueble->propemail }} · {{ $inmueble->proptel }}">Prop.: {{ $inmueble->propnombre }} · DNI {{ $inmueble->propdni }}</small>
                         @endif
                     </td>
-                    <td>{{ ucfirst($inmueble->tipo_operacion) }}</td>
-                    <td>{{ $inmueble->tipo_propiedad ? (\App\Models\Inmueble::tiposPropiedad()[$inmueble->tipo_propiedad] ?? ucfirst($inmueble->tipo_propiedad)) : '-' }}</td>
+                    <td class="d-none d-lg-table-cell">{{ ucfirst($inmueble->tipo_operacion) }}</td>
+                    <td class="d-none d-lg-table-cell">{{ $inmueble->tipo_propiedad ? (\App\Models\Inmueble::tiposPropiedad()[$inmueble->tipo_propiedad] ?? ucfirst($inmueble->tipo_propiedad)) : '-' }}</td>
                     <td class="text-nowrap fw-semibold" style="color:#4f46e5;">@dinero($inmueble->precio, 2)</td>
-                    <td class="text-nowrap">{{ $inmueble->superficie_cubierta }} m²</td>
+                    <td class="text-nowrap d-none d-lg-table-cell">{{ $inmueble->superficie_cubierta }} m²</td>
                     <td>
                         @if($inmueble->cerrada)
                             <span class="badge text-bg-dark">Cerrada ({{ $inmueble->tipo_cierre }})</span>
@@ -122,10 +122,10 @@
                             <span class="badge text-bg-secondary">Borrador</span>
                         @endif
                     </td>
-                    <td class="text-center text-nowrap small text-muted" title="Visitas / consultas recibidas">
+                    <td class="text-center text-nowrap small text-muted d-none d-lg-table-cell" title="Visitas / consultas recibidas">
                         <i class="fas fa-eye"></i> {{ $inmueble->visitas }} · <i class="fas fa-envelope"></i> {{ $inmueble->contactos_count }}
                     </td>
-                    <td class="text-nowrap small">
+                    <td class="text-nowrap small d-none d-lg-table-cell">
                         @if($inmueble->comision_monto !== null)
                             @dinero((float) $inmueble->comision_monto, 2)
                             @if($inmueble->comision_estado === 'cobrada')
@@ -137,7 +137,7 @@
                             <span class="text-muted">-</span>
                         @endif
                     </td>
-                    <td class="text-center">
+                    <td class="text-center d-none d-lg-table-cell">
                         <input type="checkbox" class="toggle-destacado form-check-input" data-id="{{ $inmueble->id }}" {{ $inmueble->destacado ? 'checked' : '' }} title="Destacar en el portal">
                     </td>
                     <td class="text-center acciones">
@@ -236,6 +236,17 @@
     }
     .tabla-compacta tbody tr:hover .acciones { background: #f8fafc; }
     .tabla-compacta .badge { font-size: .68rem; }
+    .tabla-compacta .celda-prop { min-width: 240px; }
+    /* Mobile: solo Propiedad + Precio + Estado + Acciones; título con ellipsis y acciones compactas */
+    @media (max-width: 900px) {
+        .tabla-compacta th, .tabla-compacta td { padding: .4rem .45rem; }
+        .tabla-compacta .celda-prop { min-width: 150px; max-width: 220px; }
+        .tabla-compacta .celda-prop .fw-semibold {
+            display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+        .tabla-compacta .acciones { box-shadow: -6px 0 8px -6px rgba(16,24,40,.3); }
+        .tabla-compacta .acciones .btn { padding: .22rem .38rem; font-size: .72rem; }
+    }
 </style>
 @stop
 

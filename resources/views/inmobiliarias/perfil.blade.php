@@ -54,6 +54,7 @@
     display: inline-block; background: #eef2ff; border: 1px solid #c7d2fe; color: #3730a3;
     border-radius: 999px; padding: 5px 12px; font-size: 12.5px; font-weight: 600;
     text-decoration: none;
+    max-width: 100%; overflow-wrap: anywhere; word-break: break-all; /* que nunca se salga del contenedor */
   }
   .url-chip:hover { background: #e0e7ff; color: #312e81; }
   input[type="color"].form-control { height: 42px; padding: 4px 8px; cursor: pointer; }
@@ -370,9 +371,9 @@
                         </div>
                         @endif
 
-                        <div class="text-center mt-4 pt-2" style="border-top: 1px solid #eef0f6;">
-                            <button type="submit" class="btn btn-guardar"><i class="fas fa-save me-1"></i> Guardar cambios</button>
-                            <a href="{{ route('inmuebles.index') }}" class="btn btn-outline-secondary btn-volver ms-2">Ir a mis inmuebles</a>
+                        <div class="d-flex flex-column flex-sm-row justify-content-center align-items-center gap-2 mt-4 pt-3" style="border-top: 1px solid #eef0f6;">
+                            <button type="submit" class="btn btn-guardar w-100 w-sm-auto"><i class="fas fa-save me-1"></i> Guardar cambios</button>
+                            <a href="{{ route('inmuebles.index') }}" class="btn btn-outline-secondary btn-volver w-100 w-sm-auto">Ir a mis inmuebles</a>
                         </div>
                     </form>
                 </div>

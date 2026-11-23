@@ -265,11 +265,11 @@
                 {{-- Contenedor del Mapa Leaflet --}}
                 <div class="mb-3">
                     <div id="mapa-inmueble" style="height: 340px; border-radius: 8px; border: 1px solid #dee2e6;"></div>
-                    <div class="d-flex justify-content-between align-items-center mt-2">
+                    <div class="d-flex flex-wrap justify-content-between align-items-center mt-2 gap-2">
                         <small class="text-muted"><i class="fas fa-info-circle me-1"></i> Podés hacer clic en el mapa para ajustar la posición exacta del marcador.</small>
-                        <div class="d-flex align-items-center">
-                            <label for="coordenadas" class="small text-muted me-2 mb-0">Coordenadas:</label>
-                            <input type="text" name="coordenadas" id="coordenadas" class="form-control form-control-sm text-center" style="width: 220px;" value="{{ old('coordenadas') }}" placeholder="Latitud, Longitud" readonly>
+                        <div class="d-flex align-items-center flex-wrap gap-2">
+                            <label for="coordenadas" class="small text-muted mb-0">Coordenadas:</label>
+                            <input type="text" name="coordenadas" id="coordenadas" class="form-control form-control-sm text-center coord-input" value="{{ old('coordenadas') }}" placeholder="Latitud, Longitud" readonly>
                         </div>
                     </div>
                 </div>
@@ -426,6 +426,7 @@
 <style>
     .object-fit-cover { object-fit: cover; }
     .border-dashed { border-style: dashed !important; }
+    .coord-input { width: 220px; max-width: 100%; } /* que nunca se salga del contenedor en mobile */
 </style>
 @stop
 

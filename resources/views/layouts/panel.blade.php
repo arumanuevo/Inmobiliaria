@@ -18,6 +18,9 @@
             <img src="{{ asset('images/logoinmo.svg') }}" alt="Logo">
             <span>{{ config('app.name') }}</span>
         </a>
+        <button type="button" class="sidebar-toggle" id="sidebarToggle" aria-label="Abrir menú" aria-expanded="false">
+            <i class="fas fa-bars"></i>
+        </button>
         <nav class="panel-nav">
             <a href="{{ route('inicio') }}" class="{{ request()->is('/') || request()->is('inicio') ? 'active' : '' }}">
                 <i class="fas fa-globe"></i><span>Portal</span>
@@ -120,6 +123,27 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    // Sidebar mobile: hamburguesa abre/cierra el menú (drawer)
+    var sidebar = document.querySelector('.panel-sidebar');
+    var toggle = document.getElementById('sidebarToggle');
+    if (toggle && sidebar) {
+        toggle.addEventListener('click', function () {
+            var abierto = sidebar.classList.toggle('open');
+            toggle.setAttribute('aria-expanded', abierto ? 'true' : 'false');
+            toggle.innerHTML = abierto ? '<i class="fas fa-times"></i>' : '<i class="fas fa-bars"></i>';
+        });
+        sidebar.querySelectorAll('.panel-nav a').forEach(function (a) {
+            a.addEventListener('click', function () {
+                sidebar.classList.remove('open');
+                toggle.setAttribute('aria-expanded', 'false');
+                toggle.innerHTML = '<i class="fas fa-bars"></i>';
+            });
+        });
+    }
+});
+</script>
 @yield('js')
 </body>
 </html>
