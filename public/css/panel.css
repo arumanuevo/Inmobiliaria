@@ -257,7 +257,7 @@ label { font-weight: 500; font-size: 13.5px; margin-bottom: 5px; color: #344054;
    menú hamburguesa; el drawer es position:fixed así NUNCA empuja el contenido */
 @media (max-width: 1200px) {
     .panel-sidebar {
-        position: fixed; top: 0; left: 0; right: 0; width: 100%;
+        position: fixed; top: 0; left: 0; right: 0; bottom: auto; height: auto; width: 100%; /* bottom:auto: anula el inset desktop para que la barra NO se estire a pantalla completa */
         flex-direction: row; flex-wrap: nowrap; align-items: center;
         gap: 10px; padding: 10px 14px; z-index: 1045;
         box-shadow: 0 2px 12px rgba(0,0,0,.25);
@@ -297,7 +297,7 @@ label { font-weight: 500; font-size: 13.5px; margin-bottom: 5px; color: #344054;
    (celulares en modo escritorio reportan viewport ancho y las media queries no aplican) */
 body.panel-mobile .panel-sidebar {
 
-        position: fixed; top: 0; left: 0; right: 0; width: 100%;
+        position: fixed; top: 0; left: 0; right: 0; bottom: auto; height: auto; width: 100%; /* bottom:auto: anula el inset desktop para que la barra NO se estire a pantalla completa */
         flex-direction: row; flex-wrap: nowrap; align-items: center;
         gap: 10px; padding: 10px 14px; z-index: 1045;
         box-shadow: 0 2px 12px rgba(0,0,0,.25);
