@@ -2,6 +2,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Inmobiliaria;
+use App\Support\Imagen;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
@@ -14,6 +15,8 @@ class InmobiliariaController extends Controller
         $verificada = $request->input('verificada') === '1';
 
         $query = Inmobiliaria::activas()
+            ->select('inmobiliarias.*')
+            ->leftJoin('planes', 'planes.id', '=', 'inmobiliarias.plan_id') // sin FK: join para ordenar por plan
             ->whereDoesntHave('usuario.roles', function ($q) {
                 $q->where('name', 'particular');
             })
@@ -33,7 +36,11 @@ class InmobiliariaController extends Controller
             });
         }
 
-        $inmobiliarias = $query->latest()->paginate(12)->withQueryString();
+        // Orden: primero Premium, después verificadas, después más recientes
+        $inmobiliarias = $query->orderByRaw("(planes.slug = 'premium') DESC")
+            ->orderBy('inmobiliarias.verificada', 'DESC')
+            ->latest('inmobiliarias.created_at')
+            ->paginate(12)->withQueryString();
 
         return view('inmobiliarias.index', compact('inmobiliarias', 'q', 'verificada'));
     }
@@ -183,6 +190,9 @@ class InmobiliariaController extends Controller
             'instagram' => 'nullable|string|max:255',
             'color_tema' => 'nullable|string|max:7',
             'logo' => 'nullable|image|mimes:png,jpg,jpeg,svg,webp|max:2048',
+            // SEO personalizado del perfil público (editable solo con plan Premium)
+            'meta_titulo' => 'nullable|string|max:70',
+            'meta_descripcion' => 'nullable|string|max:200',
             // Personalización optativa del perfil público
             'tema' => 'nullable|in:moderno,elegante,minimal,corporativo',
             'mensaje_destacado' => 'nullable|string|max:255',
@@ -196,29 +206,46 @@ class InmobiliariaController extends Controller
         $data['mostrar_mapa'] = $request->has('mostrar_mapa') ? 1 : 0;
         $data['mostrar_redes'] = $request->has('mostrar_redes') ? 1 : 0;
 
+        // SEO custom solo aplica con plan Premium; en otros planes se ignora lo enviado
+        if ($inmobiliaria->esPremium()) {
+            $data['meta_titulo'] = isset($data['meta_titulo']) ? trim($data['meta_titulo']) : null;
+            $data['meta_descripcion'] = isset($data['meta_descripcion']) ? trim($data['meta_descripcion']) : null;
+        } else {
+            unset($data['meta_titulo'], $data['meta_descripcion']);
+        }
+
         $dir = public_path('images/inmobiliarias');
         if (!is_dir($dir)) {
             mkdir($dir, 0755, true);
         }
 
+        // Imágenes del perfil: se normalizan al guardar (logo máx 800px, portada/galería máx 1920px)
+        $infosImagenes = [];
+
         if ($request->hasFile('logo')) {
-            $nombre = $inmobiliaria->id . '_logo_' . time() . '.' . $request->file('logo')->getClientOriginalExtension();
-            $request->file('logo')->move($dir, $nombre);
-            $data['logo'] = 'images/inmobiliarias/' . $nombre;
+            $guardada = Imagen::guardar($request->file('logo'), $dir, $inmobiliaria->id . '_logo', 800);
+            $data['logo'] = 'images/inmobiliarias/' . $guardada['nombre'];
+            if ($guardada['info']) {
+                $infosImagenes[] = 'Logo: ' . $guardada['info'];
+            }
         }
 
         if ($request->hasFile('imagen_portada')) {
-            $nombre = $inmobiliaria->id . '_portada_' . time() . '.' . $request->file('imagen_portada')->getClientOriginalExtension();
-            $request->file('imagen_portada')->move($dir, $nombre);
-            $data['imagen_portada'] = 'images/inmobiliarias/' . $nombre;
+            $guardada = Imagen::guardar($request->file('imagen_portada'), $dir, $inmobiliaria->id . '_portada', 1920);
+            $data['imagen_portada'] = 'images/inmobiliarias/' . $guardada['nombre'];
+            if ($guardada['info']) {
+                $infosImagenes[] = 'Portada: ' . $guardada['info'];
+            }
         }
 
         if ($request->hasFile('galeria')) {
             $galeria = $inmobiliaria->galeria ?? [];
             foreach ($request->file('galeria') as $img) {
-                $nombre = $inmobiliaria->id . '_gal_' . time() . '_' . uniqid() . '.' . $img->getClientOriginalExtension();
-                $img->move($dir, $nombre);
-                $galeria[] = 'images/inmobiliarias/' . $nombre;
+                $guardada = Imagen::guardar($img, $dir, $inmobiliaria->id . '_gal', 1920);
+                $galeria[] = 'images/inmobiliarias/' . $guardada['nombre'];
+                if ($guardada['info']) {
+                    $infosImagenes[] = $guardada['info'];
+                }
             }
             $data['galeria'] = array_values($galeria);
         }
@@ -227,6 +254,11 @@ class InmobiliariaController extends Controller
 
         $inmobiliaria->update($data);
 
-        return redirect()->route('inmobiliaria.perfil')->with('success', 'Perfil actualizado correctamente.');
+        $mensaje = 'Perfil actualizado correctamente.';
+        if (!empty($infosImagenes)) {
+            $mensaje .= ' Imágenes optimizadas automáticamente: ' . implode('; ', array_slice($infosImagenes, 0, 3)) . (count($infosImagenes) > 3 ? '…' : '');
+        }
+
+        return redirect()->route('inmobiliaria.perfil')->with('success', $mensaje);
     }
 }

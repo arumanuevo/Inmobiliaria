@@ -9,6 +9,7 @@ use App\Models\Inmueble;
 use App\Models\Inmobiliaria;
 use App\Models\Plan;
 use App\Models\SolicitudCarga;
+use App\Support\Imagen;
 use App\Mail\CargaAsistidaListaMail;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
@@ -242,9 +243,8 @@ class AdminController extends Controller
             $fotos = [];
             foreach (array_slice($images, 0, $limiteFotos) as $imagen) {
                 if ($imagen->isValid()) {
-                    $nombre = $inmueble->id . '_' . \Illuminate\Support\Str::uuid() . '.' . strtolower($imagen->getClientOriginalExtension());
-                    $imagen->move(public_path('images/fotosinmuebles'), $nombre);
-                    $fotos[] = $nombre;
+                    $guardada = Imagen::guardar($imagen, public_path('images/fotosinmuebles'), (string) $inmueble->id, 1600);
+                    $fotos[] = $guardada['nombre'];
                 }
             }
             if (!empty($fotos)) {

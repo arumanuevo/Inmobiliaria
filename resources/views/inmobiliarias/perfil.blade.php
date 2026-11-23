@@ -187,9 +187,11 @@
                                 <input type="color" name="color_tema" id="color_tema" class="form-control"
                                        value="{{ old('color_tema', $inmobiliaria->color_tema ?: '#6366f1') }}">
                             </div>
-                            <div class="col-md-6 form-group">
+                            <div class="col-md-6 form-group" data-norm-zone>
                                 <label for="logo">Logo (png, jpg, svg)</label>
-                                <input type="file" name="logo" id="logo" class="form-control-file" accept="image/*">
+                                <input type="file" name="logo" id="logo" class="form-control-file" accept="image/*" data-normalizar data-max="800" data-tipo="auto">
+                                <small class="text-muted">Recomendada <strong>cuadrada 1:1</strong> (ej. 400×400 px), PNG con fondo transparente. Se achica automáticamente a máx 800 px.</small>
+                                <small class="text-primary d-block mt-1" data-norm-aviso style="display:none;"></small>
                             </div>
                         </div>
                         <div class="form-group">
@@ -316,17 +318,20 @@
                         </div>
 
                         <h6 class="section-title"><i class="fas fa-images"></i> Imágenes del perfil</h6>
-                        <div class="row">
+                        <div class="row" data-norm-zone>
                             <div class="col-md-6 form-group">
                                 <label for="imagen_portada">Imagen de portada (jumbotron de tu perfil)</label>
-                                <input type="file" name="imagen_portada" id="imagen_portada" class="form-control-file" accept="image/*">
+                                <input type="file" name="imagen_portada" id="imagen_portada" class="form-control-file" accept="image/*" data-normalizar data-max="1920" data-maxkb="900">
+                                <small class="text-muted">Recomendada <strong>1920×640 px (proporción 3:1)</strong> para que cubra todo el ancho del jumbotron sin deformarse. Se achica automáticamente a máx 1920 px y se comprime.</small>
                                 @if($inmobiliaria->imagen_portada)
                                     <img src="{{ asset($inmobiliaria->imagen_portada) }}" class="preview-img mt-2" style="max-height: 90px;">
                                 @endif
                             </div>
                             <div class="col-md-6 form-group">
                                 <label for="galeria">Galería del jumbotron (varias imágenes = carrusel, máx. 10)</label>
-                                <input type="file" name="galeria[]" id="galeria" class="form-control-file" accept="image/*" multiple>
+                                <input type="file" name="galeria[]" id="galeria" class="form-control-file" accept="image/*" multiple data-normalizar data-max="1920" data-maxkb="900">
+                                <small class="text-muted">Misma proporción que la portada (3:1). Se optimizan automáticamente al subir.</small>
+                                <small class="text-primary d-block mt-1" data-norm-aviso style="display:none;"></small>
                                 @if(!empty($inmobiliaria->galeria))
                                     <div class="d-flex flex-wrap mt-2">
                                         @foreach($inmobiliaria->galeria as $img)
@@ -336,6 +341,34 @@
                                 @endif
                             </div>
                         </div>
+
+                        <h6 class="section-title"><i class="fas fa-search"></i> SEO de tu perfil público @if($inmobiliaria->esPremium())<span class="badge badge-success ms-1">Premium</span>@endif</h6>
+                        @if($inmobiliaria->esPremium())
+                        <div class="row">
+                            <div class="col-md-6 form-group">
+                                <label for="meta_titulo">Título en Google (meta title)</label>
+                                <input type="text" name="meta_titulo" id="meta_titulo" class="form-control" maxlength="70"
+                                       value="{{ old('meta_titulo', $inmobiliaria->meta_titulo) }}"
+                                       placeholder="{{ $inmobiliaria->nombre_comercial }} | Inmobiliaria en {{ trim(($inmobiliaria->ciudad ?: '') . ', ' . ($inmobiliaria->provincia ?: ''), ', ') ?: 'tu zona' }}">
+                                <small class="text-muted"><span data-contador="meta_titulo">0</span>/70 caracteres. Si lo dejás vacío se genera automático.</small>
+                            </div>
+                            <div class="col-md-6 form-group">
+                                <label for="meta_descripcion">Descripción en Google (meta description)</label>
+                                <textarea name="meta_descripcion" id="meta_descripcion" class="form-control" rows="2" maxlength="200" placeholder="Ej: Inmobiliaria en {{ trim(($inmobiliaria->ciudad ?: '') . ', ' . ($inmobiliaria->provincia ?: ''), ', ') ?: 'la zona' }}. Casas, departamentos y terrenos verificados.">{{ old('meta_descripcion', $inmobiliaria->meta_descripcion) }}</textarea>
+                                <small class="text-muted"><span data-contador="meta_descripcion">0</span>/200 caracteres. Se usa también para compartir el enlace.</small>
+                            </div>
+                        </div>
+                        <small class="text-muted d-block mb-2"><i class="fas fa-eye me-1"></i>Podés previsualizar cómo queda tu perfil en Google desde <a href="{{ route('inmobiliarias.show', $inmobiliaria->slug) }}" target="_blank">tu página pública</a>.</small>
+                        @else
+                        <div class="alert alert-light border d-flex align-items-start gap-2 mb-0">
+                            <i class="fas fa-lock text-warning mt-1"></i>
+                            <div>
+                                <strong>SEO personalizado disponible con el plan Premium.</strong>
+                                <small class="text-muted d-block">Con Premium definís el título y la descripción exactos de tu perfil en los resultados de Google. Mientras tanto los generamos automáticamente con los datos de tu inmobiliaria.</small>
+                                <a href="{{ route('sumate') }}" class="small fw-bold">Ver planes <i class="fas fa-arrow-right ms-1"></i></a>
+                            </div>
+                        </div>
+                        @endif
 
                         <div class="text-center mt-4 pt-2" style="border-top: 1px solid #eef0f6;">
                             <button type="submit" class="btn btn-guardar"><i class="fas fa-save me-1"></i> Guardar cambios</button>
@@ -350,9 +383,19 @@
 @stop
 
 @section('js')
+@include('partials.imagenes_js')
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
+    // Contadores de caracteres para los campos SEO
+    document.querySelectorAll('[data-contador]').forEach(function (span) {
+        var campo = document.getElementById(span.getAttribute('data-contador'));
+        if (!campo) { return; }
+        var actualizar = function () { span.textContent = (campo.value || '').length; };
+        campo.addEventListener('input', actualizar);
+        actualizar();
+    });
+
     var div = document.getElementById('mapa-perfil');
     if (!div || typeof L === 'undefined') { return; }
     var latInput = document.getElementById('lat');

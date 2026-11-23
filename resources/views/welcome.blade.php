@@ -1,8 +1,26 @@
 @extends('layouts.landing')
 
-@section('title', config('app.name') . ' | Portal inmobiliario')
+@section('title', config('app.name') . ' | Buscá propiedades o creá tu propia inmobiliaria online')
 @section('meta')
-<meta name="description" content="{{ config('app.name') }}: el portal donde inmobiliarias verificadas publican sus propiedades. Buscá por zona o en el mapa y contactá directo con la inmobiliaria. ¿Tenés una inmobiliaria? Creá tu página gratis.">
+<meta name="description" content="{{ config('app.name') }}: buscá propiedades de inmobiliarias verificadas y dueños directos por zona o en el mapa, o creá gratis tu propia inmobiliaria online con perfil público, mapa y publicaciones ilimitadas según tu plan.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="{{ route('inicio') }}">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="{{ config('app.name') }}">
+<meta property="og:title" content="{{ config('app.name') }} | Buscá propiedades o creá tu propia inmobiliaria online">
+<meta property="og:description" content="Portal inmobiliario: propiedades verificadas y dueños directos, y tu propia inmobiliaria online con perfil público propio.">
+<meta property="og:url" content="{{ route('inicio') }}">
+<meta property="og:image" content="{{ asset('images/logoinmo.svg') }}">
+<meta name="twitter:card" content="summary">
+<script type="application/ld+json">{!! json_encode([
+  '@context' => 'https://schema.org',
+  '@type' => 'Organization',
+  'name' => config('app.name'),
+  'url' => route('inicio'),
+  'logo' => asset('images/logoinmo.svg'),
+  'sameAs' => array_values(array_filter([config('app.url')])),
+  'description' => 'Portal inmobiliario SaaS: buscador de propiedades y creación de inmobiliarias online con perfil público propio.',
+], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT) !!}</script>
 @stop
 @section('css')
 <link rel="stylesheet" href="{{ asset('css/landing.css') }}">
@@ -29,6 +47,7 @@
   .hero {
     position: relative;
     height: 60vh;
+    min-height: 520px; /* que el contenido (título + 3 botones) siempre entre sin cortarse */
     overflow: hidden;
     background: linear-gradient(135deg, #101828 0%, #1d2939 100%);
   }
@@ -59,127 +78,37 @@
   }
 
   @media (max-width: 768px) {
+    /* Mobile: hero en columna con altura automática para que NUNCA se corten los botones */
     .hero {
-      height: auto; /* Para que el contenido se expanda */
+      height: auto;
+      min-height: 0;
+      overflow: visible;
       display: flex;
       flex-direction: column;
-      position: relative;
-      height: 550px;
     }
-
-    .carousel {
-      order: 1; /* Mantiene el carrusel arriba */
-    }
-
+    .hero-overlay { display: none; }
+    .hero::before { background: none; }
+    .carousel { order: 1; width: 100%; flex: 0 0 auto; }
+    .carousel-item img { height: 220px; }
+    .hero .container,
     .hero-content {
-      order: 2; /* Mueve el texto debajo */
+      order: 2;
       position: static;
       transform: none;
-      text-align: center;
-      padding: 20px;
-      background: rgba(0, 0, 0, 0.6); /* Opcional: fondo oscuro para mejor legibilidad */
-    }
-
-    .hero .container {
-      position: absolute;
-      left: 50%;
-      transform: translate(-50%, -0%);
-      text-align: center;
-      z-index: 10;
+      left: auto;
+      top: auto;
       width: 100%;
-      margin-top: 0px;
+      max-width: 100%;
+      margin: 0;
+      z-index: 10;
+      text-align: center;
+      padding: 26px 16px 30px;
+      background: linear-gradient(180deg, rgba(16,24,40,.96) 0%, rgba(29,41,57,.94) 100%);
     }
-
-    .carousel-item img {
-      height: 275px; /* Ajusta la altura en dispositivos móviles */
-    }
-
-    .hero::before {
-      background: none;
-    }
-
-    @media (orientation: landscape) {
-      .hero {
-        height: 50vh; /* Reduce la altura para adaptarse mejor al ancho */
-        display: flex;
-        flex-direction: row; /* Cambia la dirección para alinearlo horizontalmente */
-        justify-content: space-between; /* Espaciado entre el carrusel y el contenido */
-        align-items: center; /* Centra el contenido verticalmente */
-      }
-
-      .carousel-inner {
-        height: 500px; /* Ajusta el tamaño del carrusel */
-      }
-
-      .carousel-item img {
-        height: 100%;
-        object-fit: cover; /* Asegura que la imagen siga cubriendo el área del carrusel */
-      }
-
-      .hero-content {
-        order: 1; /* Mueve el contenido del texto hacia la izquierda */
-        position: static;
-        transform: none;
-        text-align: left;
-        padding: 30px;
-        width: 30%; /* Ajusta el ancho del texto para no ocupar toda la pantalla */
-        height: 10%;
-      }
-
-      .carousel {
-        order: 2; /* Mueve el carrusel a la derecha */
-        width: 50%; /* Ajusta el ancho del carrusel para que encaje mejor */
-      }
-
-      .hero .container {
-        position: static;
-        transform: none;
-        width: 100%;
-        margin-top: 0;
-        height: 35vh; /* Reduce aún más la altura */
-        padding: 10px 0; /* Reduce el espacio interno */
-      }
-
-      .hero .container h1,
-      .hero .container p {
-        font-size: 100%; /* Reduce el tamaño del texto */
-      }
-
-      .hero .container button {
-        font-size: 100%; /* Reduce un poco el tamaño del botón */
-        padding: 8px 12px; /* Ajusta el padding del botón */
-      }
-
-      .carousel-item img {
-        height: 400px; /* Ajusta la altura del carrusel para que no ocupe tanto espacio */
-      }
-
-      .hero .container {
-        position: static;
-        transform: none;
-        width: 100%;
-        margin-top: 0;
-        height: 30vh; /* Reduce aún más la altura */
-        padding: 5px 0; /* Reduce el espacio interno */
-      }
-
-      .hero .container h1,
-      .hero .container p {
-        font-size: 100%; /* Ajusta el tamaño del texto */
-        margin-bottom: 5px; /* Reduce el espacio entre texto y botón */
-      }
-
-      .hero .container button {
-        font-size: 90%; /* Reduce un poco el tamaño del botón */
-        padding: 6px 10px; /* Ajusta el padding para hacerlo más compacto */
-        margin-top: 0px; /* Reduce la separación entre el texto y el botón */
-      }
-
-      .hero .container button {
-        font-size: 80%; /* Reduce el tamaño del texto */
-        padding: 5px 8px; /* Ajusta el tamaño del botón */
-      }
-    }
+    .hero-content h1 { font-size: 1.5rem; }
+    .hero-content .lead { font-size: .95rem; }
+    /* Botones a ancho completo en mobile: ninguno queda semi oculto */
+    .hero-content .btn { width: 100%; max-width: 340px; font-size: .98rem; padding: .6rem 1rem; }
   }
 
   .footer {
@@ -240,7 +169,7 @@
         <!-- Imágenes dinámicas -->
       </div>
     </div>
-    <div style="position: absolute; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.5);"></div>
+    <div class="hero-overlay" style="position: absolute; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.5);"></div>
     <div class="container hero-content">
       <div class="row align-items-center justify-content-center text-center">
         <div class="col-md-11">

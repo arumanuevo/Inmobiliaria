@@ -147,6 +147,10 @@
             <li>{{ $plan->limite_inmuebles }} publicaciones</li>
             <li>{{ $plan->limite_destacados }} destacadas</li>
             <li>{{ $plan->limite_fotos }} fotos por publicación</li>
+            @if($plan->slug === 'premium')
+              <li><i class="fas fa-search me-1 text-success"></i> SEO personalizado de tu perfil en Google</li>
+              <li><i class="fas fa-bolt me-1 text-success"></i> Perfil priorizado en el directorio</li>
+            @endif
           </ul>
           <a href="{{ route('register') }}" class="btn {{ $plan->precio_mensual == 0 ? 'btn-primary' : 'btn-outline-primary' }} w-100">Empezar</a>
         </div>

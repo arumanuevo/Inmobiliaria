@@ -82,6 +82,7 @@ SELECT 'inmobiliarias' AS tabla, 'ciudad' AS columna UNION ALL
 SELECT 'inmobiliarias' AS tabla, 'codigo_postal' AS columna UNION ALL
 SELECT 'inmobiliarias' AS tabla, 'color_tema' AS columna UNION ALL
 SELECT 'inmobiliarias' AS tabla, 'created_at' AS columna UNION ALL
+SELECT 'inmobiliarias' AS tabla, 'cuit' AS columna UNION ALL
 SELECT 'inmobiliarias' AS tabla, 'descripcion' AS columna UNION ALL
 SELECT 'inmobiliarias' AS tabla, 'direccion' AS columna UNION ALL
 SELECT 'inmobiliarias' AS tabla, 'email' AS columna UNION ALL
@@ -94,7 +95,10 @@ SELECT 'inmobiliarias' AS tabla, 'instagram' AS columna UNION ALL
 SELECT 'inmobiliarias' AS tabla, 'lat' AS columna UNION ALL
 SELECT 'inmobiliarias' AS tabla, 'lng' AS columna UNION ALL
 SELECT 'inmobiliarias' AS tabla, 'logo' AS columna UNION ALL
+SELECT 'inmobiliarias' AS tabla, 'matricula_registro' AS columna UNION ALL
 SELECT 'inmobiliarias' AS tabla, 'mensaje_destacado' AS columna UNION ALL
+SELECT 'inmobiliarias' AS tabla, 'meta_descripcion' AS columna UNION ALL
+SELECT 'inmobiliarias' AS tabla, 'meta_titulo' AS columna UNION ALL
 SELECT 'inmobiliarias' AS tabla, 'mostrar_mapa' AS columna UNION ALL
 SELECT 'inmobiliarias' AS tabla, 'mostrar_operaciones' AS columna UNION ALL
 SELECT 'inmobiliarias' AS tabla, 'mostrar_redes' AS columna UNION ALL
@@ -108,6 +112,7 @@ SELECT 'inmobiliarias' AS tabla, 'telefono' AS columna UNION ALL
 SELECT 'inmobiliarias' AS tabla, 'tema' AS columna UNION ALL
 SELECT 'inmobiliarias' AS tabla, 'updated_at' AS columna UNION ALL
 SELECT 'inmobiliarias' AS tabla, 'usuario_id' AS columna UNION ALL
+SELECT 'inmobiliarias' AS tabla, 'verificada' AS columna UNION ALL
 SELECT 'inmobiliarias' AS tabla, 'whatsapp' AS columna UNION ALL
 SELECT 'inmobiliarias' AS tabla, 'zonas_cobertura' AS columna UNION ALL
 SELECT 'inmuebles' AS tabla, 'ambientes' AS columna UNION ALL

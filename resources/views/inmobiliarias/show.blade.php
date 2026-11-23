@@ -33,9 +33,65 @@
   $oficinaPopup = '<strong>' . e($inmobiliaria->nombre_comercial) . '</strong><br>'
       . e(trim(($inmobiliaria->direccion ? $inmobiliaria->direccion . ', ' : '') . $inmobiliaria->ciudad . ', ' . $inmobiliaria->provincia, ', '))
       . '<br><small>Oficina</small>';
+  // SEO de la página de perfil: meta custom SOLO si el plan es Premium y están cargados;
+  // si no, se autogeneran con los datos del perfil (sirve también para la vista previa)
+  $ubicacionSeo = trim(($inmobiliaria->ciudad ?: '') . ', ' . ($inmobiliaria->provincia ?: ''), ', ');
+  $seoTitulo = ($inmobiliaria->esPremium() && $inmobiliaria->meta_titulo)
+      ? $inmobiliaria->meta_titulo
+      : trim($inmobiliaria->nombre_comercial . ($ubicacionSeo ? ' | Inmobiliaria en ' . $ubicacionSeo : '') . ' - ' . config('app.name'), ' -');
+  $seoDescripcion = ($inmobiliaria->esPremium() && $inmobiliaria->meta_descripcion)
+      ? $inmobiliaria->meta_descripcion
+      : \Illuminate\Support\Str::limit(trim((string) $inmobiliaria->descripcion) ?: (
+          $inmobiliaria->nombre_comercial . ': inmobiliaria' . ($inmobiliaria->verificada ? ' verificada' : '')
+          . ($ubicacionSeo ? ' en ' . $ubicacionSeo : '')
+          . '. ' . $inmuebles->total() . ' ' . \Illuminate\Support\Str::plural('propiedad', $inmuebles->total()) . ' publicadas en ' . config('app.name') . '.'
+      ), 200);
+  // JSON-LD RealEstateAgent para datos enriquecidos en Google (raw: {{" }} escaparía las comillas)
+  $seoImagen = $inmobiliaria->logo ? asset($inmobiliaria->logo)
+      : ($inmobiliaria->imagen_portada ? asset($inmobiliaria->imagen_portada) : asset('images/logoinmo.svg'));
+  $jsonLdPerfil = json_encode([
+      '@context' => 'https://schema.org',
+      '@type' => 'RealEstateAgent',
+      'name' => $inmobiliaria->nombre_comercial,
+      'url' => route('inmobiliarias.show', $inmobiliaria->slug),
+      'image' => $seoImagen,
+      'telephone' => $inmobiliaria->telefono ?: null,
+      'email' => $inmobiliaria->email ?: null,
+      'description' => $seoDescripcion,
+      'address' => [
+          '@type' => 'PostalAddress',
+          'streetAddress' => $inmobiliaria->direccion ?: null,
+          'addressLocality' => $inmobiliaria->ciudad ?: null,
+          'addressRegion' => $inmobiliaria->provincia ?: null,
+          'postalCode' => $inmobiliaria->codigo_postal ?: null,
+          'addressCountry' => 'AR',
+      ],
+      'areaServed' => $zonas ?: ($inmobiliaria->ciudad ?: null),
+  ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT);
 @endphp
 
-@section('title', $inmobiliaria->nombre_comercial . ($preview ? ' (vista previa)' : ''))
+@section('title', $seoTitulo . ($preview ? ' (vista previa)' : ''))
+
+@section('meta')
+<meta name="description" content="{{ $seoDescripcion }}">
+@if($preview)
+<meta name="robots" content="noindex, nofollow">
+@else
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="{{ route('inmobiliarias.show', $inmobiliaria->slug) }}">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="{{ config('app.name') }}">
+<meta property="og:title" content="{{ $seoTitulo }}">
+<meta property="og:description" content="{{ $seoDescripcion }}">
+<meta property="og:url" content="{{ route('inmobiliarias.show', $inmobiliaria->slug) }}">
+<meta property="og:image" content="{{ $seoImagen }}">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="{{ $seoTitulo }}">
+<meta name="twitter:description" content="{{ $seoDescripcion }}">
+<meta name="twitter:image" content="{{ $seoImagen }}">
+<script type="application/ld+json">{!! $jsonLdPerfil !!}</script>
+@endif
+@stop
 
 @section('css')
 <link rel="stylesheet" href="{{ asset('css/landing.css') }}">

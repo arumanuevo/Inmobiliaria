@@ -74,6 +74,7 @@
                                     <i class="bi bi-cloud-arrow-up"></i> Elegir archivos
                                     <input type="file" name="imagenes[]" accept=".*" multiple id="imagenesInput" style="display: none;">
                                 </label>
+                                <small class="text-muted d-block mt-1">La primera foto es la portada (recomendada 16:10, ej. 1600×1000). Se optimizan automáticamente al subir (máx 1600 px, comprimidas).</small>
                                 <div>
                                     <button type="submit" id="cargarImagenesButton" class="btn btn-success santi" disabled>
                                         <i class="bi bi-archive"></i> Subir Fotos
@@ -111,6 +112,7 @@
 @stop
 
 @section('js')
+    @include('partials.imagenes_js')
     <script>
         const progressModal = document.getElementById('progressModal');
         const progressBar = document.getElementById('progressBar');
@@ -133,11 +135,14 @@
             cargarImagenesButton.disabled = inputImagenes.files.length === 0;
         });
 
-        // Agregar un evento para escuchar cambios en el input de imágenes
-        inputImagenes.addEventListener('change', function () {
-            for (let i = 0; i < inputImagenes.files.length; i++) {
-                selectedFiles.push(inputImagenes.files[i]);
+        // Agregar un evento para escuchar cambios en el input de imágenes (normalizando antes de acumular)
+        inputImagenes.addEventListener('change', async function () {
+            const archivos = Array.from(inputImagenes.files);
+            let files = archivos;
+            if (window.normalizarImagen) {
+                files = await Promise.all(archivos.map(f => window.normalizarImagen(f, { max: 1600, maxkb: 700, tipo: 'jpg' })));
             }
+            files.forEach(f => selectedFiles.push(f));
 
             updateImagePreview();
         });

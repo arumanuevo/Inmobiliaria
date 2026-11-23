@@ -25,15 +25,6 @@
 -- Ejecutar en phpMyAdmin CON LA BASE DEL PROYECTO SELECCIONADA
 -- (verificar antes con: SELECT DATABASE();  -> debe ser arumasof_inmobiliariaxyz)
 -- Idempotente y SIN foreign keys (hosting compartido)
-
--- ============================================================
--- saas_permisos_roles.sql
--- ============================================================
--- ============================================================
--- Tablas de Spatie laravel-permission + roles base + superadmin
--- Ejecutar en phpMyAdmin CON LA BASE DEL PROYECTO SELECCIONADA
--- (verificar antes con: SELECT DATABASE();  -> debe ser arumasof_inmobiliariaxyz)
--- Idempotente y SIN foreign keys (hosting compartido)
 -- ============================================================
 
 CREATE TABLE IF NOT EXISTS `permissions` (
@@ -92,7 +83,6 @@ AND NOT EXISTS (
   SELECT 1 FROM `model_has_roles` m
   WHERE m.`role_id` = r.`id` AND m.`model_type` = 'App\\Models\\User' AND m.`model_id` = u.`id`
 );
-
 
 -- ============================================================
 -- saas_multi_inmobiliaria.sql
@@ -247,7 +237,6 @@ WHERE i.`inmobiliaria_id` IS NULL;
 -- (opcional) después del backfill, hacer la columna obligatoria:
 -- ALTER TABLE `inmuebles` MODIFY `inmobiliaria_id` BIGINT UNSIGNED NOT NULL;
 
-
 -- ============================================================
 -- saas_fix_users.sql
 -- ============================================================
@@ -279,7 +268,6 @@ SET @ddl := IF(@c = 0,
   'SELECT ''users.telefono ya existe'' AS msg');
 PREPARE s FROM @ddl; EXECUTE s; DEALLOCATE PREPARE s;
 
-
 -- ============================================================
 -- saas_boletos.sql
 -- ============================================================
@@ -303,7 +291,6 @@ CREATE TABLE IF NOT EXISTS `boletos` (
   KEY `idx_boletos_inmobiliaria` (`inmobiliaria_id`),
   KEY `idx_boletos_estado` (`estado`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
 
 -- ============================================================
 -- saas_enriquecimiento.sql
@@ -365,7 +352,6 @@ SET @c := (SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA=DA
 SET @ddl := IF(@c=0, 'ALTER TABLE `inmobiliarias` ADD COLUMN `galeria` TEXT NULL DEFAULT NULL AFTER `imagen_portada`', 'SELECT ''ok'' AS msg');
 PREPARE s FROM @ddl; EXECUTE s; DEALLOCATE PREPARE s;
 
-
 -- ============================================================
 -- saas_cierres.sql
 -- ============================================================
@@ -386,7 +372,6 @@ PREPARE s FROM @ddl; EXECUTE s; DEALLOCATE PREPARE s;
 SET @c := (SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME='inmuebles' AND COLUMN_NAME='cerrada_at');
 SET @ddl := IF(@c=0, 'ALTER TABLE `inmuebles` ADD COLUMN `cerrada_at` TIMESTAMP NULL DEFAULT NULL AFTER `tipo_cierre`', 'SELECT ''ok'' AS msg');
 PREPARE s FROM @ddl; EXECUTE s; DEALLOCATE PREPARE s;
-
 
 -- ============================================================
 -- saas_alertas.sql
@@ -416,7 +401,6 @@ SET @c := (SELECT COUNT(*) FROM information_schema.STATISTICS WHERE TABLE_SCHEMA
 SET @ddl := IF(@c=0, 'ALTER TABLE `busquedas_guardadas` ADD INDEX `busquedas_guardadas_user_id_index` (`user_id`)', 'SELECT ''ok'' AS msg');
 PREPARE s FROM @ddl; EXECUTE s; DEALLOCATE PREPARE s;
 
-
 -- ============================================================
 -- saas_comisiones.sql
 -- ============================================================
@@ -442,7 +426,6 @@ SET @c := (SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA=DA
 SET @ddl := IF(@c=0, 'ALTER TABLE `inmuebles` ADD COLUMN `comision_cobrada_at` TIMESTAMP NULL DEFAULT NULL', 'SELECT ''ok'' AS msg');
 PREPARE s FROM @ddl; EXECUTE s; DEALLOCATE PREPARE s;
 
-
 -- ============================================================
 -- saas_asistida.sql
 -- ============================================================
@@ -457,7 +440,6 @@ SET @c := (SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA=DA
 SET @ddl := IF(@c=0, 'ALTER TABLE `inmuebles` ADD COLUMN `carga_asistida` TINYINT(1) NOT NULL DEFAULT 0', 'SELECT ''ok'' AS msg');
 PREPARE s FROM @ddl; EXECUTE s; DEALLOCATE PREPARE s;
 
-
 -- ============================================================
 -- saas_particulares.sql
 -- ============================================================
@@ -470,7 +452,6 @@ PREPARE s FROM @ddl; EXECUTE s; DEALLOCATE PREPARE s;
 SET @c := (SELECT COUNT(*) FROM `roles` WHERE `name` = 'particular' AND `guard_name` = 'web');
 SET @ddl := IF(@c=0, 'INSERT INTO `roles` (`name`, `guard_name`, `created_at`, `updated_at`) VALUES (''particular'', ''web'', NOW(), NOW())', 'SELECT ''ok'' AS msg');
 PREPARE s FROM @ddl; EXECUTE s; DEALLOCATE PREPARE s;
-
 
 -- ============================================================
 -- saas_plan_particular.sql
@@ -494,7 +475,6 @@ JOIN `roles` r ON r.`id` = mr.`role_id` AND r.`name` = 'particular'
 SET i.`plan_id` = @planId
 WHERE @planId IS NOT NULL;
 
-
 -- ============================================================
 -- saas_declaracion.sql
 -- ============================================================
@@ -508,7 +488,6 @@ WHERE @planId IS NOT NULL;
 SET @c := (SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME='inmuebles' AND COLUMN_NAME='declaracion_propietario');
 SET @ddl := IF(@c=0, 'ALTER TABLE `inmuebles` ADD COLUMN `declaracion_propietario` TINYINT(1) NOT NULL DEFAULT 0', 'SELECT ''ok'' AS msg');
 PREPARE s FROM @ddl; EXECUTE s; DEALLOCATE PREPARE s;
-
 
 -- ============================================================
 -- saas_personalizacion.sql
@@ -539,7 +518,6 @@ SET @c := (SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA=DA
 SET @ddl := IF(@c=0, 'ALTER TABLE `inmobiliarias` ADD COLUMN `mostrar_redes` TINYINT(1) NOT NULL DEFAULT 1', 'SELECT ''ok'' AS msg');
 PREPARE s FROM @ddl; EXECUTE s; DEALLOCATE PREPARE s;
 
-
 -- ============================================================
 -- saas_solicitudes_carga.sql
 -- ============================================================
@@ -568,7 +546,6 @@ SET @c := (SELECT COUNT(*) FROM information_schema.STATISTICS WHERE TABLE_SCHEMA
 SET @ddl := IF(@c=0, 'ALTER TABLE `solicitudes_carga` ADD INDEX `idx_solicitudes_estado` (`estado`)', 'SELECT ''ok'' AS msg');
 PREPARE s FROM @ddl; EXECUTE s; DEALLOCATE PREPARE s;
 
-
 -- ============================================================
 -- saas_proximidades.sql
 -- ============================================================
@@ -585,7 +562,6 @@ PREPARE s FROM @ddl; EXECUTE s; DEALLOCATE PREPARE s;
 
 -- Ejemplos demo opcionales (solo si querés poblar el seeder existente):
 -- UPDATE `inmuebles` SET `proximidades` = JSON_ARRAY(JSON_OBJECT('nombre','Estación de tren','metros',250), JSON_OBJECT('nombre','Plaza','metros',120)) WHERE `id` = 1;
-
 
 -- ============================================================
 -- saas_entorno.sql
@@ -616,7 +592,6 @@ SET @c := (SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA=DA
 SET @ddl := IF(@c=0, 'ALTER TABLE `inmuebles` ADD COLUMN `puntaje_entorno_at` TIMESTAMP NULL DEFAULT NULL', 'SELECT ''ok'' AS msg');
 PREPARE s FROM @ddl; EXECUTE s; DEALLOCATE PREPARE s;
 
-
 -- ============================================================
 -- saas_verificacion.sql
 -- ============================================================
@@ -642,3 +617,23 @@ SET @c := (SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA=DA
 SET @ddl := IF(@c=0, 'ALTER TABLE `inmobiliarias` ADD COLUMN `verificada` TINYINT(1) NOT NULL DEFAULT 0', 'SELECT ''ok'' AS msg');
 PREPARE s FROM @ddl; EXECUTE s; DEALLOCATE PREPARE s;
 
+-- ============================================================
+-- saas_seo_inmobiliarias.sql
+-- ============================================================
+-- ============================================================
+-- saas_seo_inmobiliarias.sql
+-- SEO personalizado por inmobiliaria (feature Premium):
+--  - meta_titulo: título de la página /inmobiliaria/{slug} (máx 70 chars recomendado)
+--  - meta_descripcion: meta description de esa página (máx 160-200 chars)
+-- Si están vacíos (o el plan no es Premium), el sistema genera el título y
+-- la descripción automáticamente con los datos del perfil.
+-- Idempotente, sin FKs.
+-- ============================================================
+
+SET @c := (SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME='inmobiliarias' AND COLUMN_NAME='meta_titulo');
+SET @ddl := IF(@c=0, 'ALTER TABLE `inmobiliarias` ADD COLUMN `meta_titulo` VARCHAR(70) NULL DEFAULT NULL', 'SELECT ''ok'' AS msg');
+PREPARE s FROM @ddl; EXECUTE s; DEALLOCATE PREPARE s;
+
+SET @c := (SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME='inmobiliarias' AND COLUMN_NAME='meta_descripcion');
+SET @ddl := IF(@c=0, 'ALTER TABLE `inmobiliarias` ADD COLUMN `meta_descripcion` VARCHAR(200) NULL DEFAULT NULL', 'SELECT ''ok'' AS msg');
+PREPARE s FROM @ddl; EXECUTE s; DEALLOCATE PREPARE s;

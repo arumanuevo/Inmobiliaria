@@ -16,9 +16,10 @@
                         <label for="imagenes">Seleccionar Fotos (Máximo 6MB por imagen):</label>
                         <div class="input-group">
                             <div class="custom-file">
-                                <input type="file" id="imagenes" name="imagenes[]" multiple accept="image/*">
+                                <input type="file" id="imagenes" name="imagenes[]" multiple accept="image/*" data-normalizar data-max="1600" data-maxkb="700">
                             </div>
                         </div>
+                        <small class="text-muted">Se achican y comprimen automáticamente al subir (máx 1600 px). Primera foto = portada (recomendada 16:10).</small>
                         @error('imagenes')
                             <span class="text-danger">{{ $message }}</span>
                         @enderror
@@ -38,6 +39,7 @@
 @stop
 
 @section('js')
+    @include('partials.imagenes_js')
     <script>
         $(document).ready(function () {
             $('#imagenes').on('change', function () {

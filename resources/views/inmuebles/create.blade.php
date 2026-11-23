@@ -335,6 +335,7 @@
                     <i class="fas fa-cloud-upload-alt fa-3x text-primary mb-2"></i>
                     <h5 class="fw-bold mb-1">Hacé clic aquí para elegir las fotos de tu propiedad</h5>
                     <p class="text-muted small mb-0">Podés seleccionar varias fotos a la vez desde tu celular o computadora. (Límite: hasta 5 fotos para cuentas particulares).</p>
+                    <p class="text-muted small mb-0 mt-1"><i class="fas fa-image me-1"></i>La <strong>primera foto</strong> es la portada de la tarjeta: recomendada <strong>16:10</strong> (ej. 1600×1000), mínimo 1200 px de ancho. Todas las fotos se achican y comprimen <strong>automáticamente</strong> al subir (máx 1600 px).</p>
                     <input type="file" name="imagenes[]" class="d-none" multiple accept="image/*" @change="handleFileSelect($event)" x-ref="fileInput">
                 </div>
 
@@ -429,6 +430,7 @@
 @stop
 
 @section('js')
+@include('partials.imagenes_js')
 <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
@@ -548,9 +550,18 @@ document.addEventListener('DOMContentLoaded', function () {
 function imageUploader() {
     return {
         images: [],
-        handleFileSelect(event) {
-            let files = event.target.files;
-            Array.from(files).forEach(file => {
+        async handleFileSelect(event) {
+            let files = Array.from(event.target.files);
+            // Normalizar (achicar/comprimir) antes de subir; el input queda con los archivos optimizados
+            if (window.normalizarImagen) {
+                files = await Promise.all(files.map(f => window.normalizarImagen(f, { max: 1600, maxkb: 700, tipo: 'jpg' })));
+                try {
+                    const dt = new DataTransfer();
+                    files.forEach(f => dt.items.add(f));
+                    event.target.files = dt.files;
+                } catch (e) { /* navegador viejo: sube los originales */ }
+            }
+            files.forEach(file => {
                 let reader = new FileReader();
                 reader.onload = e => {
                     this.images.push(e.target.result);

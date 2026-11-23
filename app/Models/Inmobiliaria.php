@@ -14,6 +14,7 @@ class Inmobiliaria extends Model
         'telefono', 'whatsapp', 'email', 'sitio_web',
         'facebook', 'instagram', 'color_tema', 'estado', 'plan_vence_at', 'cuit', 'matricula_registro', 'verificada',
         'tema', 'mensaje_destacado', 'mostrar_operaciones', 'mostrar_mapa', 'mostrar_redes',
+        'meta_titulo', 'meta_descripcion',
     ];
 
     protected $casts = [
@@ -72,6 +73,12 @@ class Inmobiliaria extends Model
     public function scopeActivas($query)
     {
         return $query->where('estado', 'activa');
+    }
+
+    // ¿El plan actual es Premium? (gating de features como el SEO custom del perfil)
+    public function esPremium(): bool
+    {
+        return $this->plan?->slug === 'premium';
     }
 
     public function limiteInmuebles(): int

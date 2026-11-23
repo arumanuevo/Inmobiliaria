@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 use App\Models\BusquedaGuardada;
 use App\Models\Inmueble;
 use App\Models\Inmobiliaria;
+use App\Support\Imagen;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
@@ -187,7 +188,8 @@ class InmuebleController extends Controller
         $inmueble = Inmueble::create($data);
 
 
-        // Guardado directo de imágenes si fueron adjuntadas en el alta
+        // Guardado directo de imágenes si fueron adjuntadas en el alta (se normalizan: máx 1600px, comprimidas)
+        $infosImagenes = [];
         if ($request->hasFile('imagenes')) {
             $images = $request->file('imagenes');
             $inmobiliaria = $inmueble->inmobiliaria;
@@ -195,9 +197,11 @@ class InmuebleController extends Controller
             $fotos = [];
             foreach (array_slice($images, 0, $limiteFotos) as $imagen) {
                 if ($imagen->isValid()) {
-                    $nombre = $inmueble->id . '_' . Str::uuid() . '.' . strtolower($imagen->getClientOriginalExtension());
-                    $imagen->move(public_path('images/fotosinmuebles'), $nombre);
-                    $fotos[] = $nombre;
+                    $guardada = Imagen::guardar($imagen, public_path('images/fotosinmuebles'), (string) $inmueble->id, 1600);
+                    $fotos[] = $guardada['nombre'];
+                    if ($guardada['info']) {
+                        $infosImagenes[] = $guardada['info'];
+                    }
                 }
             }
             if (!empty($fotos)) {
@@ -211,7 +215,12 @@ class InmuebleController extends Controller
             BusquedaGuardada::notificarNuevaPropiedad($inmueble);
         }
 
-        return redirect()->route('inmuebles.index')->with('success', 'Inmueble creado correctamente.');
+        $mensaje = 'Inmueble creado correctamente.';
+        if (!empty($infosImagenes)) {
+            $mensaje .= ' Imágenes optimizadas automáticamente: ' . implode('; ', array_slice($infosImagenes, 0, 3)) . (count($infosImagenes) > 3 ? '…' : '');
+        }
+
+        return redirect()->route('inmuebles.index')->with('success', $mensaje);
     }
 
     // Mostrar detalles de un inmueble
@@ -345,9 +354,16 @@ class InmuebleController extends Controller
             ]);
         }
 
+        $infosImagenes = [];
         foreach ($images as $imagen) {
-            $nombre = $inmuebleId . '_' . Str::uuid() . '.' . strtolower($imagen->getClientOriginalExtension());
-            $imagen->move(public_path('images/fotosinmuebles'), $nombre);
+            if (!$imagen->isValid()) {
+                continue;
+            }
+            $guardada = Imagen::guardar($imagen, public_path('images/fotosinmuebles'), (string) $inmuebleId, 1600);
+            $nombre = $guardada['nombre'];
+            if ($guardada['info']) {
+                $infosImagenes[] = $guardada['info'];
+            }
 
             if (!in_array($nombre, $fotos)) {
                 $fotos[] = $nombre;
@@ -357,7 +373,12 @@ class InmuebleController extends Controller
         $inmueble->fotos = array_values($fotos);
         $inmueble->save();
 
-        return response()->json(['success' => true, 'message' => 'Imágenes cargadas con éxito.']);
+        $mensaje = 'Imágenes cargadas con éxito.';
+        if (!empty($infosImagenes)) {
+            $mensaje .= ' Se optimizaron automáticamente (' . implode('; ', array_slice($infosImagenes, 0, 3)) . (count($infosImagenes) > 3 ? '…' : '') . ').';
+        }
+
+        return response()->json(['success' => true, 'message' => $mensaje]);
     }
 
     // Marcar propiedad como vendida/alquilada (se oculta del portal, suma al contador de operaciones)
