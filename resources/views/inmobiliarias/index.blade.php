@@ -141,6 +141,9 @@
             @endif
             <h5 class="mt-3 mb-1 fw-bold">
               {{ $inmobiliaria->nombre_comercial }}
+              @if($inmobiliaria->verificada)
+                <span class="badge text-bg-success ms-1" title="CUIT y matrícula verificados por el portal"><i class="fas fa-shield-alt"></i> Verificada</span>
+              @endif
               @if($inmobiliaria->usuario?->hasRole('particular'))
                 <span class="badge rounded-pill text-bg-secondary ms-1">Particular</span>
               @endif

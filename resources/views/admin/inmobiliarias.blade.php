@@ -25,6 +25,7 @@
                         <th>Tipo</th>
                         <th>Responsable</th>
                         <th>Estado</th>
+                        <th>Verificación</th>
                         <th>Plan</th>
                         <th>Propiedades</th>
                         <th>Perfil público</th>
@@ -57,6 +58,24 @@
                                 <span class="badge badge-warning">Pendiente</span>
                             @else
                                 <span class="badge badge-danger">Suspendida</span>
+                            @endif
+                        </td>
+                        <td>
+                            @if($inmobiliaria->cuit)<small class="d-block">CUIT: {{ $inmobiliaria->cuit }}</small>@endif
+                            @if($inmobiliaria->matricula_registro)<small class="d-block text-muted">{{ $inmobiliaria->matricula_registro }}</small>@endif
+                            @if($inmobiliaria->verificada)
+                                <span class="badge badge-success"><i class="fas fa-shield-alt"></i> Verificada</span>
+                                <form action="{{ route('admin.inmobiliarias.verificada', $inmobiliaria->id) }}" method="POST" style="display:inline;">
+                                    @csrf
+                                    <input type="hidden" name="verificada" value="0">
+                                    <button class="btn btn-outline-secondary btn-sm" title="Quitar verificación">Quitar</button>
+                                </form>
+                            @else
+                                <form action="{{ route('admin.inmobiliarias.verificada', $inmobiliaria->id) }}" method="POST" style="display:inline;">
+                                    @csrf
+                                    <input type="hidden" name="verificada" value="1">
+                                    <button class="btn btn-outline-success btn-sm" onclick="return confirm('¿Marcar como verificada (chequeaste CUIT/matrícula)?')"><i class="fas fa-shield-alt"></i> Verificar</button>
+                                </form>
                             @endif
                         </td>
                         <td>

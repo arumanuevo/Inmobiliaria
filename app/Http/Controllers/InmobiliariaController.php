@@ -156,6 +156,8 @@ class InmobiliariaController extends Controller
 
         $data = $request->validate([
             'nombre_comercial' => 'required|string|max:150',
+            'cuit' => 'nullable|string|max:20',
+            'matricula_registro' => 'nullable|string|max:80',
             'slug' => ['required', 'string', 'max:160', 'regex:/^[a-z0-9-]+$/', 'unique:inmobiliarias,slug,' . $inmobiliaria->id],
             'descripcion' => 'nullable|string',
             'zonas_cobertura' => 'nullable|string|max:255',

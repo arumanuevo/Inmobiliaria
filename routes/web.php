@@ -67,6 +67,7 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::get('/inmobiliarias', [App\Http\Controllers\Admin\AdminController::class, 'inmobiliarias'])->name('inmobiliarias');
     Route::post('/inmobiliarias/{id}/estado', [App\Http\Controllers\Admin\AdminController::class, 'cambiarEstado'])->name('inmobiliarias.estado');
     Route::post('/inmobiliarias/{id}/plan', [App\Http\Controllers\Admin\AdminController::class, 'cambiarPlan'])->name('inmobiliarias.plan');
+    Route::post('/inmobiliarias/{id}/verificada', [App\Http\Controllers\Admin\AdminController::class, 'cambiarVerificada'])->name('inmobiliarias.verificada');
     Route::get('/boletos', [App\Http\Controllers\Admin\AdminController::class, 'boletos'])->name('boletos');
     Route::post('/boletos', [App\Http\Controllers\Admin\AdminController::class, 'crearBoleto'])->name('boletos.store');
     Route::post('/boletos/{id}/estado', [App\Http\Controllers\Admin\AdminController::class, 'cambiarEstadoBoleto'])->name('boletos.estado');

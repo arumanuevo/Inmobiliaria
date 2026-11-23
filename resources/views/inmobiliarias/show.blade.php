@@ -158,7 +158,18 @@
         @endif
       </div>
       <div class="col-md-10">
-        <h1 class="mb-1">{{ $inmobiliaria->nombre_comercial }}</h1>
+        <h1 class="mb-1">{{ $inmobiliaria->nombre_comercial }}
+          @if($inmobiliaria->verificada)
+            <span class="badge" style="background: rgba(16,185,129,.25); color:#a7f3d0; font-size: 13px; padding: 6px 12px; vertical-align: middle;" title="CUIT y matrícula verificados por el administrador del portal"><i class="fas fa-shield-alt me-1"></i> Verificada</span>
+          @endif
+        </h1>
+        @if($inmobiliaria->verificada && ($inmobiliaria->cuit || $inmobiliaria->matricula_registro))
+          <p class="mb-1 small" style="color: rgba(255,255,255,.85);">
+            @if($inmobiliaria->cuit)CUIT {{ $inmobiliaria->cuit }}@endif
+            @if($inmobiliaria->cuit && $inmobiliaria->matricula_registro) &middot; @endif
+            @if($inmobiliaria->matricula_registro){{ $inmobiliaria->matricula_registro }}@endif
+          </p>
+        @endif
         @if($inmobiliaria->mensaje_destacado)
           <p class="mb-1"><span class="badge" style="background: rgba(255,255,255,.22); color: #fff; font-size: 13px; padding: 7px 14px;"><i class="fas fa-bullhorn me-1"></i>{{ $inmobiliaria->mensaje_destacado }}</span></p>
         @endif

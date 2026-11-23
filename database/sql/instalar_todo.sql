@@ -25,6 +25,15 @@
 -- Ejecutar en phpMyAdmin CON LA BASE DEL PROYECTO SELECCIONADA
 -- (verificar antes con: SELECT DATABASE();  -> debe ser arumasof_inmobiliariaxyz)
 -- Idempotente y SIN foreign keys (hosting compartido)
+
+-- ============================================================
+-- saas_permisos_roles.sql
+-- ============================================================
+-- ============================================================
+-- Tablas de Spatie laravel-permission + roles base + superadmin
+-- Ejecutar en phpMyAdmin CON LA BASE DEL PROYECTO SELECCIONADA
+-- (verificar antes con: SELECT DATABASE();  -> debe ser arumasof_inmobiliariaxyz)
+-- Idempotente y SIN foreign keys (hosting compartido)
 -- ============================================================
 
 CREATE TABLE IF NOT EXISTS `permissions` (
@@ -605,5 +614,31 @@ PREPARE s FROM @ddl; EXECUTE s; DEALLOCATE PREPARE s;
 
 SET @c := (SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME='inmuebles' AND COLUMN_NAME='puntaje_entorno_at');
 SET @ddl := IF(@c=0, 'ALTER TABLE `inmuebles` ADD COLUMN `puntaje_entorno_at` TIMESTAMP NULL DEFAULT NULL', 'SELECT ''ok'' AS msg');
+PREPARE s FROM @ddl; EXECUTE s; DEALLOCATE PREPARE s;
+
+
+-- ============================================================
+-- saas_verificacion.sql
+-- ============================================================
+-- ============================================================
+-- saas_verificacion.sql
+-- Datos de habilitación/identidad de la inmobiliaria para verificación:
+--  - cuit: CUIT del responsable (AFIP)
+--  - matricula_registro: matrícula en el Registro/Colegio provincial de
+--    corredores inmobiliarios (CABA, PBA, etc.)
+--  - verificada: la marca el superadmin tras chequear esos datos
+-- Idempotente, sin FKs.
+-- ============================================================
+
+SET @c := (SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME='inmobiliarias' AND COLUMN_NAME='cuit');
+SET @ddl := IF(@c=0, 'ALTER TABLE `inmobiliarias` ADD COLUMN `cuit` VARCHAR(20) NULL DEFAULT NULL', 'SELECT ''ok'' AS msg');
+PREPARE s FROM @ddl; EXECUTE s; DEALLOCATE PREPARE s;
+
+SET @c := (SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME='inmobiliarias' AND COLUMN_NAME='matricula_registro');
+SET @ddl := IF(@c=0, 'ALTER TABLE `inmobiliarias` ADD COLUMN `matricula_registro` VARCHAR(80) NULL DEFAULT NULL', 'SELECT ''ok'' AS msg');
+PREPARE s FROM @ddl; EXECUTE s; DEALLOCATE PREPARE s;
+
+SET @c := (SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME='inmobiliarias' AND COLUMN_NAME='verificada');
+SET @ddl := IF(@c=0, 'ALTER TABLE `inmobiliarias` ADD COLUMN `verificada` TINYINT(1) NOT NULL DEFAULT 0', 'SELECT ''ok'' AS msg');
 PREPARE s FROM @ddl; EXECUTE s; DEALLOCATE PREPARE s;
 

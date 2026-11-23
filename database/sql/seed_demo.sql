@@ -105,6 +105,18 @@ SET @c := (SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA=DA
 SET @ddl := IF(@c=0, 'ALTER TABLE `inmobiliarias` ADD COLUMN `galeria` TEXT NULL DEFAULT NULL', 'SELECT ''ok'' AS msg');
 PREPARE s FROM @ddl; EXECUTE s; DEALLOCATE PREPARE s;
 
+SET @c := (SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME='inmobiliarias' AND COLUMN_NAME='cuit');
+SET @ddl := IF(@c=0, 'ALTER TABLE `inmobiliarias` ADD COLUMN `cuit` VARCHAR(20) NULL DEFAULT NULL', 'SELECT ''ok'' AS msg');
+PREPARE s FROM @ddl; EXECUTE s; DEALLOCATE PREPARE s;
+
+SET @c := (SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME='inmobiliarias' AND COLUMN_NAME='matricula_registro');
+SET @ddl := IF(@c=0, 'ALTER TABLE `inmobiliarias` ADD COLUMN `matricula_registro` VARCHAR(80) NULL DEFAULT NULL', 'SELECT ''ok'' AS msg');
+PREPARE s FROM @ddl; EXECUTE s; DEALLOCATE PREPARE s;
+
+SET @c := (SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME='inmobiliarias' AND COLUMN_NAME='verificada');
+SET @ddl := IF(@c=0, 'ALTER TABLE `inmobiliarias` ADD COLUMN `verificada` TINYINT(1) NOT NULL DEFAULT 0', 'SELECT ''ok'' AS msg');
+PREPARE s FROM @ddl; EXECUTE s; DEALLOCATE PREPARE s;
+
 -- ============================================================
 -- 0c) Columnas de personalización del perfil público (si no
 --     corriste saas_personalizacion.sql todavía)

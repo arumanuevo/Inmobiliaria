@@ -12,7 +12,7 @@ class Inmobiliaria extends Model
         'usuario_id', 'plan_id', 'nombre_comercial', 'slug', 'logo', 'imagen_portada', 'galeria',
         'descripcion', 'direccion', 'ciudad', 'provincia', 'codigo_postal', 'zonas_cobertura', 'lat', 'lng',
         'telefono', 'whatsapp', 'email', 'sitio_web',
-        'facebook', 'instagram', 'color_tema', 'estado', 'plan_vence_at',
+        'facebook', 'instagram', 'color_tema', 'estado', 'plan_vence_at', 'cuit', 'matricula_registro', 'verificada',
         'tema', 'mensaje_destacado', 'mostrar_operaciones', 'mostrar_mapa', 'mostrar_redes',
     ];
 
@@ -24,6 +24,7 @@ class Inmobiliaria extends Model
         'mostrar_operaciones' => 'boolean',
         'mostrar_mapa' => 'boolean',
         'mostrar_redes' => 'boolean',
+        'verificada' => 'boolean',
     ];
 
     // Presets de look del perfil público (optativos)

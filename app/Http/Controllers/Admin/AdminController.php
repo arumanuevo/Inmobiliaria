@@ -41,6 +41,14 @@ class AdminController extends Controller
         return back()->with('success', 'Estado de la inmobiliaria actualizado.');
     }
 
+    public function cambiarVerificada(Request $request, $id)
+    {
+        $inmobiliaria = Inmobiliaria::findOrFail($id);
+        $inmobiliaria->verificada = $request->boolean('verificada') ? 1 : 0;
+        $inmobiliaria->save();
+        return back()->with('success', $inmobiliaria->verificada ? 'Inmobiliaria marcada como verificada.' : 'Se quitó la verificación.');
+    }
+
     public function cambiarPlan(Request $request, $id)
     {
         $request->validate([

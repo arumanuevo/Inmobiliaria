@@ -155,6 +155,22 @@
                             <input type="text" name="nombre_comercial" id="nombre_comercial" class="form-control"
                                    value="{{ old('nombre_comercial', $inmobiliaria->nombre_comercial) }}" required>
                         </div>
+                        @if(!auth()->user()->hasRole('particular'))
+                        <div class="row">
+                            <div class="col-md-6 form-group">
+                                <label for="cuit">CUIT del responsable <small class="text-muted">(visible en tu perfil público)</small></label>
+                                <input type="text" name="cuit" id="cuit" class="form-control" maxlength="20" placeholder="20-12345678-9"
+                                       value="{{ old('cuit', $inmobiliaria->cuit) }}">
+                            </div>
+                            <div class="col-md-6 form-group">
+                                <label for="matricula_registro">Matrícula en el Registro/Colegio provincial de corredores inmobiliarios</label>
+                                <input type="text" name="matricula_registro" id="matricula_registro" class="form-control" maxlength="80"
+                                       placeholder="Ej: Mat. 1234 - Colegio de Corredores de Bs. As."
+                                       value="{{ old('matricula_registro', $inmobiliaria->matricula_registro) }}">
+                                <small class="text-muted">Si estás inscripto en el registro de tu provincia (CABA, PBA, etc.), indicá el número. El administrador puede verificarlo y mostrar el sello "Verificada".</small>
+                            </div>
+                        </div>
+                        @endif
                         <div class="form-group">
                             <label for="slug">URL pública de tu perfil</label>
                             <div class="input-group">
