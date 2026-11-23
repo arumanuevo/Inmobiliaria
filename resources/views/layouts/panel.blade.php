@@ -8,7 +8,7 @@
     <link rel="icon" type="image/svg+xml" href="{{ asset('images/logoinmo.svg') }}">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
-    <link href="{{ asset('css/panel.css') }}" rel="stylesheet">
+    <link href="{{ asset('css/panel.css') }}?v=3" rel="stylesheet">
     @yield('css')
 </head>
 <body>
@@ -141,6 +141,11 @@ document.addEventListener('DOMContentLoaded', function () {
                 toggle.innerHTML = '<i class="fas fa-bars"></i>';
             });
         });
+        // Al pasar a pantalla ancha se cierra el drawer; en angosta, garantizo que el botón se vea
+        var mq = window.matchMedia('(max-width: 1200px)');
+        var cerrarSiAncho = function () { if (!mq.matches) { sidebar.classList.remove('open'); } };
+        if (mq.addEventListener) { mq.addEventListener('change', cerrarSiAncho); }
+        if (window.innerWidth <= 1200) { toggle.style.display = 'inline-flex'; }
     }
 });
 </script>
