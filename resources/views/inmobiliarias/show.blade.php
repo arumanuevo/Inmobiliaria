@@ -29,6 +29,7 @@
       ];
   })->filter()->values();
   $brand = $inmobiliaria->color_tema ?: '#6366f1';
+  $brandNavbar = $inmobiliaria->colorNavbar(); // color tema auto-oscurecido si es claro (contraste con texto blanco)
   $direccionCompleta = trim(($inmobiliaria->direccion ? $inmobiliaria->direccion . ', ' : '') . $inmobiliaria->ciudad . ', ' . $inmobiliaria->provincia, ', ');
   $coverImg = $inmobiliaria->imagen_portada ?: ($inmobiliaria->galeria[0] ?? null);
   // OJO: @json(expr) de Blade hace explode(',') del argumento -> no usar expresiones con comas adentro
@@ -165,7 +166,7 @@
     display: flex; flex-wrap: wrap; gap: 4px 18px;
     color: #475467; font-size: .9rem; margin: 0 0 6px;
   }
-  .perfil-meta i { color: {{ $brand }}; margin-right: 5px; }
+  .perfil-meta i { color: {{ $brandNavbar }}; margin-right: 5px; }
   .perfil-zonas { color: #667085; font-size: .85rem; margin-bottom: 8px; }
   .zona-chip {
     display: inline-block; background: #f2f4f7; border: 1px solid #e4e7ec; color: #344054;
@@ -184,11 +185,11 @@
     display: flex; flex-direction: column; gap: 8px; align-items: stretch;
     min-width: 180px;
   }
-  .perfil-btn-consulta { background: {{ $brand }}; color: #fff; font-weight: 600; }
+  .perfil-btn-consulta { background: {{ $brandNavbar }}; color: #fff; font-weight: 600; }
   .perfil-btn-consulta:hover { filter: brightness(1.1); color: #fff; }
   .perfil-redes { display: flex; gap: 12px; justify-content: center; }
   .perfil-redes a { color: #667085; font-size: 1.15rem; transition: color .15s ease; }
-  .perfil-redes a:hover { color: {{ $brand }}; }
+  .perfil-redes a:hover { color: {{ $brandNavbar }}; }
   .perfil-galeria-strip { display: flex; gap: 10px; overflow-x: auto; padding: 2px 2px 10px; }
   .perfil-galeria-strip img {
     height: 84px; width: auto; border-radius: 12px; object-fit: cover;
@@ -225,7 +226,7 @@
 @stop
 
 @section('content')
-<nav class="navbar navbar-expand-lg navbar-dark portal-navbar fixed-top">
+<nav class="navbar navbar-expand-lg navbar-dark portal-navbar fixed-top" style="background: {{ $brandNavbar }} !important;">
   <div class="container">
     <a class="navbar-brand" href="{{ route('inmobiliarias.show', $inmobiliaria->slug) }}">
       @if($inmobiliaria->logo)

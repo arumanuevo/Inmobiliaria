@@ -61,7 +61,7 @@
 @stop
 
 @section('content')
-<nav class="navbar navbar-expand-lg navbar-dark navbar-links-modern fixed-top" style="background: {{ $inmobiliaria->color_tema ?: '#0d6efd' }};">
+<nav class="navbar navbar-expand-lg navbar-dark navbar-links-modern fixed-top" style="background: {{ $inmobiliaria->colorNavbar() }};">
   <div class="container">
     <a class="navbar-brand" href="{{ route('inmobiliarias.show', $inmobiliaria->slug) }}">
       @if($inmobiliaria->logo)
@@ -69,7 +69,11 @@
       @endif
       {{ $inmobiliaria->nombre_comercial }}
     </a>
-    <div class="collapse navbar-collapse">
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarResponsive"
+      aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarResponsive">
       <ul class="navbar-nav ms-auto">
         <li class="nav-item"><a class="nav-link" href="{{ route('inmobiliarias.show', $inmobiliaria->slug) }}">Inicio</a></li>
         <li class="nav-item"><a class="nav-link" href="{{ route('inmobiliarias.index') }}">Otras inmobiliarias</a></li>

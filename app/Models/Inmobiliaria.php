@@ -96,6 +96,37 @@ class Inmobiliaria extends Model
         return $cache[$columna];
     }
 
+    /**
+     * Color para navbar/botones con texto blanco: si el color tema es claro (mal contraste
+     * con blanco), se oscurece automáticamente mezclándolo con negro.
+     */
+    public function colorNavbar(): string
+    {
+        return self::oscurecerSiClaro($this->color_tema ?: '#0d6efd');
+    }
+
+    public static function oscurecerSiClaro(string $hex): string
+    {
+        $hex = ltrim(trim($hex), '#');
+        if (strlen($hex) === 3) {
+            $hex = $hex[0] . $hex[0] . $hex[1] . $hex[1] . $hex[2] . $hex[2];
+        }
+        if (! preg_match('/^[0-9a-fA-F]{6}$/', $hex)) {
+            return '#0d6efd';
+        }
+        $r = hexdec(substr($hex, 0, 2));
+        $g = hexdec(substr($hex, 2, 2));
+        $b = hexdec(substr($hex, 4, 2));
+        $lum = (0.2126 * $r + 0.7152 * $g + 0.0722 * $b) / 255;
+        if ($lum > 0.45) { // claro: mezclar con negro al 45% para que el texto blanco se lea bien
+            $r = (int) round($r * 0.55);
+            $g = (int) round($g * 0.55);
+            $b = (int) round($b * 0.55);
+        }
+
+        return sprintf('#%02x%02x%02x', $r, $g, $b);
+    }
+
     public function limiteInmuebles(): int
     {
         return (int) ($this->plan->limite_inmuebles ?? 5);
