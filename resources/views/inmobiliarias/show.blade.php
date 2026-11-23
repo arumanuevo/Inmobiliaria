@@ -29,6 +29,8 @@
       ];
   })->filter()->values();
   $brand = $inmobiliaria->color_tema ?: '#6366f1';
+  $direccionCompleta = trim(($inmobiliaria->direccion ? $inmobiliaria->direccion . ', ' : '') . $inmobiliaria->ciudad . ', ' . $inmobiliaria->provincia, ', ');
+  $coverImg = $inmobiliaria->imagen_portada ?: ($inmobiliaria->galeria[0] ?? null);
   // OJO: @json(expr) de Blade hace explode(',') del argumento -> no usar expresiones con comas adentro
   $oficinaPopup = '<strong>' . e($inmobiliaria->nombre_comercial) . '</strong><br>'
       . e(trim(($inmobiliaria->direccion ? $inmobiliaria->direccion . ', ' : '') . $inmobiliaria->ciudad . ', ' . $inmobiliaria->provincia, ', '))
@@ -106,23 +108,100 @@
   .card, .property-card .card { border-radius: var(--tema-radius-card); overflow: hidden; }
   .btn, .badge { border-radius: var(--tema-radius); }
   body { padding-top: 56px; }
-  .perfil-header {
-    background: {{ $inmobiliaria->color_tema ?: '#0d6efd' }};
-    color: #fff;
-    padding: 40px 0;
+  /* Cover + tarjeta de identidad (reemplaza al header viejo "ensalada") */
+  .perfil-cover {
+    position: relative;
+    height: 300px;
+    background: linear-gradient(135deg, {{ $brand }} 0%, #101828 140%);
+    background-size: cover;
+    background-position: center;
   }
-  .perfil-logo {
-    max-height: 100px;
-    max-width: 160px;
+  .perfil-cover-shade {
+    position: absolute; inset: 0;
+    background: linear-gradient(180deg, rgba(10,14,25,.12) 0%, rgba(10,14,25,.45) 70%, rgba(10,14,25,.72) 100%);
+  }
+  .perfil-cover-top {
+    position: relative; z-index: 2;
+    display: flex; justify-content: flex-end; gap: 8px;
+    padding-top: 16px;
+  }
+  .perfil-badge-verificada {
+    background: rgba(16,185,129,.95); color: #fff; font-weight: 700; font-size: .8rem;
+    border-radius: 999px; padding: 6px 14px; box-shadow: 0 4px 14px rgba(0,0,0,.25);
+  }
+  .perfil-badge-fotos {
+    background: rgba(16,24,40,.55); color: #fff; font-weight: 600; font-size: .78rem;
+    border-radius: 999px; padding: 6px 14px; backdrop-filter: blur(4px);
+  }
+  .perfil-idcard-wrap { margin-top: -72px; position: relative; z-index: 3; }
+  .perfil-idcard {
     background: #fff;
-    border-radius: 8px;
-    padding: 6px;
+    border-radius: 18px;
+    box-shadow: 0 18px 45px rgba(16,24,40,.18);
+    padding: 22px 24px;
+    display: flex;
+    gap: 22px;
+    align-items: flex-start;
+  }
+  .perfil-idcard-logo { flex: 0 0 auto; }
+  .perfil-idcard-logo img {
+    max-width: 96px; max-height: 96px; object-fit: contain;
+    border-radius: 14px; border: 1px solid #eef0f6; background: #fff; padding: 6px; display: block;
   }
   .perfil-inicial {
-    width: 100px; height: 100px; font-size: 2.5rem;
-    background: rgba(255,255,255,.2);
-    border-radius: 50%;
-    display: inline-flex; align-items: center; justify-content: center;
+    width: 96px; height: 96px; border-radius: 14px;
+    color: #fff; font-size: 2.2rem; font-weight: 800;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .perfil-idcard-main { flex: 1; min-width: 0; }
+  .perfil-nombre { font-size: 1.55rem; font-weight: 800; color: #101828; margin: 0 0 2px; line-height: 1.2; }
+  .perfil-tag-particular {
+    font-size: .7rem; font-weight: 700; vertical-align: middle;
+    background: #f2f4f7; color: #475467; border: 1px solid #e4e7ec;
+    border-radius: 999px; padding: 3px 10px; margin-left: 6px; white-space: nowrap;
+  }
+  .perfil-legal { color: #475467; font-size: .82rem; margin: 0 0 4px; }
+  .perfil-meta {
+    display: flex; flex-wrap: wrap; gap: 4px 18px;
+    color: #475467; font-size: .9rem; margin: 0 0 6px;
+  }
+  .perfil-meta i { color: {{ $brand }}; margin-right: 5px; }
+  .perfil-zonas { color: #667085; font-size: .85rem; margin-bottom: 8px; }
+  .zona-chip {
+    display: inline-block; background: #f2f4f7; border: 1px solid #e4e7ec; color: #344054;
+    border-radius: 999px; padding: 3px 12px; font-size: .78rem; font-weight: 600; margin: 2px 4px 2px 0;
+  }
+  .perfil-pills { display: flex; flex-wrap: wrap; gap: 6px; }
+  .pill {
+    display: inline-flex; align-items: center;
+    background: #eef2ff; color: #4338ca; border-radius: 999px;
+    padding: 4px 12px; font-size: .78rem; font-weight: 600;
+  }
+  .pill-ok { background: #ecfdf3; color: #067647; }
+  .pill-mensaje { background: #fff7ed; color: #c2410c; }
+  .perfil-idcard-actions {
+    flex: 0 0 auto;
+    display: flex; flex-direction: column; gap: 8px; align-items: stretch;
+    min-width: 180px;
+  }
+  .perfil-btn-consulta { background: {{ $brand }}; color: #fff; font-weight: 600; }
+  .perfil-btn-consulta:hover { filter: brightness(1.1); color: #fff; }
+  .perfil-redes { display: flex; gap: 12px; justify-content: center; }
+  .perfil-redes a { color: #667085; font-size: 1.15rem; transition: color .15s ease; }
+  .perfil-redes a:hover { color: {{ $brand }}; }
+  .perfil-galeria-strip { display: flex; gap: 10px; overflow-x: auto; padding: 2px 2px 10px; }
+  .perfil-galeria-strip img {
+    height: 84px; width: auto; border-radius: 12px; object-fit: cover;
+    box-shadow: 0 6px 16px rgba(16,24,40,.14); transition: transform .15s ease;
+  }
+  .perfil-galeria-strip img:hover { transform: scale(1.04); }
+  @media (max-width: 768px) {
+    .perfil-cover { height: 190px; }
+    .perfil-idcard-wrap { margin-top: -56px; }
+    .perfil-idcard { flex-direction: column; align-items: center; text-align: center; padding: 18px 16px; gap: 14px; }
+    .perfil-meta, .perfil-zonas, .perfil-pills { justify-content: center; }
+    .perfil-idcard-actions { flex-direction: row; flex-wrap: wrap; justify-content: center; align-items: center; min-width: 0; width: 100%; }
+    .perfil-nombre { font-size: 1.3rem; }
   }
   .property-card img { height: 200px; object-fit: cover; }
   /* Modal de detalle: scrollable (el body hace scroll, header/footer quedan fijos) y en 2 columnas en pantallas grandes */
@@ -181,98 +260,96 @@
 </div>
 @endif
 
-@if(!empty($inmobiliaria->galeria) && count($inmobiliaria->galeria) > 1)
-<div id="jumbotronGaleria" class="carousel slide" data-bs-ride="carousel">
-  <div class="carousel-inner" style="height: 320px;">
-    @foreach($inmobiliaria->galeria as $i => $img)
-      <div class="carousel-item {{ $i === 0 ? 'active' : '' }}" style="height: 320px;">
-        <img src="{{ asset($img) }}" class="d-block w-100" style="height: 320px; object-fit: cover;" alt="{{ $inmobiliaria->nombre_comercial }}">
-      </div>
-    @endforeach
-  </div>
-  <button class="carousel-control-prev" type="button" data-bs-target="#jumbotronGaleria" data-bs-slide="prev">
-    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-    <span class="visually-hidden">Anterior</span>
-  </button>
-  <button class="carousel-control-next" type="button" data-bs-target="#jumbotronGaleria" data-bs-slide="next">
-    <span class="carousel-control-next-icon" aria-hidden="true"></span>
-    <span class="visually-hidden">Siguiente</span>
-  </button>
-</div>
-@elseif($inmobiliaria->imagen_portada || !empty($inmobiliaria->galeria))
-  <div style="height: 320px; background: url('{{ asset($inmobiliaria->imagen_portada ?: $inmobiliaria->galeria[0]) }}') center/cover no-repeat;"></div>
-@endif
-
-<header class="perfil-header">
-  <div class="container">
-    <div class="row align-items-center">
-      <div class="col-md-2 text-center mb-3 mb-md-0 d-flex align-items-center justify-content-center">
-        @if($inmobiliaria->logo)
-          <img src="{{ asset($inmobiliaria->logo) }}" alt="{{ $inmobiliaria->nombre_comercial }}" class="perfil-logo">
-        @else
-          <div class="perfil-inicial">{{ strtoupper(substr($inmobiliaria->nombre_comercial, 0, 1)) }}</div>
-        @endif
-      </div>
-      <div class="col-md-10">
-        <h1 class="mb-1">{{ $inmobiliaria->nombre_comercial }}
-          @if($inmobiliaria->verificada)
-            <span class="badge" style="background: rgba(16,185,129,.25); color:#a7f3d0; font-size: 13px; padding: 6px 12px; vertical-align: middle;" title="CUIT y matrícula verificados por el administrador del portal"><i class="fas fa-shield-alt me-1"></i> Verificada</span>
-          @endif
-        </h1>
-        @if($inmobiliaria->verificada && ($inmobiliaria->cuit || $inmobiliaria->matricula_registro))
-          <p class="mb-1 small" style="color: rgba(255,255,255,.85);">
-            @if($inmobiliaria->cuit)CUIT {{ $inmobiliaria->cuit }}@endif
-            @if($inmobiliaria->cuit && $inmobiliaria->matricula_registro) &middot; @endif
-            @if($inmobiliaria->matricula_registro){{ $inmobiliaria->matricula_registro }}@endif
-          </p>
-        @endif
-        @if($inmobiliaria->mensaje_destacado)
-          <p class="mb-1"><span class="badge" style="background: rgba(255,255,255,.22); color: #fff; font-size: 13px; padding: 7px 14px;"><i class="fas fa-bullhorn me-1"></i>{{ $inmobiliaria->mensaje_destacado }}</span></p>
-        @endif
-        @if($inmobiliaria->mostrar_operaciones && $inmobiliaria->operaciones()->count() > 0)
-          <p class="mb-1"><span class="badge bg-light text-dark"><i class="fas fa-check-circle"></i> {{ $inmobiliaria->operaciones()->count() }} {{ Str::plural('operación', $inmobiliaria->operaciones()->count()) }} concretada(s)</span></p>
-        @endif
-        <p class="mb-1">{{ trim(($inmobiliaria->direccion ? $inmobiliaria->direccion . ', ' : '') . $inmobiliaria->ciudad . ', ' . $inmobiliaria->provincia, ', ') }}</p>
-        @if($inmobiliaria->telefono)
-          <p class="mb-1"><i class="fas fa-phone"></i> {{ $inmobiliaria->telefono }}</p>
-        @endif
-        @if($inmobiliaria->email)
-          <p class="mb-1"><i class="fas fa-envelope"></i> {{ $inmobiliaria->email }}</p>
-        @endif
-        @if(!empty($zonas))
-          <p class="mb-1"><i class="fas fa-map-marked-alt me-1"></i>
-            @foreach($zonas as $zona)
-              <span class="badge" style="background: rgba(255,255,255,.18); color:#fff; font-weight:500;">{{ $zona }}</span>
-            @endforeach
-          </p>
-        @endif
-        <p class="mb-1"><span class="badge bg-light text-dark"><i class="fas fa-home"></i> {{ $inmuebles->total() }} {{ Str::plural('propiedad', $inmuebles->total()) }} {{ $preview ? 'en total' : 'publicada(s)' }}</span></p>
-        @if($inmobiliaria->mostrar_redes)
-          <p class="mb-1">
-            @if($inmobiliaria->facebook)<a href="{{ $inmobiliaria->facebook }}" target="_blank" class="text-white me-2" title="Facebook"><i class="fab fa-facebook fa-lg"></i></a>@endif
-            @if($inmobiliaria->instagram)<a href="{{ $inmobiliaria->instagram }}" target="_blank" class="text-white me-2" title="Instagram"><i class="fab fa-instagram fa-lg"></i></a>@endif
-            @if($inmobiliaria->sitio_web)<a href="{{ $inmobiliaria->sitio_web }}" target="_blank" class="text-white" title="Sitio web"><i class="fas fa-globe fa-lg"></i></a>@endif
-          </p>
-        @endif
-        <div class="mt-2">
-          @if($inmobiliaria->whatsapp)
-            <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $inmobiliaria->whatsapp) }}" target="_blank" class="btn btn-success btn-sm">
-              <i class="fab fa-whatsapp"></i> WhatsApp
-            </a>
-          @endif
-          <a href="{{ route('contacto', ['inmobiliaria' => $inmobiliaria->id]) }}" class="btn btn-light btn-sm">Enviar consulta</a>
-        </div>
-        <div class="mt-3">
-          @include('partials.share', [
-            'shareUrl' => route('inmobiliarias.show', $inmobiliaria->slug),
-            'shareTitulo' => $inmobiliaria->nombre_comercial . ' en ' . config('app.name'),
-            'dark' => true,
-          ])
-        </div>
-      </div>
-    </div>
+@php
+  $galeriaCount = is_array($inmobiliaria->galeria) ? count($inmobiliaria->galeria) : 0;
+@endphp
+<header class="perfil-cover" @if($coverImg) style="background-image: url('{{ asset($coverImg) }}');" @endif>
+  <div class="perfil-cover-shade"></div>
+  <div class="container perfil-cover-top">
+    @if($inmobiliaria->verificada)
+      <span class="perfil-badge-verificada"><i class="fas fa-shield-alt me-1"></i>Verificada</span>
+    @endif
+    @if($galeriaCount > 1)
+      <span class="perfil-badge-fotos"><i class="fas fa-images me-1"></i>{{ $galeriaCount }} fotos</span>
+    @endif
   </div>
 </header>
+
+<div class="container perfil-idcard-wrap">
+  <div class="perfil-idcard">
+    <div class="perfil-idcard-logo">
+      @if($inmobiliaria->logo)
+        <img src="{{ asset($inmobiliaria->logo) }}" alt="{{ $inmobiliaria->nombre_comercial }}">
+      @else
+        <div class="perfil-inicial" style="background: {{ $brand }};">{{ strtoupper(substr($inmobiliaria->nombre_comercial, 0, 1)) }}</div>
+      @endif
+    </div>
+    <div class="perfil-idcard-main">
+      <h1 class="perfil-nombre">{{ $inmobiliaria->nombre_comercial }}
+        @if($inmobiliaria->usuario?->hasRole('particular'))
+          <span class="perfil-tag-particular">Dueño particular</span>
+        @endif
+      </h1>
+      @if($inmobiliaria->verificada && ($inmobiliaria->cuit || $inmobiliaria->matricula_registro))
+        <p class="perfil-legal">
+          @if($inmobiliaria->cuit)<i class="fas fa-id-card me-1"></i>CUIT {{ $inmobiliaria->cuit }}@endif
+          @if($inmobiliaria->cuit && $inmobiliaria->matricula_registro) &middot; @endif
+          @if($inmobiliaria->matricula_registro){{ $inmobiliaria->matricula_registro }}@endif
+        </p>
+      @endif
+      <p class="perfil-meta">
+        @if($direccionCompleta)<span><i class="fas fa-map-marker-alt"></i>{{ $direccionCompleta }}</span>@endif
+        @if($inmobiliaria->telefono)<span><i class="fas fa-phone"></i>{{ $inmobiliaria->telefono }}</span>@endif
+        @if($inmobiliaria->email)<span><i class="fas fa-envelope"></i>{{ $inmobiliaria->email }}</span>@endif
+      </p>
+      @if(!empty($zonas))
+        <div class="perfil-zonas">
+          <i class="fas fa-map-marked-alt me-1"></i>
+          @foreach($zonas as $zona)
+            <span class="zona-chip">{{ $zona }}</span>
+          @endforeach
+        </div>
+      @endif
+      <div class="perfil-pills">
+        @if($inmobiliaria->mensaje_destacado)
+          <span class="pill pill-mensaje"><i class="fas fa-bullhorn me-1"></i>{{ $inmobiliaria->mensaje_destacado }}</span>
+        @endif
+        <span class="pill"><i class="fas fa-home me-1"></i>{{ $inmuebles->total() }} {{ Str::plural('propiedad', $inmuebles->total()) }} {{ $preview ? 'en total' : 'publicada(s)' }}</span>
+        @if($inmobiliaria->mostrar_operaciones && $inmobiliaria->operaciones()->count() > 0)
+          <span class="pill pill-ok"><i class="fas fa-check-circle me-1"></i>{{ $inmobiliaria->operaciones()->count() }} {{ Str::plural('operación', $inmobiliaria->operaciones()->count()) }} concretada(s)</span>
+        @endif
+      </div>
+    </div>
+    <div class="perfil-idcard-actions">
+      @if($inmobiliaria->whatsapp)
+        <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $inmobiliaria->whatsapp) }}" target="_blank" rel="noopener" class="btn btn-success btn-sm fw-semibold">
+          <i class="fab fa-whatsapp me-1"></i> WhatsApp
+        </a>
+      @endif
+      <a href="{{ route('contacto', ['inmobiliaria' => $inmobiliaria->id]) }}" class="btn btn-sm fw-semibold perfil-btn-consulta">
+        <i class="fas fa-paper-plane me-1"></i> Enviar consulta
+      </a>
+      @if($inmobiliaria->mostrar_redes && ($inmobiliaria->facebook || $inmobiliaria->instagram || $inmobiliaria->sitio_web))
+        <div class="perfil-redes">
+          @if($inmobiliaria->facebook)<a href="{{ $inmobiliaria->facebook }}" target="_blank" rel="noopener" title="Facebook"><i class="fab fa-facebook-f"></i></a>@endif
+          @if($inmobiliaria->instagram)<a href="{{ $inmobiliaria->instagram }}" target="_blank" rel="noopener" title="Instagram"><i class="fab fa-instagram"></i></a>@endif
+          @if($inmobiliaria->sitio_web)<a href="{{ $inmobiliaria->sitio_web }}" target="_blank" rel="noopener" title="Sitio web"><i class="fas fa-globe"></i></a>@endif
+        </div>
+      @endif
+      @include('partials.share', [
+        'shareUrl' => route('inmobiliarias.show', $inmobiliaria->slug),
+        'shareTitulo' => $inmobiliaria->nombre_comercial . ' en ' . config('app.name'),
+      ])
+    </div>
+  </div>
+  @if($galeriaCount > 1)
+    <div class="perfil-galeria-strip mt-3">
+      @foreach($inmobiliaria->galeria as $img)
+        <a href="{{ asset($img) }}" target="_blank" rel="noopener"><img src="{{ asset($img) }}" alt="{{ $inmobiliaria->nombre_comercial }}" loading="lazy"></a>
+      @endforeach
+    </div>
+  @endif
+</div>
 
 <div class="container mt-4 mb-5">
   @if($inmobiliaria->descripcion)

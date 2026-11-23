@@ -126,6 +126,31 @@
   .carousel-destacado .carousel-inner {
     height: 200px; /* Altura específica para los carruseles destacados */
   }
+
+  /* Sección "Recién publicadas" */
+  .reciente-card { border-radius: 16px; overflow: hidden; transition: transform .18s ease, box-shadow .18s ease; }
+  .reciente-card:hover { transform: translateY(-4px); box-shadow: 0 16px 34px rgba(16,24,40,.16) !important; }
+  .reciente-card .card-img-top { height: 150px; object-fit: cover; }
+  .reciente-sin-foto {
+    height: 150px; display: flex; align-items: center; justify-content: center;
+    background: linear-gradient(135deg, #eef2ff 0%, #f5f3ff 100%); color: #a5b4fc;
+  }
+  .reciente-chip {
+    display: inline-block; background: #eef2ff; color: #4338ca; font-size: .7rem; font-weight: 700;
+    border-radius: 999px; padding: 2px 9px; margin: 0 4px 4px 0; text-transform: capitalize;
+  }
+  .reciente-chip-op { background: #ecfdf3; color: #067647; }
+  .reciente-titulo {
+    font-weight: 700; color: #101828; font-size: .92rem;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .reciente-precio { font-weight: 800; color: #4338ca; font-size: 1rem; margin: 2px 0; }
+  .reciente-ubi { font-size: .78rem; color: #475467; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  @media (max-width: 768px) {
+    .reciente-card .card-img-top, .reciente-sin-foto { height: 110px; }
+    .reciente-titulo { font-size: .85rem; }
+    .reciente-precio { font-size: .92rem; }
+  }
 </style>
 @stop
 
@@ -399,6 +424,49 @@
       </div>
     </div>
   </section>
+
+  <!-- Sección Nuevas publicaciones (recién agregadas al portal) -->
+  @if(isset($recientes) && $recientes->count())
+  <section id="recientes" class="py-5">
+    <div class="container">
+      <div class="d-flex justify-content-between align-items-end mb-4 flex-wrap gap-2">
+        <div>
+          <h2 class="fw-bold mb-1"><i class="fas fa-bolt me-2" style="color:#6366f1;"></i>Recién publicadas</h2>
+          <p class="text-muted mb-0">Las últimas propiedades agregadas al portal.</p>
+        </div>
+        <a href="{{ route('propiedades.index') }}" class="btn btn-outline-primary btn-sm rounded-pill px-3 fw-semibold">
+          Ver todas <i class="fas fa-arrow-right ms-1"></i>
+        </a>
+      </div>
+      <div class="row g-3">
+        @foreach($recientes as $r)
+          @if($r->inmobiliaria)
+          <div class="col-6 col-md-3">
+            <a href="{{ route('propiedad.show', [$r->inmobiliaria->slug, $r->id]) }}" class="text-decoration-none">
+              <div class="card reciente-card h-100 border-0 shadow-sm">
+                @if(!empty($r->fotos))
+                  <img src="{{ asset('images/fotosinmuebles/' . $r->fotos[0]) }}" class="card-img-top" alt="{{ $r->titulo }}" loading="lazy">
+                @else
+                  <div class="reciente-sin-foto"><i class="fas fa-home fa-2x"></i></div>
+                @endif
+                <div class="card-body p-3">
+                  <div>
+                    <span class="reciente-chip">{{ $r->tipo_propiedad }}</span>
+                    <span class="reciente-chip reciente-chip-op">{{ ucfirst($r->tipo_operacion) }}</span>
+                  </div>
+                  <div class="reciente-titulo" title="{{ $r->titulo }}">{{ $r->titulo }}</div>
+                  <div class="reciente-precio">@if($r->moneda === 'USD')US$ @endif{{ $r->precio_formateado }}</div>
+                  <div class="reciente-ubi"><i class="fas fa-map-marker-alt me-1"></i>{{ $r->ciudad ?: 'Sin zona' }} &middot; {{ $r->inmobiliaria->nombre_comercial }}</div>
+                </div>
+              </div>
+            </a>
+          </div>
+          @endif
+        @endforeach
+      </div>
+    </div>
+  </section>
+  @endif
 
   <!-- Sección Inmobiliarias verificadas (datos reales del portal) -->
   <section id="inmobiliarias" class="py-5">

@@ -448,7 +448,17 @@ class InmuebleController extends Controller
             ->take(6)
             ->get();
 
-        return view('welcome', compact('destacados', 'stats', 'inmobiliariasTop'));
+        // Recién publicadas: últimas propiedades agregadas al portal (sección "Nuevas publicaciones" de la home)
+        $recientes = Inmueble::publicados()
+            ->whereHas('inmobiliaria', function ($q) {
+                $q->where('estado', 'activa');
+            })
+            ->with('inmobiliaria')
+            ->latest()
+            ->take(8)
+            ->get();
+
+        return view('welcome', compact('destacados', 'stats', 'inmobiliariasTop', 'recientes'));
     }
 
     public function toggleDestacado(Request $request, $id)
