@@ -147,7 +147,7 @@
                             <a href="{{ route('inmuebles.addPhotos', $inmueble) }}" class="btn btn-outline-primary" title="Agregar fotos"><i class="fas fa-images"></i></a>
                             <a href="{{ route('inmuebles.deletePhotos', $inmueble) }}" class="btn btn-outline-secondary" title="Quitar fotos"><i class="fas fa-image"></i></a>
                             @if(!$inmueble->cerrada)
-                            <button type="button" class="btn btn-outline-dark" data-bs-toggle="modal" data-bs-target="#cerrarModal{{ $inmueble->id }}" title="Cerrar operación ({{ $inmueble->tipo_operacion }})"><i class="fas fa-check"></i></button>
+                            <button type="button" class="btn btn-outline-success" data-bs-toggle="modal" data-bs-target="#cerrarModal{{ $inmueble->id }}" title="Cerrar operación ({{ $inmueble->tipo_operacion }})"><i class="fas fa-check"></i></button>
                             @endif
                             <form action="{{ route('inmuebles.destroy', $inmueble) }}" method="POST" style="display:inline;">
                                 @csrf
@@ -156,10 +156,29 @@
                             </form>
                         </div>
 
+                    </td>
+                </tr>
+                @empty
+                <tr>
+                    <td colspan="10" class="text-center text-muted py-4">
+                        @if(request()->hasAny(['q','estado','tipo_operacion','tipo_propiedad','destacado','precio_min','precio_max']))
+                            No hay propiedades con esos filtros. <a href="{{ route('inmuebles.index') }}">Limpiar filtros</a>
+                        @else
+                            Todavía no tenés inmuebles. <a href="{{ route('inmuebles.create') }}">Crear el primero</a>
+                        @endif
+                    </td>
+                </tr>
+                @endforelse
+            </tbody>
+        </table>
+    </div>
+    {{-- Modales de cierre FUERA de la tabla: dentro de la celda sticky .acciones el modal queda
+         atrapado en un stacking context bajo y el backdrop lo tapa (se ve gris y no recibe toques) --}}
+    @foreach($inmuebles as $inmueble)
                         @if(!$inmueble->cerrada)
                         <!-- Modal de cierre de operación (vendida/alquilada) con comisión opcional -->
                         <div class="modal fade" id="cerrarModal{{ $inmueble->id }}" tabindex="-1" aria-hidden="true">
-                            <div class="modal-dialog">
+                            <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
                                 <form action="{{ route('inmuebles.cerrar', $inmueble) }}" method="POST">
                                     @csrf
                                     <div class="modal-content">
@@ -190,29 +209,16 @@
                                         </div>
                                         <div class="modal-footer">
                                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                                            <button type="submit" class="btn btn-dark"><i class="fas fa-check"></i> Confirmar cierre</button>
+                                            <button type="submit" class="btn btn-primary"><i class="fas fa-check"></i> Confirmar cierre</button>
                                         </div>
                                     </div>
                                 </form>
                             </div>
                         </div>
                         @endif
-                    </td>
-                </tr>
-                @empty
-                <tr>
-                    <td colspan="10" class="text-center text-muted py-4">
-                        @if(request()->hasAny(['q','estado','tipo_operacion','tipo_propiedad','destacado','precio_min','precio_max']))
-                            No hay propiedades con esos filtros. <a href="{{ route('inmuebles.index') }}">Limpiar filtros</a>
-                        @else
-                            Todavía no tenés inmuebles. <a href="{{ route('inmuebles.create') }}">Crear el primero</a>
-                        @endif
-                    </td>
-                </tr>
-                @endforelse
-            </tbody>
-        </table>
-    </div>
+    @endforeach
+
+
     @if($inmuebles->hasPages())
     <div class="card-footer py-2 d-flex justify-content-center">
         {{ $inmuebles->links() }}
