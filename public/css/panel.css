@@ -290,6 +290,8 @@ label { font-weight: 500; font-size: 13.5px; margin-bottom: 5px; color: #344054;
     .panel-content { padding: 16px 14px 40px; max-width: 100%; }
     .panel-topbar { position: static; padding: 12px 14px; }
     .page-title h1 { font-size: 16px; }
+    .page-title { min-width: 0; flex: 1 1 auto; }
+    .page-title h1 { overflow-wrap: break-word; }
 }
 
 
@@ -357,3 +359,5 @@ body.panel-mobile .page-title h1 {
  font-size: 16px; 
 }
 body.panel-mobile .brand, body.panel-mobile .sidebar-toggle { position: relative; z-index: 1060; }
+body.panel-mobile .page-title { min-width: 0; flex: 1 1 auto; }
+body.panel-mobile .page-title h1 { overflow-wrap: break-word; }

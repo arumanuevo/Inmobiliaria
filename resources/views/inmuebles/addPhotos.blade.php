@@ -46,6 +46,12 @@
     .santi {
         height: 45px;
     }
+
+    /* Mobile: las miniaturas de preview pasan a 3 por fila en vez de 5 */
+    @media (max-width: 576px) {
+        .image-preview .image-item { flex: 0 0 30%; }
+        .image-preview { max-height: 220px; }
+    }
 </style>
 <div class="container">
     <div class="row justify-content-center">
@@ -69,19 +75,19 @@
                         <form id="imageUploadForm" method="POST" action="{{ route('guardar_imagenes') }}" enctype="multipart/form-data">
                             @csrf
                             <input type="hidden" name="inmueble_id" value="{{ $inmueble->id }}">
-                            <div class="d-flex justify-content-between mb-3">
-                                <label for="imagenesInput" class="btn btn-primary">
+                            <div class="d-flex flex-column flex-sm-row flex-wrap align-items-stretch align-items-sm-center justify-content-between gap-2 mb-2">
+                                <label for="imagenesInput" class="btn btn-primary mb-0">
                                     <i class="bi bi-cloud-arrow-up"></i> Elegir archivos
                                     <input type="file" name="imagenes[]" accept=".*" multiple id="imagenesInput" style="display: none;">
                                 </label>
-                                <small class="text-muted d-block mt-1">La primera foto es la portada (recomendada 16:10, ej. 1600×1000). Se optimizan automáticamente al subir (máx 1600 px, comprimidas).</small>
-                                <div>
+                                <div class="d-flex gap-2 flex-wrap">
                                     <button type="submit" id="cargarImagenesButton" class="btn btn-success santi" disabled>
                                         <i class="bi bi-archive"></i> Subir Fotos
                                     </button>
                                     <a href="{{ route('inmuebles.index') }}" class="btn btn-secondary santi">Cancelar</a>
                                 </div>
                             </div>
+                            <small class="text-muted d-block mb-3">La primera foto es la portada (recomendada 16:10, ej. 1600×1000). Se optimizan automáticamente al subir (máx 1600 px, comprimidas).</small>
                         </form>
                         <hr>
                         <!-- Mostrar imágenes seleccionadas -->
