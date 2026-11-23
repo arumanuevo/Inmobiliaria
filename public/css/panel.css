@@ -282,6 +282,7 @@ label { font-weight: 500; font-size: 13.5px; margin-bottom: 5px; color: #344054;
         z-index: 1040;
     }
     .panel-sidebar.open .panel-nav { display: flex; }
+    .brand, .sidebar-toggle { position: relative; z-index: 1060; }
     .panel-nav a { flex: 0 0 auto; }
     .panel-nav a span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .sidebar-footer { display: none; }
@@ -290,3 +291,69 @@ label { font-weight: 500; font-size: 13.5px; margin-bottom: 5px; color: #344054;
     .panel-topbar { position: static; padding: 12px 14px; }
     .page-title h1 { font-size: 16px; }
 }
+
+
+/* Mismo layout mobile pero forzado por JS con <body class="panel-mobile">
+   (celulares en modo escritorio reportan viewport ancho y las media queries no aplican) */
+body.panel-mobile .panel-sidebar {
+
+        position: fixed; top: 0; left: 0; right: 0; width: 100%;
+        flex-direction: row; flex-wrap: nowrap; align-items: center;
+        gap: 10px; padding: 10px 14px; z-index: 1045;
+        box-shadow: 0 2px 12px rgba(0,0,0,.25);
+    
+}
+body.panel-mobile .brand {
+ padding: 0; flex: 1; min-width: 0; 
+}
+body.panel-mobile .brand span {
+ overflow: hidden; text-overflow: ellipsis; white-space: nowrap; 
+}
+body.panel-mobile .sidebar-toggle {
+
+        display: inline-flex; align-items: center; justify-content: center;
+        width: 40px; height: 40px; flex: 0 0 auto;
+        border-radius: 10px; border: 1px solid rgba(255,255,255,.18);
+        background: rgba(255,255,255,.08); color: #fff; font-size: 16px; cursor: pointer;
+    
+}
+body.panel-mobile .sidebar-toggle:hover {
+ background: rgba(255,255,255,.16); 
+}
+body.panel-mobile .panel-nav {
+
+        display: none;
+        position: fixed; top: 61px; left: 0; right: 0; bottom: 0; /* drawer fijo cubriendo la pantalla */
+        flex-direction: column; gap: 2px;
+        background: var(--sidebar-bg);
+        padding: 10px 14px 24px;
+        overflow-y: auto;
+        border-top: 1px solid rgba(255,255,255,.08);
+        z-index: 1040;
+    
+}
+body.panel-mobile .panel-sidebar.open .panel-nav {
+ display: flex; 
+}
+body.panel-mobile .panel-nav a {
+ flex: 0 0 auto; 
+}
+body.panel-mobile .panel-nav a span {
+ white-space: nowrap; overflow: hidden; text-overflow: ellipsis; 
+}
+body.panel-mobile .sidebar-footer {
+ display: none; 
+}
+body.panel-mobile .panel-main {
+ margin-left: 0; padding-top: 61px; /* deja lugar a la barra fija */ 
+}
+body.panel-mobile .panel-content {
+ padding: 16px 14px 40px; max-width: 100%; 
+}
+body.panel-mobile .panel-topbar {
+ position: static; padding: 12px 14px; 
+}
+body.panel-mobile .page-title h1 {
+ font-size: 16px; 
+}
+body.panel-mobile .brand, body.panel-mobile .sidebar-toggle { position: relative; z-index: 1060; }

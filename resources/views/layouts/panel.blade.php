@@ -8,7 +8,7 @@
     <link rel="icon" type="image/svg+xml" href="{{ asset('images/logoinmo.svg') }}">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
-    <link href="{{ asset('css/panel.css') }}?v=3" rel="stylesheet">
+    <link href="{{ asset('css/panel.css') }}?v=4" rel="stylesheet">
     @yield('css')
 </head>
 <body>
@@ -125,28 +125,54 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-    // Sidebar mobile: hamburguesa abre/cierra el menú (drawer)
+    // Sidebar: en pantallas angostas (o celular aunque el viewport reporte ancho, ej. "sitio de
+    // escritorio") el sidebar es barra superior + drawer. Se fuerza con body.panel-mobile porque
+    // las media queries no aplican cuando el celu reporta viewport de escritorio.
     var sidebar = document.querySelector('.panel-sidebar');
     var toggle = document.getElementById('sidebarToggle');
-    if (toggle && sidebar) {
-        toggle.addEventListener('click', function () {
-            var abierto = sidebar.classList.toggle('open');
-            toggle.setAttribute('aria-expanded', abierto ? 'true' : 'false');
-            toggle.innerHTML = abierto ? '<i class="fas fa-times"></i>' : '<i class="fas fa-bars"></i>';
-        });
-        sidebar.querySelectorAll('.panel-nav a').forEach(function (a) {
-            a.addEventListener('click', function () {
-                sidebar.classList.remove('open');
-                toggle.setAttribute('aria-expanded', 'false');
-                toggle.innerHTML = '<i class="fas fa-bars"></i>';
-            });
-        });
-        // Al pasar a pantalla ancha se cierra el drawer; en angosta, garantizo que el botón se vea
-        var mq = window.matchMedia('(max-width: 1200px)');
-        var cerrarSiAncho = function () { if (!mq.matches) { sidebar.classList.remove('open'); } };
-        if (mq.addEventListener) { mq.addEventListener('change', cerrarSiAncho); }
-        if (window.innerWidth <= 1200) { toggle.style.display = 'inline-flex'; }
+    if (!sidebar || !toggle) { return; }
+
+    function esMobile() {
+        if (window.innerWidth <= 1200) { return true; }
+        var uaMobile = /Android|iPhone|iPad|iPod|Mobile|webOS|BlackBerry|IEMobile/i.test(navigator.userAgent);
+        var tactilChica = (navigator.maxTouchPoints > 0 || 'ontouchstart' in window) && window.screen.width <= 900;
+        return uaMobile || tactilChica;
     }
+
+    function cerrarMenu() {
+        sidebar.classList.remove('open');
+        toggle.setAttribute('aria-expanded', 'false');
+        toggle.innerHTML = '<i class="fas fa-bars"></i>';
+        document.body.style.overflow = '';
+    }
+
+    function aplicarModo() {
+        var mobile = esMobile();
+        document.body.classList.toggle('panel-mobile', mobile);
+        toggle.style.display = mobile ? 'inline-flex' : '';
+        if (!mobile) { cerrarMenu(); }
+    }
+
+    toggle.addEventListener('click', function () {
+        var abierto = sidebar.classList.toggle('open');
+        toggle.setAttribute('aria-expanded', abierto ? 'true' : 'false');
+        toggle.innerHTML = abierto ? '<i class="fas fa-times"></i>' : '<i class="fas fa-bars"></i>';
+        document.body.style.overflow = abierto ? 'hidden' : ''; // con el menú abierto no se scrollea la página
+    });
+
+    sidebar.querySelectorAll('.panel-nav a').forEach(function (a) {
+        a.addEventListener('click', cerrarMenu);
+    });
+
+    // Tocar el fondo oscuro del drawer (fuera de los enlaces) también lo cierra
+    var nav = sidebar.querySelector('.panel-nav');
+    if (nav) {
+        nav.addEventListener('click', function (e) { if (e.target === nav) { cerrarMenu(); } });
+    }
+
+    aplicarModo();
+    window.addEventListener('resize', aplicarModo);
+    window.addEventListener('orientationchange', aplicarModo);
 });
 </script>
 @yield('js')
