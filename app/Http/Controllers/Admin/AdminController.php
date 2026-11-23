@@ -44,6 +44,9 @@ class AdminController extends Controller
 
     public function cambiarVerificada(Request $request, $id)
     {
+        if (! Inmobiliaria::columnaExiste('verificada')) {
+            return back()->with('error', 'Falta correr saas_verificacion.sql en la base de datos (phpMyAdmin) para poder verificar inmobiliarias.');
+        }
         $inmobiliaria = Inmobiliaria::findOrFail($id);
         $inmobiliaria->verificada = $request->boolean('verificada') ? 1 : 0;
         $inmobiliaria->save();

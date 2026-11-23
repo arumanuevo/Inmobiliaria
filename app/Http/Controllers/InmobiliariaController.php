@@ -13,6 +13,7 @@ class InmobiliariaController extends Controller
     {
         $q = trim((string) $request->input('q', ''));
         $verificada = $request->input('verificada') === '1';
+        $tieneColVerificada = Inmobiliaria::columnaExiste('verificada'); // por si todavía no se corrió el SQL
 
         $query = Inmobiliaria::activas()
             ->select('inmobiliarias.*')
@@ -23,7 +24,7 @@ class InmobiliariaController extends Controller
             ->withCount(['inmueblesPublicados', 'operaciones'])
             ->with('usuario');
 
-        if ($verificada) {
+        if ($verificada && $tieneColVerificada) {
             $query->where('verificada', 1);
         }
 
@@ -37,9 +38,11 @@ class InmobiliariaController extends Controller
         }
 
         // Orden: primero Premium, después verificadas, después más recientes
-        $inmobiliarias = $query->orderByRaw("(planes.slug = 'premium') DESC")
-            ->orderBy('inmobiliarias.verificada', 'DESC')
-            ->latest('inmobiliarias.created_at')
+        $query->orderByRaw("(planes.slug = 'premium') DESC");
+        if ($tieneColVerificada) {
+            $query->orderBy('inmobiliarias.verificada', 'DESC');
+        }
+        $inmobiliarias = $query->latest('inmobiliarias.created_at')
             ->paginate(12)->withQueryString();
 
         return view('inmobiliarias.index', compact('inmobiliarias', 'q', 'verificada'));
@@ -212,6 +215,13 @@ class InmobiliariaController extends Controller
             $data['meta_descripcion'] = isset($data['meta_descripcion']) ? trim($data['meta_descripcion']) : null;
         } else {
             unset($data['meta_titulo'], $data['meta_descripcion']);
+        }
+
+        // Si todavía no se corrió el SQL nuevo en la BD, no mandamos columnas inexistentes al UPDATE
+        foreach (['cuit', 'matricula_registro', 'verificada', 'meta_titulo', 'meta_descripcion'] as $col) {
+            if (! Inmobiliaria::columnaExiste($col)) {
+                unset($data[$col]);
+            }
         }
 
         $dir = public_path('images/inmobiliarias');

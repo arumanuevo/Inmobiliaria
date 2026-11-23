@@ -2,6 +2,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 
 class Inmobiliaria extends Model
@@ -79,6 +80,20 @@ class Inmobiliaria extends Model
     public function esPremium(): bool
     {
         return $this->plan?->slug === 'premium';
+    }
+
+    /**
+     * ¿Existe la columna en la BD? (cacheada por request). Permite deployar el código
+     * ANTES de correr el SQL nuevo en phpMyAdmin sin que las páginas tiren error 1054.
+     */
+    public static function columnaExiste(string $columna): bool
+    {
+        static $cache = [];
+        if (! array_key_exists($columna, $cache)) {
+            $cache[$columna] = Schema::hasColumn((new static)->getTable(), $columna);
+        }
+
+        return $cache[$columna];
     }
 
     public function limiteInmuebles(): int
