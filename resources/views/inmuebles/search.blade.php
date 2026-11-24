@@ -442,7 +442,7 @@
               (it.tipo_lbl ? '<div class="small text-muted mb-1"><i class="fas fa-tag me-1"></i>' + it.tipo_lbl + '</div>' : '') +
               '<div class="text-primary fw-bold">' + it.precio_fmt + '</div>' +
               '<div class="small text-muted mb-1">' + (it.ciudad || '') + ' · ' + (it.inmobiliaria || '') + '</div>' +
-              (it.url ? '<a href="' + it.url + '" class="btn btn-primary btn-sm w-100 py-1" style="font-size:12px;">Ver propiedad</a>' : '') +
+              (it.url ? '<a href="' + it.url + '" class="btn btn-sm w-100 py-1" style="font-size:13px; font-weight:700; background:#4f46e5; border-color:#4f46e5; color:#fff !important;">Ver propiedad</a>' : '') +
               '</div>';
             var marker = L.marker([it.lat, it.lng]).bindPopup(popup);
             markersById[it.id] = marker;

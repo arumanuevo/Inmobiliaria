@@ -185,7 +185,7 @@ document.addEventListener('DOMContentLoaded', function () {
                         '<strong>' + it.titulo + '</strong><br>' +
                         it.precio_fmt + ' · ' + (it.tipo_operacion || '') + (it.tipo_propiedad ? ' · ' + it.tipo_propiedad : '') + '<br>' +
                         (it.ciudad || '') + ' · ' + (it.inmobiliaria || '') + '<br>' +
-                        (it.url ? '<a href="' + it.url + '" target="_blank" class="btn btn-outline-primary btn-sm mt-1 w-100">Ver propiedad</a>' : '') +
+                        (it.url ? '<a href="' + it.url + '" target="_blank" class="btn btn-sm mt-1 w-100" style="font-size:13px; font-weight:700; background:#4f46e5; border-color:#4f46e5; color:#fff !important;">Ver propiedad</a>' : '') +
                         '</div>';
                     L.marker([it.lat, it.lng]).addTo(capa).bindPopup(popup);
 
