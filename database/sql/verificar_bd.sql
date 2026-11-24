@@ -237,7 +237,7 @@ WHERE r.`id` IS NULL;
 -- 4) Planes mínimos que faltan (slug)
 SELECT 'PLAN_FALTA' AS tipo, v.slug AS nombre
 FROM (
-  SELECT 'gratis' AS slug UNION ALL SELECT 'basico' UNION ALL SELECT 'premium' UNION ALL SELECT 'particular'
+  SELECT 'gratis' AS slug UNION ALL SELECT 'inicial' UNION ALL SELECT 'basico' UNION ALL SELECT 'profesional' UNION ALL SELECT 'premium' UNION ALL SELECT 'particular'
 ) v
 LEFT JOIN `planes` p ON p.`slug` = v.slug
 WHERE p.`id` IS NULL;

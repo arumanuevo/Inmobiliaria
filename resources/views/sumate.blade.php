@@ -147,6 +147,17 @@
             <li>{{ $plan->limite_inmuebles }} publicaciones</li>
             <li>{{ $plan->limite_destacados }} destacadas</li>
             <li>{{ $plan->limite_fotos }} fotos por publicación</li>
+            @php
+              // costo aproximado por publicación (informativo, para comparar planes)
+              $porPub = ($plan->limite_inmuebles > 0 && $plan->limite_inmuebles < 900 && $plan->precio_mensual > 0)
+                  ? $plan->precio_mensual / $plan->limite_inmuebles
+                  : null;
+            @endphp
+            @if($porPub !== null)
+              <li class="text-success fw-semibold">≈ @dinero($porPub, 0) por publicación/mes</li>
+            @elseif($plan->precio_mensual > 0)
+              <li class="text-success fw-semibold">Publicaciones ilimitadas</li>
+            @endif
             @if($plan->slug === 'premium')
               <li><i class="fas fa-search me-1 text-success"></i> SEO personalizado de tu perfil en Google</li>
               <li><i class="fas fa-bolt me-1 text-success"></i> Perfil priorizado en el directorio</li>

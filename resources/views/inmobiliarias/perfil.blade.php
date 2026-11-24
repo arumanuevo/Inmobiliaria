@@ -86,9 +86,44 @@
                         <span class="stat-chip"><i class="fas fa-layer-group"></i>{{ $inmobiliaria->plan->nombre ?? 'Sin plan' }}</span>
                         <span class="stat-chip"><i class="fas fa-key"></i>{{ $inmobiliaria->limiteInmuebles() }} publicaciones</span>
                         <span class="stat-chip"><i class="fas fa-star"></i>{{ $inmobiliaria->limiteDestacados() }} destacadas</span>
+                        <span class="stat-chip"><i class="fas fa-images"></i>{{ $inmobiliaria->plan->limite_fotos ?? 5 }} fotos/pub.</span>
+                        @if($inmobiliaria->plan && $inmobiliaria->plan->precio_mensual > 0)
+                            <span class="stat-chip"><i class="fas fa-tag"></i>@dinero($inmobiliaria->plan->precio_mensual, 0)/mes</span>
+                        @endif
                         @if($inmobiliaria->plan_vence_at)
                             <span class="stat-chip"><i class="fas fa-calendar"></i>Vence {{ $inmobiliaria->plan_vence_at->format('d/m/Y') }}</span>
                         @endif
+                        @php
+                            $limPub = $inmobiliaria->limiteInmuebles();
+                            $limDest = $inmobiliaria->limiteDestacados();
+                            $usadasPub = $inmobiliaria->inmueblesPublicados()->count();
+                            $usadasDest = $inmobiliaria->inmuebles()->where('destacado', 1)->where('cerrada', 0)->count();
+                            $pctPub = $limPub > 0 ? min(100, (int) round($usadasPub / $limPub * 100)) : 0;
+                            $pctDest = $limDest > 0 ? min(100, (int) round($usadasDest / $limDest * 100)) : 0;
+                            $clasePub = $pctPub >= 100 ? 'bg-danger' : ($pctPub >= 80 ? 'bg-warning' : 'bg-success');
+                            $claseDest = $pctDest >= 100 ? 'bg-danger' : ($pctDest >= 80 ? 'bg-warning' : 'bg-success');
+                        @endphp
+                        <div class="mt-2 mb-1">
+                            <div class="d-flex justify-content-between small mb-1">
+                                <span class="text-muted">Publicaciones usadas</span>
+                                <span class="fw-semibold">{{ $usadasPub }}/{{ $limPub }}</span>
+                            </div>
+                            <div class="progress" style="height: 8px; border-radius: 999px; background: #eef0f6;">
+                                <div class="progress-bar {{ $clasePub }}" style="width: {{ $pctPub }}%; border-radius: 999px;"></div>
+                            </div>
+                        </div>
+                        <div class="mb-2">
+                            <div class="d-flex justify-content-between small mb-1">
+                                <span class="text-muted">Destacadas usadas</span>
+                                <span class="fw-semibold">{{ $usadasDest }}/{{ $limDest }}</span>
+                            </div>
+                            <div class="progress" style="height: 8px; border-radius: 999px; background: #eef0f6;">
+                                <div class="progress-bar {{ $claseDest }}" style="width: {{ $pctDest }}%; border-radius: 999px;"></div>
+                            </div>
+                        </div>
+                        <a href="{{ route('sumate') }}" class="btn btn-outline-primary btn-sm rounded-pill px-3 fw-semibold">
+                            <i class="fas fa-layer-group me-1"></i> Ver todos los planes
+                        </a>
                     </div>
                     <div class="mb-3">
                         <span class="text-muted d-block mb-1 small fw-semibold">URL PÚBLICA</span>

@@ -6,6 +6,18 @@
 @stop
 
 @section('content')
+@if(!empty($avisoLimite))
+<div class="alert alert-warning d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+    <div>
+        <i class="fas fa-exclamation-triangle me-1"></i>
+        Usaste <strong>{{ $avisoLimite['usadas'] }}</strong> de <strong>{{ $avisoLimite['lim'] }}</strong> publicaciones de tu plan.
+        Te quedan <strong>{{ $avisoLimite['restan'] }}</strong>.
+    </div>
+    <a href="{{ route('sumate') }}" class="btn btn-warning btn-sm rounded-pill px-3 fw-semibold">
+        <i class="fas fa-layer-group me-1"></i> Ver planes superadores
+    </a>
+</div>
+@endif
 <div class="d-flex justify-content-between align-items-center mb-3">
     <div>
         <span class="fw-bold fs-5">{{ $inmuebles->total() }}</span>

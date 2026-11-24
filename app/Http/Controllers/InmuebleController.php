@@ -49,7 +49,22 @@ class InmuebleController extends Controller
 
         $inmuebles = $query->paginate(15)->withQueryString();
 
-        return view('inmuebles.index', compact('inmuebles'));
+        // Aviso informativo cuando el plan está cerca del límite de publicaciones
+        $avisoLimite = null;
+        if (! $user->hasRole('admin') && $user->inmobiliaria) {
+            $inmob = $user->inmobiliaria;
+            $lim = $inmob->limiteInmuebles();
+            $usadas = $inmob->inmueblesPublicados()->count();
+            if ($lim > 0 && $usadas >= (int) floor($lim * 0.8)) {
+                $avisoLimite = [
+                    'usadas' => $usadas,
+                    'lim' => $lim,
+                    'restan' => max(0, $lim - $usadas),
+                ];
+            }
+        }
+
+        return view('inmuebles.index', compact('inmuebles', 'avisoLimite'));
     }
 
     // Formulario para crear un inmueble
