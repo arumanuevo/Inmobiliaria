@@ -13,3 +13,18 @@
 .footer { background-color: #101828; color: #fff; text-align: center; padding: 18px 0; font-size: .85rem; margin-top: 40px; }
 .footer p { margin: 0; }
 .footer a { color: #c7d2fe; }
+
+/* ===== Fix contraste de botones dentro de popups de Leaflet =====
+   Leaflet trae `.leaflet-container a { color:#0078A8 }` con especificidad (0,1,1),
+   que le gana a `.btn`/`.btn-primary` (0,1,0): el texto del botón quedaba azul
+   oscuro/verdoso sobre el fondo azul del botón (ilegible). Forzamos blanco. */
+.leaflet-container a.btn,
+.leaflet-popup-content a.btn,
+.leaflet-popup-content-wrapper a.btn {
+  color: #fff !important;
+  text-decoration: none;
+}
+.leaflet-popup-content a.btn:hover,
+.leaflet-popup-content a.btn:focus {
+  color: #fff !important;
+}

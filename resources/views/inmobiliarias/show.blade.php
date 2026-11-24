@@ -97,7 +97,7 @@
 @stop
 
 @section('css')
-<link rel="stylesheet" href="{{ asset('css/landing.css') }}">
+<link rel="stylesheet" href="{{ asset('css/landing.css') }}?v=2">
 <link rel="stylesheet" href="{{ asset('css/navbar.css') }}">
 @if($tieneMapa)
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
@@ -616,7 +616,7 @@ document.addEventListener('DOMContentLoaded', function () {
         '<div class="fw-bold mb-1">' + p.titulo + '</div>' +
         '<div class="fw-bold mb-1" style="color:' + brandBtn + ';">' + p.precio + '</div>' +
         (p.ciudad ? '<div class="small text-muted mb-1">' + p.ciudad + '</div>' : '') +
-        '<a href="' + p.url + '" class="btn btn-sm w-100" style="background:' + brandBtn + ';color:#fff;">Ver propiedad</a>' +
+        '<a href="' + p.url + '" class="btn btn-sm w-100 py-1" style="background:' + brandBtn + ';border-color:' + brandBtn + ';color:#fff !important;font-weight:700;font-size:13px;">Ver propiedad</a>' +
         '</div>';
       markersById[p.id] = L.marker([p.lat, p.lng], { icon: pin(brandBtn) }).addTo(layer).bindPopup(html);
     });

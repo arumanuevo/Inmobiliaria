@@ -7,7 +7,7 @@
 @stop
 
 @section('css')
-<link rel="stylesheet" href="{{ asset('css/landing.css') }}">
+<link rel="stylesheet" href="{{ asset('css/landing.css') }}?v=2">
 <link rel="stylesheet" href="{{ asset('css/navbar.css') }}">
 <style>
   body { padding-top: 56px; }

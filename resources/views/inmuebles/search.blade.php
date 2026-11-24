@@ -3,7 +3,7 @@
 @section('title', 'Buscar Propiedades')
 
 @section('css')
-<link rel="stylesheet" href="{{ asset('css/landing.css') }}">
+<link rel="stylesheet" href="{{ asset('css/landing.css') }}?v=2">
 <link rel="stylesheet" href="{{ asset('css/navbar.css') }}">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <style>

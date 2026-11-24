@@ -3,7 +3,7 @@
 @section('title', request('tipo') === 'particular' ? 'Publicar mi propiedad gratis | ' . config('app.name') : 'Creá tu cuenta | ' . config('app.name'))
 
 @section('css')
-<link rel="stylesheet" href="{{ asset('css/landing.css') }}">
+<link rel="stylesheet" href="{{ asset('css/landing.css') }}?v=2">
 <link rel="stylesheet" href="{{ asset('css/navbar.css') }}">
 <style>
   body {
