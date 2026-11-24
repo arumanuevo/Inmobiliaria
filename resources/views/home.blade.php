@@ -97,6 +97,15 @@
             <span class="dc-sub">Pagos y suscripción</span>
         </a>
     </div>
+    @if(! auth()->user()->esSuperAdmin())
+    <div class="col-md-6 col-lg-3">
+        <a href="{{ route('ayuda') }}" class="dashboard-card">
+            <i class="fas fa-circle-question"></i>
+            <span class="dc-title">Ayuda</span>
+            <span class="dc-sub">Guía del sistema y preguntas frecuentes</span>
+        </a>
+    </div>
+    @endif
     @endif
     @if(auth()->user()->hasRole('admin'))
     <div class="col-md-6 col-lg-3">

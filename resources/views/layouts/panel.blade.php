@@ -54,6 +54,11 @@
                     @php $noLeidos = \App\Models\Mensaje::where('usuario_id', auth()->id())->whereNull('leido_at')->count(); @endphp
                     @if($noLeidos > 0)<span class="badge-super">{{ $noLeidos }}</span>@endif
                 </a>
+                @if(! auth()->user()->esSuperAdmin())
+                <a href="{{ route('ayuda') }}" class="{{ request()->is('ayuda') ? 'active' : '' }}">
+                    <i class="fas fa-circle-question"></i><span>Ayuda</span>
+                </a>
+                @endif
             @endif
             @if(auth()->user()->hasRole('admin'))
                 <div class="menu-section">Administración</div>

@@ -56,6 +56,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/mensajes', [App\Http\Controllers\MensajeController::class, 'misMensajes'])->name('mensajes.mias');
     Route::post('/mensajes/leer-todos', [App\Http\Controllers\MensajeController::class, 'marcarTodosLeidos'])->name('mensajes.leerTodos');
     Route::post('/mensajes/{mensaje}/leer', [App\Http\Controllers\MensajeController::class, 'marcarLeido'])->name('mensajes.leer');
+    // Centro de ayuda del sistema (usuarios; el superadmin administra desde /admin)
+    Route::get('/ayuda', [App\Http\Controllers\AyudaController::class, 'index'])->name('ayuda');
 });
 
 // Búsquedas guardadas (público: cualquiera puede recibir alertas por email de nuevas propiedades)
