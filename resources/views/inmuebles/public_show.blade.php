@@ -156,7 +156,7 @@
         </div>
       @endif
 
-      <h2 class="h4 fw-bold mb-3" style="color: {{ $inmobiliaria->color_tema ?: '#0d6efd' }};">{{ $inmueble->precio_formateado }}
+      <h2 class="h4 fw-bold mb-3" style="color: {{ $inmobiliaria->colorNavbar() }};">{{ $inmueble->precio_formateado }}
         @if($inmueble->expensas)<small class="text-muted fw-normal">+ @dinero($inmueble->expensas, 2) expensas</small>@endif
       </h2>
       @if(!empty($comparativa))
@@ -204,7 +204,7 @@
     </div>
 
     <div class="col-lg-4">
-      <div class="card shadow-sm mb-3" style="border-top: 4px solid {{ $inmobiliaria->color_tema ?: '#0d6efd' }};">
+      <div class="card shadow-sm mb-3" style="border-top: 4px solid {{ $inmobiliaria->colorNavbar() }};">
         <div class="card-body text-center">
           @if($inmobiliaria->logo)
             <img src="{{ asset($inmobiliaria->logo) }}" alt="{{ $inmobiliaria->nombre_comercial }}" style="max-height: 60px;" class="mb-2">

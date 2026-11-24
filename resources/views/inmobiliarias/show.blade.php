@@ -211,9 +211,9 @@
   @media (min-width: 992px) {
     .perfil-modal .modal-img { height: 420px; }
   }
-  .perfil-modal .detalle-ico { color: {{ $inmobiliaria->color_tema ?: '#0d6efd' }}; }
+  .perfil-modal .detalle-ico { color: {{ $brandNavbar }}; }
   .perfil-modal .detalle-item { font-size: .92rem; }
-  .perfil-modal .prox-ico { color: {{ $inmobiliaria->color_tema ?: '#0d6efd' }}; }
+  .perfil-modal .prox-ico { color: {{ $brandNavbar }}; }
   .footer {
     background-color: #343a40;
     color: white;
@@ -479,7 +479,7 @@
     <div class="modal fade perfil-modal" id="propertyModal{{ $inmueble->id }}" tabindex="-1" aria-hidden="true">
       <div class="modal-dialog modal-lg modal-dialog-scrollable">
         <div class="modal-content">
-          <div class="modal-header" style="background: {{ $inmobiliaria->color_tema ?: '#0d6efd' }}; color: #fff; border: none;">
+          <div class="modal-header" style="background: {{ $brandNavbar }}; color: #fff; border: none;">
             <h5 class="modal-title fw-bold">{{ $inmueble->titulo }}</h5>
             <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
           </div>
@@ -514,7 +514,7 @@
               </div>
               <div class="col-lg-6 p-3 p-lg-4">
                 <div class="d-flex justify-content-between align-items-center mb-3">
-                  <span style="color: {{ $inmobiliaria->color_tema ?: '#0d6efd' }}; font-weight: 800; font-size: 1.3rem;">{{ $inmueble->precio_formateado }}</span>
+                  <span style="color: {{ $brandNavbar }}; font-weight: 800; font-size: 1.3rem;">{{ $inmueble->precio_formateado }}</span>
                   <span class="badge text-bg-light border">{{ ucfirst($inmueble->tipo_operacion) }}</span>
                 </div>
                 <ul class="list-unstyled mb-3">
@@ -562,7 +562,7 @@
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-outline-secondary rounded-pill" data-bs-dismiss="modal">Cerrar</button>
-            <a href="{{ route('contacto', ['property' => $inmueble->id, 'inmobiliaria' => $inmobiliaria->id]) }}" class="btn btn-primary rounded-pill px-4 fw-semibold" style="background: {{ $inmobiliaria->color_tema ?: '#0d6efd' }}; border-color: transparent;">Me interesa</a>
+            <a href="{{ route('contacto', ['property' => $inmueble->id, 'inmobiliaria' => $inmobiliaria->id]) }}" class="btn btn-primary rounded-pill px-4 fw-semibold" style="background: {{ $brandNavbar }}; border-color: transparent;">Me interesa</a>
           </div>
         </div>
       </div>
@@ -589,6 +589,7 @@ document.addEventListener('DOMContentLoaded', function () {
     var div = document.getElementById('mapa-perfil');
     if (!div || typeof L === 'undefined') { return; }
     var brand = @json($brand);
+    var brandBtn = @json($brandNavbar); // color auto-oscurecido si el tema es claro: para fondos con texto blanco
     var props = @json($markers);
     var map = L.map('mapa-perfil', { scrollWheelZoom: false });
     var osm = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -613,11 +614,11 @@ document.addEventListener('DOMContentLoaded', function () {
       var html = '<div style="min-width:200px;max-width:240px;">' +
         (p.foto ? '<img src="' + p.foto + '" style="width:100%;height:110px;object-fit:cover;border-radius:6px;margin-bottom:6px;">' : '') +
         '<div class="fw-bold mb-1">' + p.titulo + '</div>' +
-        '<div class="fw-bold mb-1" style="color:' + brand + ';">' + p.precio + '</div>' +
+        '<div class="fw-bold mb-1" style="color:' + brandBtn + ';">' + p.precio + '</div>' +
         (p.ciudad ? '<div class="small text-muted mb-1">' + p.ciudad + '</div>' : '') +
-        '<a href="' + p.url + '" class="btn btn-sm w-100" style="background:' + brand + ';color:#fff;">Ver propiedad</a>' +
+        '<a href="' + p.url + '" class="btn btn-sm w-100" style="background:' + brandBtn + ';color:#fff;">Ver propiedad</a>' +
         '</div>';
-      markersById[p.id] = L.marker([p.lat, p.lng], { icon: pin(brand) }).addTo(layer).bindPopup(html);
+      markersById[p.id] = L.marker([p.lat, p.lng], { icon: pin(brandBtn) }).addTo(layer).bindPopup(html);
     });
     @if($oficinaCoords)
     L.marker([{{ (float) $inmobiliaria->lat }}, {{ (float) $inmobiliaria->lng }}], { icon: pin('#101828') }).addTo(layer)
