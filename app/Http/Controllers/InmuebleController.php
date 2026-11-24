@@ -68,8 +68,10 @@ class InmuebleController extends Controller
         $comisionHabilitada = \App\Support\Configuracion::comisionHabilitada();
         $comisionPctDefault = \App\Support\Configuracion::comisionPctDefault();
         $comisionNota = \App\Support\Configuracion::comisionNota();
+        // Aprobación del cierre por el superadmin (defensivo si falta la columna)
+        $cierreColumna = Inmueble::columnaExiste('cierre_estado');
 
-        return view('inmuebles.index', compact('inmuebles', 'avisoLimite', 'comisionHabilitada', 'comisionPctDefault', 'comisionNota'));
+        return view('inmuebles.index', compact('inmuebles', 'avisoLimite', 'comisionHabilitada', 'comisionPctDefault', 'comisionNota', 'cierreColumna'));
     }
 
     // Formulario para crear un inmueble
@@ -431,6 +433,14 @@ class InmuebleController extends Controller
         $inmueble->tipo_cierre = $data['tipo_cierre'];
         $inmueble->cerrada_at = now();
 
+        // El cierre queda PENDIENTE DE APROBACIÓN: el superadmin lo aprueba en
+        // /admin/operaciones cuando verifica el pago de la comisión.
+        if (Inmueble::columnaExiste('cierre_estado')) {
+            $inmueble->cierre_estado = 'pendiente';
+            $inmueble->cierre_aprobado_at = null;
+            $inmueble->cierre_aprobado_por = null;
+        }
+
         if ($pct !== null || $monto !== null) {
             $inmueble->comision_porcentaje = $pct !== null ? (float) $pct : null;
             $inmueble->comision_monto = $monto !== null ? (float) $monto : null;
@@ -444,7 +454,7 @@ class InmuebleController extends Controller
             ? ' Comisión del portal registrada: ' . ($pct !== null ? rtrim(rtrim(number_format((float) $pct, 2, ',', '.'), '0'), ',') . '% = ' : '') . '$' . number_format((float) $monto, 2, ',', '.') . ' — queda PENDIENTE de cobro (el administrador la marca como cobrada en Operaciones).'
             : '';
 
-        return back()->with('success', 'Propiedad marcada como ' . $data['tipo_cierre'] . 'da. Ya no es visible en el portal público.' . $extra);
+        return back()->with('success', 'Propiedad marcada como ' . $data['tipo_cierre'] . 'da. Ya no es visible en el portal público. El cierre queda PENDIENTE DE APROBACIÓN: el administrador lo confirma cuando verifique el pago de la comisión.' . $extra);
     }
 
     // Home del portal SaaS: destacadas de todas las inmobiliarias activas + datos reales del portal
@@ -466,7 +476,10 @@ class InmuebleController extends Controller
             'propiedades' => Inmueble::publicados()
                 ->whereHas('inmobiliaria', fn ($q) => $q->where('estado', 'activa'))
                 ->count(),
-            'operaciones' => Inmueble::where('cerrada', 1)->count(),
+            // operaciones concretadas: solo las aprobadas por el superadmin (si existe la columna)
+            'operaciones' => Inmueble::columnaExiste('cierre_estado')
+                ? Inmueble::where('cerrada', 1)->where('cierre_estado', 'aprobado')->count()
+                : Inmueble::where('cerrada', 1)->count(),
         ];
 
         $inmobiliariasTop = Inmobiliaria::activas()

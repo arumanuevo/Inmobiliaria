@@ -128,6 +128,13 @@
                     <td>
                         @if($inmueble->cerrada)
                             <span class="badge text-bg-dark">Cerrada ({{ $inmueble->tipo_cierre }})</span>
+                            @if($cierreColumna)
+                                @if($inmueble->cierre_estado === 'aprobado')
+                                    <span class="badge text-bg-success ms-1" title="Aprobado por el administrador">cierre aprobado</span>
+                                @else
+                                    <span class="badge text-bg-danger ms-1" title="El administrador lo aprueba cuando verifique el pago de la comisión">pendiente de aprobación</span>
+                                @endif
+                            @endif
                         @elseif($inmueble->publicado)
                             <span class="badge text-bg-success">Visible</span>
                         @else
@@ -199,7 +206,7 @@
                                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
                                         </div>
                                         <div class="modal-body text-start">
-                                            <p class="text-muted small">La propiedad dejará de verse en el portal y sumará a tu contador de operaciones concretadas.</p>
+                                            <p class="text-muted small">La propiedad dejará de verse en el portal. El cierre queda <strong>pendiente de aprobación del administrador</strong> (lo aprueba cuando verifique el pago de la comisión) y recién ahí suma a tu contador de operaciones concretadas.</p>
                                             <div class="form-group mb-3">
                                                 <label>Tipo de cierre</label>
                                                 <select name="tipo_cierre" class="form-control" required>

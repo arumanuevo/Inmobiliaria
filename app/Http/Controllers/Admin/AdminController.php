@@ -198,12 +198,49 @@ class AdminController extends Controller
             'pendiente' => (clone $base)->where('comision_estado', 'pendiente')->sum('comision_monto'),
             'cobrada' => (clone $base)->where('comision_estado', 'cobrada')->sum('comision_monto'),
             'cantidad' => Inmueble::where('cerrada', 1)->count(),
+            // cierres que el usuario registró pero todavía no aprobaste (esperan verificar el pago)
+            'pendientes_aprobacion' => Inmueble::columnaExiste('cierre_estado')
+                ? Inmueble::where('cerrada', 1)->where('cierre_estado', 'pendiente')->count()
+                : Inmueble::where('cerrada', 1)->count(),
         ];
 
         $comisionHabilitada = Configuracion::comisionHabilitada();
         $comisionPctDefault = Configuracion::comisionPctDefault();
+        $cierreColumna = Inmueble::columnaExiste('cierre_estado');
 
-        return view('admin.operaciones', compact('operaciones', 'totales', 'comisionHabilitada', 'comisionPctDefault'));
+        return view('admin.operaciones', compact('operaciones', 'totales', 'comisionHabilitada', 'comisionPctDefault', 'cierreColumna'));
+    }
+
+    /**
+     * El superadmin APRUEBA el cierre registrado por el usuario (lo hace cuando
+     * ya verificó el pago de la comisión). Hasta entonces el cierre figura como
+     * pendiente de aprobación y no se cuenta como operación concretada.
+     */
+    public function aprobarOperacion(Request $request, $id)
+    {
+        $request->validate([
+            'estado' => 'required|in:aprobado,pendiente',
+        ]);
+
+        $inmueble = Inmueble::findOrFail($id);
+        abort_unless($inmueble->cerrada, 404);
+
+        if (Inmueble::columnaExiste('cierre_estado')) {
+            if ($request->input('estado') === 'aprobado') {
+                $inmueble->cierre_estado = 'aprobado';
+                $inmueble->cierre_aprobado_at = now();
+                $inmueble->cierre_aprobado_por = auth()->id();
+            } else {
+                $inmueble->cierre_estado = 'pendiente';
+                $inmueble->cierre_aprobado_at = null;
+                $inmueble->cierre_aprobado_por = null;
+            }
+            $inmueble->save();
+        }
+
+        return back()->with('success', $request->input('estado') === 'aprobado'
+            ? 'Cierre #' . $inmueble->id . ' APROBADO: ya cuenta como operación concretada.'
+            : 'Cierre #' . $inmueble->id . ' vuelve a pendiente de aprobación.');
     }
 
     public function cobrarOperacion(Request $request, $id)

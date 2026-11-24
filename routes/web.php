@@ -83,6 +83,7 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::post('/planes/{id}/toggle', [App\Http\Controllers\Admin\AdminController::class, 'togglePlan'])->name('planes.toggle');
     Route::get('/operaciones', [App\Http\Controllers\Admin\AdminController::class, 'operaciones'])->name('operaciones');
     Route::post('/operaciones/{id}/comision', [App\Http\Controllers\Admin\AdminController::class, 'cobrarOperacion'])->name('operaciones.comision');
+    Route::post('/operaciones/{id}/aprobar', [App\Http\Controllers\Admin\AdminController::class, 'aprobarOperacion'])->name('operaciones.aprobar');
     Route::get('/inmobiliarias/{id}/cargar-inmueble', [App\Http\Controllers\Admin\AdminController::class, 'formCargaAsistida'])->name('carga.form');
     Route::post('/inmobiliarias/{id}/cargar-inmueble', [App\Http\Controllers\Admin\AdminController::class, 'cargarInmueble'])->name('carga.store');
     Route::get('/solicitudes', [App\Http\Controllers\Admin\AdminController::class, 'solicitudes'])->name('solicitudes');

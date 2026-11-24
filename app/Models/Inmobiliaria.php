@@ -68,7 +68,14 @@ class Inmobiliaria extends Model
     // Operaciones concretadas (vendidas/alquiladas): social proof del perfil
     public function operaciones()
     {
-        return $this->inmuebles()->where('cerrada', 1);
+        // operaciones concretadas: solo cierres aprobados por el superadmin
+        // (defensivo: si falta la columna, cuenta todas las cerradas)
+        $q = $this->inmuebles()->where('cerrada', 1);
+        if (\App\Models\Inmueble::columnaExiste('cierre_estado')) {
+            $q->where('cierre_estado', 'aprobado');
+        }
+
+        return $q;
     }
 
     public function scopeActivas($query)

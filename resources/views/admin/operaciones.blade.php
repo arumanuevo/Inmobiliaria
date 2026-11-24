@@ -9,7 +9,7 @@
 @section('content')
 <div class="container-fluid">
     <div class="row mb-3">
-        <div class="col-md-4">
+        <div class="col-md-6 col-lg-3">
             <div class="card text-center">
                 <div class="card-body">
                     <div class="h3 mb-1">{{ $totales['cantidad'] }}</div>
@@ -17,7 +17,15 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-4">
+        <div class="col-md-6 col-lg-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <div class="h3 mb-1 text-danger">{{ $totales['pendientes_aprobacion'] }}</div>
+                    <div class="text-muted">cierres pendientes de tu aprobación</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 col-lg-3">
             <div class="card text-center">
                 <div class="card-body">
                     <div class="h3 mb-1 text-warning">@dinero((float) $totales['pendiente'], 2)</div>
@@ -25,7 +33,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-4">
+        <div class="col-md-6 col-lg-3">
             <div class="card text-center">
                 <div class="card-body">
                     <div class="h3 mb-1 text-success">@dinero((float) $totales['cobrada'], 2)</div>
@@ -33,6 +41,11 @@
                 </div>
             </div>
         </div>
+    </div>
+
+    <div class="alert alert-info py-2">
+        <i class="fas fa-info-circle me-1"></i>
+        El usuario registra el cierre, pero <strong>no queda habilitado como operación concretada hasta que VOS lo aprobás acá</strong> (botón "Aprobar cierre"), normalmente después de verificar el pago de la comisión (que después marcás "Cobrada").
     </div>
 
     @if(auth()->user()->esSuperAdmin())
@@ -56,6 +69,7 @@
                         <th>Precio</th>
                         <th>Comisión</th>
                         <th>Estado comisión</th>
+                        <th>Aprobación</th>
                         <th>Cerrada el</th>
                         <th class="text-center">Acción</th>
                     </tr>
@@ -86,8 +100,35 @@
                                 <span class="text-muted">-</span>
                             @endif
                         </td>
+                        <td>
+                            @if($cierreColumna)
+                                @if($op->cierre_estado === 'aprobado')
+                                    <span class="badge badge-success">Aprobado</span>
+                                    <small class="text-muted d-block">{{ $op->cierre_aprobado_at ? $op->cierre_aprobado_at->format('d/m/Y H:i') : '' }}</small>
+                                @else
+                                    <span class="badge badge-danger">Pendiente de aprobación</span>
+                                @endif
+                            @else
+                                <span class="text-muted">-</span>
+                            @endif
+                        </td>
                         <td>{{ $op->cerrada_at ? $op->cerrada_at->format('d/m/Y') : '-' }}</td>
-                        <td class="text-center">
+                        <td class="text-center text-nowrap">
+                            @if($cierreColumna)
+                                @if($op->cierre_estado === 'pendiente')
+                                    <form action="{{ route('admin.operaciones.aprobar', $op->id) }}" method="POST" style="display:inline;">
+                                        @csrf
+                                        <input type="hidden" name="estado" value="aprobado">
+                                        <button class="btn btn-primary btn-sm" onclick="return confirm('¿Aprobar este cierre? Usalo cuando ya hayas verificado el pago de la comisión.')"><i class="fas fa-stamp"></i> Aprobar cierre</button>
+                                    </form>
+                                @else
+                                    <form action="{{ route('admin.operaciones.aprobar', $op->id) }}" method="POST" style="display:inline;">
+                                        @csrf
+                                        <input type="hidden" name="estado" value="pendiente">
+                                        <button class="btn btn-outline-secondary btn-sm" onclick="return confirm('¿Volver a pendiente de aprobación?')"><i class="fas fa-undo"></i> Desaprobar</button>
+                                    </form>
+                                @endif
+                            @endif
                             @if($op->comision_monto !== null && $op->comision_estado !== 'cobrada')
                                 <form action="{{ route('admin.operaciones.comision', $op->id) }}" method="POST" style="display:inline;">
                                     @csrf
@@ -105,7 +146,7 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="8" class="text-center text-muted py-4">Todavía no hay operaciones cerradas.</td>
+                        <td colspan="9" class="text-center text-muted py-4">Todavía no hay operaciones cerradas.</td>
                     </tr>
                     @endforelse
                 </tbody>

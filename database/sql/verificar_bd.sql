@@ -130,6 +130,9 @@ SELECT 'inmuebles' AS tabla, 'banos' AS columna UNION ALL
 SELECT 'inmuebles' AS tabla, 'carga_asistida' AS columna UNION ALL
 SELECT 'inmuebles' AS tabla, 'cerrada' AS columna UNION ALL
 SELECT 'inmuebles' AS tabla, 'cerrada_at' AS columna UNION ALL
+SELECT 'inmuebles' AS tabla, 'cierre_aprobado_at' AS columna UNION ALL
+SELECT 'inmuebles' AS tabla, 'cierre_aprobado_por' AS columna UNION ALL
+SELECT 'inmuebles' AS tabla, 'cierre_estado' AS columna UNION ALL
 SELECT 'inmuebles' AS tabla, 'ciudad' AS columna UNION ALL
 SELECT 'inmuebles' AS tabla, 'cocheras' AS columna UNION ALL
 SELECT 'inmuebles' AS tabla, 'codigo_postal' AS columna UNION ALL

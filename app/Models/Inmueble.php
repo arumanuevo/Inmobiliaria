@@ -2,10 +2,25 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Schema;
 
 class Inmueble extends Model
 {
     protected $table = 'inmuebles';
+
+    /**
+     * ¿Existe la columna en la BD? (cacheada por request). Permite deployar el código
+     * ANTES de correr el SQL nuevo en phpMyAdmin sin que tire error 1054.
+     */
+    public static function columnaExiste(string $columna): bool
+    {
+        static $cache = [];
+        if (! array_key_exists($columna, $cache)) {
+            $cache[$columna] = Schema::hasColumn((new static)->getTable(), $columna);
+        }
+
+        return $cache[$columna];
+    }
 
     protected $fillable = [
         'usuario_id', 'inmobiliaria_id', 'tipo_operacion', 'tipo_propiedad', 'moneda', 'titulo', 'descripcion', 'precio',
@@ -14,6 +29,7 @@ class Inmueble extends Model
         'direccion', 'ciudad', 'estado', 'codigo_postal', 'coordenadas',
         'piscina', 'jardin', 'garaje', 'ascensor', 'fotos', 'destacado', 'publicado', 'visitas',
         'cerrada', 'tipo_cierre', 'cerrada_at',
+        'cierre_estado', 'cierre_aprobado_at', 'cierre_aprobado_por',
         'comision_porcentaje', 'comision_monto', 'comision_estado', 'comision_cobrada_at',
         'carga_asistida', 'declaracion_propietario', 'proximidades', 'uso_detalle',
         'puntaje_entorno', 'puntaje_entorno_detalle', 'puntaje_entorno_at',
@@ -26,6 +42,7 @@ class Inmueble extends Model
         'publicado' => 'boolean',
         'cerrada' => 'boolean',
         'cerrada_at' => 'datetime',
+        'cierre_aprobado_at' => 'datetime',
         'comision_porcentaje' => 'decimal:2',
         'comision_monto' => 'decimal:2',
         'comision_cobrada_at' => 'datetime',
