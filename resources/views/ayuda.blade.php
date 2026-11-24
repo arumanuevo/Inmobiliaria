@@ -247,6 +247,14 @@
             </div>
             <div class="accordion-item">
                 <h2 class="accordion-header">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq9">¿Puedo saber cuánto vale una propiedad (valuación de mercado)?</button>
+                </h2>
+                <div id="faq9" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                    <div class="accordion-body">Sí, desde el menú <strong>Valuar propiedad</strong> — pero <strong>solo con plan de pago</strong> (el plan Gratis no lo incluye). Con Inicial/Básico/Profesional obtenés la <strong>valuación básica</strong>: rango estimado según los comparables publicados en el portal. Con <strong>Premium</strong> tenés la <strong>valuación completa</strong>: reporte PDF imprimible, comparables que podés elegir para ajustar el cálculo, índice de mercado de la zona y el botón <em>Valor de mercado</em> en cada uno de tus inmuebles (te dice si tu precio está por encima o por debajo del mercado). La estimación es <strong>orientativa</strong> y no reemplaza una tasación profesional.</div>
+                </div>
+            </div>
+            <div class="accordion-item">
+                <h2 class="accordion-header">
                     <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq8">¿Cómo me doy de baja o borro mi cuenta?</button>
                 </h2>
                 <div id="faq8" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">

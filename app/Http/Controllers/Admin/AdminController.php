@@ -259,6 +259,43 @@ class AdminController extends Controller
         return back()->with('success', 'Estado de la comisión actualizado.');
     }
 
+    // ===== Estadísticas del valuador de mercado (AVM-lite) =====
+
+    public function valuaciones()
+    {
+        $tablaExiste = \App\Models\Valuacion::tablaExiste();
+
+        $total = 0;
+        $hoy = 0;
+        $porCiudad = collect();
+        $ultimas = collect();
+        $detalladas = 0;
+        if ($tablaExiste) {
+            $total = \App\Models\Valuacion::count();
+            $hoy = \App\Models\Valuacion::whereDate('created_at', today())->count();
+            $detalladas = \App\Models\Valuacion::where('detallada', 1)->count();
+            $porCiudad = \App\Models\Valuacion::selectRaw('ciudad, COUNT(*) AS n, AVG(valor_medio) AS prom, AVG(pm2_mediana) AS pm2')
+                ->whereNotNull('ciudad')->where('ciudad', '!=', '')
+                ->groupBy('ciudad')->orderByDesc('n')->limit(12)->get();
+            $ultimas = \App\Models\Valuacion::with('inmobiliaria')->latest()->limit(25)->get();
+        }
+
+        // Índice de mercado por ciudad (sobre avisos publicados, no sobre valuaciones)
+        $indice = collect();
+        if ($tablaExiste) {
+            $ciudades = Inmueble::publicados()->where('cerrada', 0)->where('tipo_operacion', 'venta')
+                ->where('precio', '>', 0)->where('superficie_cubierta', '>', 0)
+                ->whereHas('inmobiliaria', fn ($q) => $q->where('estado', 'activa'))
+                ->whereNotNull('ciudad')->where('ciudad', '!=', '')
+                ->selectRaw('LOWER(ciudad) AS ciudad, COUNT(*) AS avisos')->groupBy('ciudad')->orderByDesc('avisos')->limit(10)->pluck('ciudad');
+            foreach ($ciudades as $c) {
+                $indice->push(['ciudad' => $c] + \App\Support\Valuador::estadisticasZona($c, 'venta'));
+            }
+        }
+
+        return view('admin.valuaciones', compact('tablaExiste', 'total', 'hoy', 'detalladas', 'porCiudad', 'ultimas', 'indice'));
+    }
+
     // ===== Configuración global del portal (solo superadmin) =====
 
     public function configuracion()

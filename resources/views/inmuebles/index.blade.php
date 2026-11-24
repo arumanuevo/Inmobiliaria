@@ -123,7 +123,11 @@
                     </td>
                     <td class="d-none d-lg-table-cell">{{ ucfirst($inmueble->tipo_operacion) }}</td>
                     <td class="d-none d-lg-table-cell">{{ $inmueble->tipo_propiedad ? (\App\Models\Inmueble::tiposPropiedad()[$inmueble->tipo_propiedad] ?? ucfirst($inmueble->tipo_propiedad)) : '-' }}</td>
-                    <td class="text-nowrap fw-semibold" style="color:#4f46e5;">@dinero($inmueble->precio, 2)</td>
+                    <td class="text-nowrap fw-semibold" style="color:#4f46e5;">@dinero($inmueble->precio, 2)
+                        @if($valuacionColumna && $inmueble->valuacion_valor)
+                            <small class="d-block text-muted fw-normal">mercado: @dinero((float) $inmueble->valuacion_valor, 0)</small>
+                        @endif
+                    </td>
                     <td class="text-nowrap d-none d-lg-table-cell">{{ $inmueble->superficie_cubierta }} m²</td>
                     <td>
                         @if($inmueble->cerrada)
@@ -165,6 +169,9 @@
                             <a href="{{ route('inmuebles.edit', $inmueble) }}" class="btn btn-outline-warning" title="Editar"><i class="fas fa-pen"></i></a>
                             <a href="{{ route('inmuebles.addPhotos', $inmueble) }}" class="btn btn-outline-primary" title="Agregar fotos"><i class="fas fa-images"></i></a>
                             <a href="{{ route('inmuebles.deletePhotos', $inmueble) }}" class="btn btn-outline-secondary" title="Quitar fotos"><i class="fas fa-image"></i></a>
+                            @if($esPremiumVal)
+                            <a href="{{ route('valuar', ['inmueble' => $inmueble->id]) }}" class="btn btn-outline-success" title="Valor de mercado de esta propiedad (Premium)"><i class="fas fa-chart-line"></i></a>
+                            @endif
                             @if(!$inmueble->cerrada)
                             <button type="button" class="btn btn-outline-success" data-bs-toggle="modal" data-bs-target="#cerrarModal{{ $inmueble->id }}" title="Cerrar operación ({{ $inmueble->tipo_operacion }})"><i class="fas fa-check"></i></button>
                             @endif

@@ -90,6 +90,13 @@
                         @if($inmobiliaria->plan && $inmobiliaria->plan->precio_mensual > 0)
                             <span class="stat-chip"><i class="fas fa-tag"></i>@dinero($inmobiliaria->plan->precio_mensual, 0)/mes</span>
                         @endif
+                        @if($inmobiliaria->tieneValuacionPremium())
+                            <span class="stat-chip" title="Incluido en Premium"><i class="fas fa-chart-line"></i>Valuación completa</span>
+                        @elseif($inmobiliaria->tieneValuacion())
+                            <span class="stat-chip" title="Incluido en tu plan de pago"><i class="fas fa-chart-line"></i>Valuación básica</span>
+                        @else
+                            <span class="stat-chip" title="Disponible en planes de pago"><i class="fas fa-chart-line"></i>Valuación: en planes de pago</span>
+                        @endif
                         @if($inmobiliaria->plan_vence_at)
                             <span class="stat-chip"><i class="fas fa-calendar"></i>Vence {{ $inmobiliaria->plan_vence_at->format('d/m/Y') }}</span>
                         @endif

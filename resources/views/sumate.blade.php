@@ -161,6 +161,11 @@
             @if($plan->slug === 'premium')
               <li><i class="fas fa-search me-1 text-success"></i> SEO personalizado de tu perfil en Google</li>
               <li><i class="fas fa-bolt me-1 text-success"></i> Perfil priorizado en el directorio</li>
+              <li><i class="fas fa-chart-line me-1 text-success"></i> Valuación de mercado <strong>completa</strong>: reporte PDF, comparables elegibles y valor de mercado en cada inmueble</li>
+            @elseif($plan->precio_mensual > 0)
+              <li><i class="fas fa-chart-line me-1 text-success"></i> Valuación de mercado <strong>básica</strong> (rango estimado por zona)</li>
+            @else
+              <li class="text-muted"><i class="fas fa-chart-line me-1"></i> Valuación de mercado: disponible en planes de pago</li>
             @endif
           </ul>
           <a href="{{ route('register') }}" class="btn {{ $plan->precio_mensual == 0 ? 'btn-primary' : 'btn-outline-primary' }} w-100">Empezar</a>

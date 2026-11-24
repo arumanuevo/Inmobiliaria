@@ -58,6 +58,10 @@ Route::middleware('auth')->group(function () {
     Route::post('/mensajes/{mensaje}/leer', [App\Http\Controllers\MensajeController::class, 'marcarLeido'])->name('mensajes.leer');
     // Centro de ayuda del sistema (usuarios; el superadmin administra desde /admin)
     Route::get('/ayuda', [App\Http\Controllers\AyudaController::class, 'index'])->name('ayuda');
+    // Valuación de mercado (SOLO planes de pago; Premium = reporte detallado)
+    Route::get('/valuar', [App\Http\Controllers\ValuacionController::class, 'form'])->name('valuar');
+    Route::post('/valuar', [App\Http\Controllers\ValuacionController::class, 'estimar'])->name('valuar.estimar')->middleware('throttle:30,60');
+    Route::get('/valuar/reporte/{valuacion}', [App\Http\Controllers\ValuacionController::class, 'reporte'])->name('valuar.reporte');
 });
 
 // Búsquedas guardadas (público: cualquiera puede recibir alertas por email de nuevas propiedades)
@@ -93,6 +97,9 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::post('/mensajes', [App\Http\Controllers\MensajeController::class, 'adminStore'])->name('mensajes.store');
     // Diagnóstico de envío de email (solo superadmin): envía un mail de prueba y muestra la config efectiva
     Route::get('/mail-test', [App\Http\Controllers\Admin\AdminController::class, 'mailTest'])->name('mail-test');
+
+    // Estadísticas del valuador de mercado (AVM-lite)
+    Route::get('/valuaciones', [App\Http\Controllers\Admin\AdminController::class, 'valuaciones'])->name('valuaciones');
 
     // Configuración global del portal (solo superadmin): comisión por operación cerrada, etc.
     Route::get('/configuracion', [App\Http\Controllers\Admin\AdminController::class, 'configuracion'])->name('configuracion');

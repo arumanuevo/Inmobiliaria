@@ -89,6 +89,24 @@ class Inmobiliaria extends Model
         return $this->plan?->slug === 'premium';
     }
 
+    // ¿El plan actual es de PAGO? (precio_mensual > 0: inicial/básico/profesional/premium)
+    public function planEsPago(): bool
+    {
+        return (float) ($this->plan->precio_mensual ?? 0) > 0;
+    }
+
+    // ¿El plan puede usar la valuación de mercado básica? Solo planes pagos (no gratis/particular)
+    public function tieneValuacion(): bool
+    {
+        return $this->planEsPago();
+    }
+
+    // ¿El plan incluye la valuación COMPLETA (reporte PDF, comparables elegibles, valor por inmueble)?
+    public function tieneValuacionPremium(): bool
+    {
+        return $this->esPremium();
+    }
+
     /**
      * ¿Existe la columna en la BD? (cacheada por request). Permite deployar el código
      * ANTES de correr el SQL nuevo en phpMyAdmin sin que las páginas tiren error 1054.

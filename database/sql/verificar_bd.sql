@@ -34,7 +34,8 @@ SELECT 'role_has_permissions' AS tabla UNION ALL
 SELECT 'roles' AS tabla UNION ALL
 SELECT 'sessions' AS tabla UNION ALL
 SELECT 'solicitudes_carga' AS tabla UNION ALL
-SELECT 'users' AS tabla
+SELECT 'users' AS tabla UNION ALL
+SELECT 'valuaciones' AS tabla
 ) t
 LEFT JOIN information_schema.TABLES i ON i.TABLE_SCHEMA = DATABASE() AND i.TABLE_NAME = t.tabla
 WHERE i.TABLE_NAME IS NULL;
@@ -177,6 +178,10 @@ SELECT 'inmuebles' AS tabla, 'titulo' AS columna UNION ALL
 SELECT 'inmuebles' AS tabla, 'updated_at' AS columna UNION ALL
 SELECT 'inmuebles' AS tabla, 'uso_detalle' AS columna UNION ALL
 SELECT 'inmuebles' AS tabla, 'usuario_id' AS columna UNION ALL
+SELECT 'inmuebles' AS tabla, 'valuacion_at' AS columna UNION ALL
+SELECT 'inmuebles' AS tabla, 'valuacion_max' AS columna UNION ALL
+SELECT 'inmuebles' AS tabla, 'valuacion_min' AS columna UNION ALL
+SELECT 'inmuebles' AS tabla, 'valuacion_valor' AS columna UNION ALL
 SELECT 'inmuebles' AS tabla, 'visitas' AS columna UNION ALL
 SELECT 'mensajes' AS tabla, 'cuerpo' AS columna UNION ALL
 SELECT 'mensajes' AS tabla, 'created_at' AS columna UNION ALL
@@ -230,7 +235,30 @@ SELECT 'users' AS tabla, 'id' AS columna UNION ALL
 SELECT 'users' AS tabla, 'name' AS columna UNION ALL
 SELECT 'users' AS tabla, 'password' AS columna UNION ALL
 SELECT 'users' AS tabla, 'telefono' AS columna UNION ALL
-SELECT 'users' AS tabla, 'updated_at' AS columna
+SELECT 'users' AS tabla, 'updated_at' AS columna UNION ALL
+SELECT 'valuaciones' AS tabla, 'ambientes' AS columna UNION ALL
+SELECT 'valuaciones' AS tabla, 'ciudad' AS columna UNION ALL
+SELECT 'valuaciones' AS tabla, 'comparables' AS columna UNION ALL
+SELECT 'valuaciones' AS tabla, 'created_at' AS columna UNION ALL
+SELECT 'valuaciones' AS tabla, 'detallada' AS columna UNION ALL
+SELECT 'valuaciones' AS tabla, 'direccion' AS columna UNION ALL
+SELECT 'valuaciones' AS tabla, 'id' AS columna UNION ALL
+SELECT 'valuaciones' AS tabla, 'inmobiliaria_id' AS columna UNION ALL
+SELECT 'valuaciones' AS tabla, 'inmueble_id' AS columna UNION ALL
+SELECT 'valuaciones' AS tabla, 'ip' AS columna UNION ALL
+SELECT 'valuaciones' AS tabla, 'lat' AS columna UNION ALL
+SELECT 'valuaciones' AS tabla, 'lng' AS columna UNION ALL
+SELECT 'valuaciones' AS tabla, 'pm2_mediana' AS columna UNION ALL
+SELECT 'valuaciones' AS tabla, 'sup_cubierta' AS columna UNION ALL
+SELECT 'valuaciones' AS tabla, 'sup_total' AS columna UNION ALL
+SELECT 'valuaciones' AS tabla, 'tipo_operacion' AS columna UNION ALL
+SELECT 'valuaciones' AS tabla, 'tipo_propiedad' AS columna UNION ALL
+SELECT 'valuaciones' AS tabla, 'updated_at' AS columna UNION ALL
+SELECT 'valuaciones' AS tabla, 'user_agent' AS columna UNION ALL
+SELECT 'valuaciones' AS tabla, 'usuario_id' AS columna UNION ALL
+SELECT 'valuaciones' AS tabla, 'valor_max' AS columna UNION ALL
+SELECT 'valuaciones' AS tabla, 'valor_medio' AS columna UNION ALL
+SELECT 'valuaciones' AS tabla, 'valor_min' AS columna UNION ALL
 ) c
 LEFT JOIN information_schema.COLUMNS i ON i.TABLE_SCHEMA = DATABASE() AND i.TABLE_NAME = c.tabla AND i.COLUMN_NAME = c.columna
 WHERE i.COLUMN_NAME IS NULL

@@ -70,8 +70,11 @@ class InmuebleController extends Controller
         $comisionNota = \App\Support\Configuracion::comisionNota();
         // Aprobación del cierre por el superadmin (defensivo si falta la columna)
         $cierreColumna = Inmueble::columnaExiste('cierre_estado');
+        // Botón "Valor de mercado" por inmueble: solo plan Premium
+        $esPremiumVal = $user->inmobiliaria && $user->inmobiliaria->tieneValuacionPremium();
+        $valuacionColumna = Inmueble::columnaExiste('valuacion_valor');
 
-        return view('inmuebles.index', compact('inmuebles', 'avisoLimite', 'comisionHabilitada', 'comisionPctDefault', 'comisionNota', 'cierreColumna'));
+        return view('inmuebles.index', compact('inmuebles', 'avisoLimite', 'comisionHabilitada', 'comisionPctDefault', 'comisionNota', 'cierreColumna', 'esPremiumVal', 'valuacionColumna'));
     }
 
     // Formulario para crear un inmueble

@@ -54,6 +54,9 @@
                     @php $noLeidos = \App\Models\Mensaje::where('usuario_id', auth()->id())->whereNull('leido_at')->count(); @endphp
                     @if($noLeidos > 0)<span class="badge-super">{{ $noLeidos }}</span>@endif
                 </a>
+                <a href="{{ route('valuar') }}" class="{{ request()->is('valuar*') ? 'active' : '' }}">
+                    <i class="fas fa-chart-line"></i><span>Valuar propiedad</span>
+                </a>
                 @if(! auth()->user()->esSuperAdmin())
                 <a href="{{ route('ayuda') }}" class="{{ request()->is('ayuda') ? 'active' : '' }}">
                     <i class="fas fa-circle-question"></i><span>Ayuda</span>
@@ -70,6 +73,9 @@
                 </a>
                 <a href="{{ route('admin.operaciones') }}" class="{{ request()->is('admin/operaciones*') ? 'active' : '' }}">
                     <i class="fas fa-handshake"></i><span>Operaciones</span>
+                </a>
+                <a href="{{ route('admin.valuaciones') }}" class="{{ request()->is('admin/valuaciones*') ? 'active' : '' }}">
+                    <i class="fas fa-chart-line"></i><span>Valuaciones</span>
                 </a>
                 <a href="{{ route('admin.solicitudes') }}" class="{{ request()->is('admin/solicitudes*') ? 'active' : '' }}">
                     <i class="fas fa-clipboard-list"></i><span>Solicitudes</span>
