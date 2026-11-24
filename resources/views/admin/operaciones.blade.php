@@ -35,6 +35,13 @@
         </div>
     </div>
 
+    @if(auth()->user()->esSuperAdmin())
+    <div class="alert alert-info d-flex justify-content-between align-items-center flex-wrap gap-2">
+        <span><i class="fas fa-hand-holding-usd me-1"></i>Comisión del portal: <strong>{{ $comisionHabilitada ? rtrim(rtrim(number_format((float) $comisionPctDefault, 2, ',', '.'), '0'), ',') . '% por defecto sobre el precio al cerrar' : 'DESACTIVADA' }}</strong></span>
+        <a href="{{ route('admin.configuracion') }}" class="btn btn-sm btn-outline-primary rounded-pill px-3"><i class="fas fa-sliders me-1"></i> Configurar</a>
+    </div>
+    @endif
+
     <div class="card">
         <div class="card-header">
             <h3 class="card-title">Propiedades vendidas/alquiladas ({{ $operaciones->total() }})</h3>

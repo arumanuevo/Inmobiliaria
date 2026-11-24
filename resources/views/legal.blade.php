@@ -38,6 +38,14 @@
   <p>{{ config('app.name') }} es un <strong>portal de avisos inmobiliarios</strong>: un espacio donde inmobiliarias verificadas y propietarios particulares publican sus propiedades. El portal <strong>no es una inmobiliaria</strong>, no interviene en las operaciones de compra, venta o alquiler, no intermedia pagos ni documentos, y no verifica legal ni físicamente las propiedades anunciadas.</p>
   <p><strong>Habilitación profesional:</strong> en Argentina la actividad de corredor/martillero inmobiliario está regulada por cada provincia (por ejemplo, el Registro/Colegio de Martilleros y Corredores Inmobiliarios de la Ciudad Autónoma de Buenos Aires y de la Provincia de Buenos Aires) y requiere inscripción vigente, además de la inscripción en AFIP (CUIT e Ingresos Brutos) para facturar comisiones. {{ config('app.name') }} no valida automáticamente esas matrículas: el sello "Verificada" que puede exhibir una inmobiliaria indica que el administrador del portal chequeó los datos declarados (CUIT y matrícula), pero <strong>cada usuario debe corroborar la habilitación vigente en el registro provincial correspondiente antes de operar</strong>. Asimismo, en locaciones residenciales la comisión corresponde al locador, no al inquilino (Ley 27.551).</p>
 
+  @php
+    $comisionOn = \App\Support\Configuracion::comisionHabilitada();
+    $comisionPct = \App\Support\Configuracion::comisionPctDefault();
+    $comisionNota = \App\Support\Configuracion::comisionNota();
+  @endphp
+  <h2>1.1. Comisión por operación cerrada</h2>
+  <p>Cuando un anunciante registra en su panel el <strong>cierre de una operación</strong> (venta o alquiler concretado), el portal registra una <strong>comisión a favor del administrador del portal</strong>: actualmente <strong>{{ $comisionOn ? rtrim(rtrim(number_format((float) $comisionPct, 2, ',', '.'), '0'), ',') . '% del precio declarado de la operación' : 'desactivada' }}</strong> (porcentaje configurable por el administrador), calculada sobre el precio informado al momento del cierre, o bien un monto fijo cargado manualmente. La comisión figura como <strong>pendiente de cobro</strong> hasta que el administrador la marca como cobrada. {{ $comisionNota }}</p>
+
   <h2>2. Responsabilidad del anunciante</h2>
   <p>Quien publica una propiedad declara, bajo su exclusiva responsabilidad, que es propietario/a de la misma o que cuenta con autorización expresa del propietario para anunciarla, y que todos los datos cargados (precio, superficie, ubicación, características, fotos) son veraces y no inducen a error. El portal no se responsabiliza por el contenido de los avisos ni por las operaciones que se concreten entre las partes.</p>
 

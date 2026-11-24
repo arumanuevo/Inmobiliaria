@@ -83,6 +83,9 @@
                 <a href="{{ route('admin.mensajes') }}" class="{{ request()->is('admin/mensajes*') ? 'active' : '' }}">
                     <i class="fas fa-bullhorn"></i><span>Enviar aviso</span>
                 </a>
+                <a href="{{ route('admin.configuracion') }}" class="{{ request()->is('admin/configuracion*') ? 'active' : '' }}">
+                    <i class="fas fa-sliders"></i><span>Configuración</span>
+                </a>
                 @endif
             @endif
         </nav>

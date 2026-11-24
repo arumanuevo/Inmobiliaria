@@ -209,15 +209,20 @@
                                             </div>
                                             <div class="row">
                                                 <div class="col-6 form-group">
-                                                    <label>Comisión % (opcional)</label>
-                                                    <input type="number" step="0.01" min="0" max="100" name="comision_porcentaje" class="form-control" placeholder="Ej: 3">
+                                                    <label>Comisión % @if($comisionHabilitada)(por defecto del portal: {{ rtrim(rtrim(number_format((float) $comisionPctDefault, 2, ',', '.'), '0'), ',') }}%)@else(opcional)@endif</label>
+                                                    <input type="number" step="0.01" min="0" max="100" name="comision_porcentaje" class="form-control" placeholder="Ej: 3" value="{{ $comisionHabilitada ? number_format((float) $comisionPctDefault, 2, '.', '') : '' }}">
                                                 </div>
                                                 <div class="col-6 form-group">
                                                     <label>Comisión $ (opcional)</label>
                                                     <input type="number" step="0.01" min="0" name="comision_monto" class="form-control" placeholder="Monto fijo">
                                                 </div>
                                             </div>
-                                            <small class="text-muted">Si dejás el % y no el monto, se calcula sobre el precio de la propiedad.</small>
+                                            @if($comisionHabilitada)
+                                            <small class="text-muted d-block">Al confirmar el cierre se registra la <strong>comisión del portal</strong>: por defecto <strong>{{ rtrim(rtrim(number_format((float) $comisionPctDefault, 2, ',', '.'), '0'), ',') }}%</strong> sobre el precio de la propiedad ({{ $inmueble->precio_formateado }}). Podés cambiar el % o poner un monto fijo; <strong>0 = sin comisión</strong>. Queda <strong>pendiente de cobro</strong> hasta que el administrador la marque como cobrada.</small>
+                                            @else
+                                            <small class="text-muted d-block">Si dejás el % y no el monto, se calcula sobre el precio de la propiedad.</small>
+                                            @endif
+                                            <small class="text-muted d-block mt-1"><i class="fas fa-scale-balanced me-1"></i>{{ $comisionNota }}</small>
                                         </div>
                                         <div class="modal-footer">
                                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>

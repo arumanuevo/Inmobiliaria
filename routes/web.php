@@ -92,6 +92,10 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::post('/mensajes', [App\Http\Controllers\MensajeController::class, 'adminStore'])->name('mensajes.store');
     // Diagnóstico de envío de email (solo superadmin): envía un mail de prueba y muestra la config efectiva
     Route::get('/mail-test', [App\Http\Controllers\Admin\AdminController::class, 'mailTest'])->name('mail-test');
+
+    // Configuración global del portal (solo superadmin): comisión por operación cerrada, etc.
+    Route::get('/configuracion', [App\Http\Controllers\Admin\AdminController::class, 'configuracion'])->name('configuracion');
+    Route::post('/configuracion', [App\Http\Controllers\Admin\AdminController::class, 'guardarConfiguracion'])->name('configuracion.store');
 });
 
 // Rutas para el CRUD de Inmuebles (admin e inmobiliarias; cada una solo gestiona lo suyo)

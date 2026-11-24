@@ -4,7 +4,7 @@
 -- Ejecutar en phpMyAdmin CON LA BASE DEL PROYECTO SELECCIONADA:
 --   SELECT DATABASE();   -> debe decir arumasof_inmobiliariaxyz
 -- Resultados: devuelve filas SOLO con lo que FALTA.
--- Si los 4 resultados vienen VACÍOS => la BD está 100% al día.
+-- Si los 5 resultados vienen VACÍOS => la BD está 100% al día.
 -- Si aparece algo, corré instalar_todo.sql y volvé a correr este chequeo.
 -- ============================================================
 
@@ -15,6 +15,7 @@ SELECT 'boletos' AS tabla UNION ALL
 SELECT 'busquedas_guardadas' AS tabla UNION ALL
 SELECT 'cache' AS tabla UNION ALL
 SELECT 'cache_locks' AS tabla UNION ALL
+SELECT 'configuracion' AS tabla UNION ALL
 SELECT 'contactos' AS tabla UNION ALL
 SELECT 'failed_jobs' AS tabla UNION ALL
 SELECT 'fotos' AS tabla UNION ALL
@@ -61,6 +62,12 @@ SELECT 'busquedas_guardadas' AS tabla, 'id' AS columna UNION ALL
 SELECT 'busquedas_guardadas' AS tabla, 'nombre' AS columna UNION ALL
 SELECT 'busquedas_guardadas' AS tabla, 'updated_at' AS columna UNION ALL
 SELECT 'busquedas_guardadas' AS tabla, 'user_id' AS columna UNION ALL
+SELECT 'configuracion' AS tabla, 'clave' AS columna UNION ALL
+SELECT 'configuracion' AS tabla, 'created_at' AS columna UNION ALL
+SELECT 'configuracion' AS tabla, 'descripcion' AS columna UNION ALL
+SELECT 'configuracion' AS tabla, 'id' AS columna UNION ALL
+SELECT 'configuracion' AS tabla, 'updated_at' AS columna UNION ALL
+SELECT 'configuracion' AS tabla, 'valor' AS columna UNION ALL
 SELECT 'contactos' AS tabla, 'created_at' AS columna UNION ALL
 SELECT 'contactos' AS tabla, 'email' AS columna UNION ALL
 SELECT 'contactos' AS tabla, 'email_verified_at' AS columna UNION ALL
@@ -241,3 +248,13 @@ FROM (
 ) v
 LEFT JOIN `planes` p ON p.`slug` = v.slug
 WHERE p.`id` IS NULL;
+
+-- 5) Claves de configuración global que faltan (tabla configuracion)
+SELECT 'CLAVE_FALTA' AS tipo, v.clave AS nombre
+FROM (
+  SELECT 'comision_habilitada' AS clave UNION ALL
+  SELECT 'comision_nota' AS clave UNION ALL
+  SELECT 'comision_pct_default' AS clave
+) v
+LEFT JOIN `configuracion` c ON c.`clave` = v.clave
+WHERE c.`id` IS NULL;

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Inmobiliaria;
 use App\Models\Mensaje;
+use App\Support\Configuracion;
 
 class AyudaController extends Controller
 {
@@ -43,6 +44,10 @@ class AyudaController extends Controller
         $esInmobiliaria = $user->hasRole('inmobiliaria');
         $emailVerificado = $user->hasVerifiedEmail();
 
-        return view('ayuda', compact('cuenta', 'noLeidos', 'esParticular', 'esInmobiliaria', 'emailVerificado'));
+        $comisionHabilitada = Configuracion::comisionHabilitada();
+        $comisionPctDefault = Configuracion::comisionPctDefault();
+        $comisionNota = Configuracion::comisionNota();
+
+        return view('ayuda', compact('cuenta', 'noLeidos', 'esParticular', 'esInmobiliaria', 'emailVerificado', 'comisionHabilitada', 'comisionPctDefault', 'comisionNota'));
     }
 }

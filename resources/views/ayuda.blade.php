@@ -223,10 +223,10 @@
             </div>
             <div class="accordion-item">
                 <h2 class="accordion-header">
-                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq5">¿Qué es "cerrar la operación"?</button>
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq5">¿Qué es "cerrar la operación" y qué comisión se registra?</button>
                 </h2>
                 <div id="faq5" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
-                    <div class="accordion-body">Desde Mis Inmuebles, el botón <em>Cerrar</em> marca la propiedad como <strong>vendida/alquilada</strong>: deja de aparecer como publicada, queda en tu historial de operaciones y se registra la comisión correspondiente.</div>
+                    <div class="accordion-body">Desde Mis Inmuebles, el botón <em>Cerrar</em> marca la propiedad como <strong>vendida/alquilada</strong>: deja de aparecer como publicada y queda en tu historial de operaciones. Al cerrar se registra la <strong>comisión del portal</strong>: @if($comisionHabilitada)<strong>{{ rtrim(rtrim(number_format((float) $comisionPctDefault, 2, ',', '.'), '0'), ',') }}% del precio declarado</strong> por defecto (podés cambiar el % o poner un monto fijo; 0 = sin comisión) y queda <strong>pendiente de cobro</strong> hasta que el administrador la marca cobrada. {{ $comisionNota }}@elseactualmente está desactivada por el administrador.@endif</div>
                 </div>
             </div>
             <div class="accordion-item">

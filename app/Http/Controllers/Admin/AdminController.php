@@ -9,6 +9,7 @@ use App\Models\Inmueble;
 use App\Models\Inmobiliaria;
 use App\Models\Plan;
 use App\Models\SolicitudCarga;
+use App\Support\Configuracion;
 use App\Support\Imagen;
 use App\Mail\CargaAsistidaListaMail;
 use Illuminate\Support\Facades\Log;
@@ -199,7 +200,10 @@ class AdminController extends Controller
             'cantidad' => Inmueble::where('cerrada', 1)->count(),
         ];
 
-        return view('admin.operaciones', compact('operaciones', 'totales'));
+        $comisionHabilitada = Configuracion::comisionHabilitada();
+        $comisionPctDefault = Configuracion::comisionPctDefault();
+
+        return view('admin.operaciones', compact('operaciones', 'totales', 'comisionHabilitada', 'comisionPctDefault'));
     }
 
     public function cobrarOperacion(Request $request, $id)
@@ -216,6 +220,46 @@ class AdminController extends Controller
         $inmueble->save();
 
         return back()->with('success', 'Estado de la comisión actualizado.');
+    }
+
+    // ===== Configuración global del portal (solo superadmin) =====
+
+    public function configuracion()
+    {
+        abort_unless(auth()->user()->esSuperAdmin(), 403);
+
+        $valores = [
+            'comision_habilitada' => (string) Configuracion::obtener('comision_habilitada', '1'),
+            'comision_pct_default' => (string) Configuracion::obtener('comision_pct_default', '3.00'),
+            'comision_nota' => (string) Configuracion::obtener('comision_nota', Configuracion::comisionNota()),
+        ];
+        $tablaExiste = Configuracion::tablaExiste();
+
+        return view('admin.configuracion', compact('valores', 'tablaExiste'));
+    }
+
+    public function guardarConfiguracion(Request $request)
+    {
+        abort_unless(auth()->user()->esSuperAdmin(), 403);
+
+        $data = $request->validate([
+            'comision_habilitada' => 'required|in:0,1',
+            'comision_pct_default' => 'required|numeric|min:0|max:100',
+            'comision_nota' => 'required|string|min:10|max:1000',
+        ]);
+
+        Configuracion::guardar('comision_habilitada', $data['comision_habilitada'],
+            'Si vale 1, al cerrar una operación se registra la comisión del portal (porcentaje por defecto o monto fijo) y queda pendiente de cobro hasta que el admin la marca cobrada en /admin/operaciones');
+        Configuracion::guardar('comision_pct_default', number_format((float) $data['comision_pct_default'], 2, '.', ''),
+            'Porcentaje de comisión por defecto del portal sobre el precio declarado al cerrar una operación (0-100). Se precarga en el modal de cierre.');
+        Configuracion::guardar('comision_nota', $data['comision_nota'],
+            'Aclaración legal que se muestra al cerrar una operación, en la página legal y en la ayuda');
+
+        if (! Configuracion::tablaExiste()) {
+            return back()->with('warning', 'Ojo: todavía no existe la tabla `configuracion` en la base. Corré database/sql/saas_configuracion.sql (o instalar_todo.sql) en phpMyAdmin para que el cambio quede persistido.');
+        }
+
+        return back()->with('success', 'Configuración guardada. El porcentaje por defecto se precarga al cerrar operaciones y la aclaración se muestra en el cierre, la página legal y la ayuda.');
     }
 
     // ===== Carga asistida: el admin carga propiedades a nombre de una inmobiliaria =====

@@ -64,7 +64,12 @@ class InmuebleController extends Controller
             }
         }
 
-        return view('inmuebles.index', compact('inmuebles', 'avisoLimite'));
+        // Comisión del portal (configurable por el superadmin): se precarga en el modal de cierre
+        $comisionHabilitada = \App\Support\Configuracion::comisionHabilitada();
+        $comisionPctDefault = \App\Support\Configuracion::comisionPctDefault();
+        $comisionNota = \App\Support\Configuracion::comisionNota();
+
+        return view('inmuebles.index', compact('inmuebles', 'avisoLimite', 'comisionHabilitada', 'comisionPctDefault', 'comisionNota'));
     }
 
     // Formulario para crear un inmueble
@@ -410,6 +415,13 @@ class InmuebleController extends Controller
 
         $pct = $data['comision_porcentaje'] ?? null;
         $monto = $data['comision_monto'] ?? null;
+
+        // Si la comisión del portal está habilitada y el usuario no cargó ni % ni monto,
+        // se aplica el porcentaje por defecto configurado por el superadmin (queda explícito).
+        if ($pct === null && $monto === null && \App\Support\Configuracion::comisionHabilitada()) {
+            $pct = \App\Support\Configuracion::comisionPctDefault();
+        }
+
         if ($pct !== null && $monto === null && (float) $inmueble->precio > 0) {
             $monto = round((float) $inmueble->precio * ((float) $pct / 100), 2);
         }
@@ -428,7 +440,9 @@ class InmuebleController extends Controller
 
         $inmueble->save();
 
-        $extra = ($monto !== null) ? ' Comisión registrada: $' . number_format((float) $monto, 2, ',', '.') . ' (pendiente).' : '';
+        $extra = ($monto !== null)
+            ? ' Comisión del portal registrada: ' . ($pct !== null ? rtrim(rtrim(number_format((float) $pct, 2, ',', '.'), '0'), ',') . '% = ' : '') . '$' . number_format((float) $monto, 2, ',', '.') . ' — queda PENDIENTE de cobro (el administrador la marca como cobrada en Operaciones).'
+            : '';
 
         return back()->with('success', 'Propiedad marcada como ' . $data['tipo_cierre'] . 'da. Ya no es visible en el portal público.' . $extra);
     }
